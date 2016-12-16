@@ -4,6 +4,13 @@
 #include <GL\glut.h>
 #include <iostream>
 #include "grafos.h"
+#include "som.h"
+
+typedef struct {
+	Audio musica, crowd, KO, Punch, Fight, YouWin, Select;
+}Sounds;
+
+Sounds sounds;
 
 using namespace std;
 
@@ -239,8 +246,7 @@ void desenhaSolo(){
 	glEnd();
 }
 
-void CrossProduct (GLdouble v1[], GLdouble v2[], GLdouble cross[])
-{
+void CrossProduct (GLdouble v1[], GLdouble v2[], GLdouble cross[]){
 	cross[0] = v1[1]*v2[2] - v1[2]*v2[1];
 	cross[1] = v1[2]*v2[0] - v1[0]*v2[2];
 	cross[2] = v1[0]*v2[1] - v1[1]*v2[0];
@@ -615,10 +621,7 @@ void setCamera(){
 	}
 }
 
-void display(void)
-{
-
-
+void display(void){
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glLoadIdentity();
 	setCamera();
@@ -637,17 +640,12 @@ void display(void)
 		desenhaPlanoDrag(estado.eixoTranslaccao);
 
 	}
-
 	glFlush();
 	glutSwapBuffers();
-
 }
 
 
-
-void keyboard(unsigned char key, int x, int y)
-{
-
+void keyboard(unsigned char key, int x, int y){
     switch (key)
     {
 		case 27 :
@@ -943,6 +941,10 @@ void main(int argc, char **argv)
 	glutKeyboardFunc(keyboard);
 	glutSpecialFunc(Special);
 	glutMouseFunc(mouse);
+
+	alutInit(&argc, argv);
+	Som som_c = Som();
+	som_c.Backingtrack(sounds.musica);
 
 	myInit();
 

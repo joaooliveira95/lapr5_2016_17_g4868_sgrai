@@ -44,8 +44,8 @@
     <OutDir>$(SolutionDir)$(Configuration)\</OutDir>
     <IntDir>$(Configuration)\</IntDir>
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>c:\GLUT;$(IncludePath)</IncludePath>
-    <LibraryPath>c:\GLUT;$(LibraryPath)</LibraryPath>
+    <IncludePath>c:\GLUT;c:\AL;$(IncludePath)</IncludePath>
+    <LibraryPath>c:\AL;c:\GLUT;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <OutDir>$(SolutionDir)$(Configuration)\</OutDir>
@@ -62,11 +62,14 @@
       <PrecompiledHeader />
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
+      <AdditionalIncludeDirectories>C:\Program Files\freealut-1.1.0\include;C:\Program Files\OpenAL 1.1 SDK\include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Console</SubSystem>
       <TargetMachine>MachineX86</TargetMachine>
+      <AdditionalLibraryDirectories>C:\Program Files\freealut-1.1.0\lib;C:\Program Files\OpenAL 1.1 SDK\libs\Win32</AdditionalLibraryDirectories>
+      <AdditionalDependencies>alut.lib;OpenAL32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -91,9 +94,11 @@
   <ItemGroup>
     <ClCompile Include="grafos.cpp" />
     <ClCompile Include="lapr5.cpp" />
+    <ClCompile Include="Som.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="grafos.h" />
+    <ClInclude Include="Som.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
