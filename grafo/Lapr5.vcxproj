@@ -93,12 +93,16 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Cameras.cpp" />
+    <ClCompile Include="Estado.cpp" />
     <ClCompile Include="grafos.cpp" />
     <ClCompile Include="lapr5.cpp" />
     <ClCompile Include="Som.cpp" />
     <ClCompile Include="TextureLoader.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Cameras.h" />
+    <ClInclude Include="Estado.h" />
     <ClInclude Include="grafos.h" />
     <ClInclude Include="Som.h" />
     <ClInclude Include="TextureLoader.h" />

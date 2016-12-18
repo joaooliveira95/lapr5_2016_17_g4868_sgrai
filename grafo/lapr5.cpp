@@ -5,6 +5,7 @@
 #include <iostream>
 #include "grafos.h"
 #include "som.h"
+#include "Estado.h"
 
 typedef struct {
 	Audio musica, crowd, KO, Punch, Fight, YouWin, Select;
@@ -59,28 +60,8 @@ enum tipo_material {brass, red_plastic, emerald, slate, azul, preto, cinza};
 	}
 #endif
 
-typedef	GLdouble Vertice[3];
+
 typedef	GLdouble Vector[4];
-
-
-typedef struct Camera{
-	GLfloat fov;
-	GLdouble dir_lat;
-	GLdouble dir_long;
-	GLfloat dist;
-	Vertice center;
-
-}Camera;
-
-typedef struct Estado{
-	Camera		camera;
-	int			xMouse,yMouse;
-	GLboolean	light;
-	GLboolean	apresentaNormais;
-	GLint		lightViewer;
-	GLint		eixoTranslaccao;
-	GLdouble	eixo[3];
-}Estado;
 
 typedef struct Modelo {
 	#ifdef __cplusplus
@@ -96,23 +77,27 @@ typedef struct Modelo {
 	GLUquadric *quad;
 }Modelo;
 
-Estado estado;
+Estado estado = Estado();
 Modelo modelo;
 
 void initEstado(){
-	estado.camera.dir_lat=M_PI/4;
-	estado.camera.dir_long=-M_PI/4;
-	estado.camera.fov=60;
-	estado.camera.dist=100;
-	estado.eixo[0]=0;
-	estado.eixo[1]=0;
-	estado.eixo[2]=0;
-	estado.camera.center[0]=0;
-	estado.camera.center[1]=0;
-	estado.camera.center[2]=0;
-	estado.light=GL_FALSE;
-	estado.apresentaNormais=GL_FALSE;
-	estado.lightViewer=1;
+	Cameras camera = Cameras();
+	camera.setDir_Lat(M_PI / 4);
+	camera.setDir_Long(-M_PI / 4);
+	camera.setFov(60);
+	camera.setDist(100);
+	camera.setCenter(0, 0);
+	camera.setCenter(1, 0);
+	camera.setCenter(2, 0);
+	
+	estado.setCamera(camera);
+	estado.setEixo(0, 0);
+	estado.setEixo(1, 0);
+	estado.setEixo(2, 0);
+
+	estado.setLight(GL_FALSE);
+	estado.setApresentaNormais(GL_FALSE);
+	estado.setLightViewer(1);
 }
 
 void initModelo(){
@@ -130,9 +115,7 @@ void initModelo(){
 }
 
 
-void myInit()
-{
-
+void myInit(){
 	GLfloat LuzAmbiente[]={0.5,0.5,0.5, 0.0};
 
 	glClearColor (0.0, 0.0, 0.0, 0.0);
@@ -145,7 +128,7 @@ void myInit()
 	glDepthFunc(GL_LESS);
 
 	glLightModelfv(GL_LIGHT_MODEL_AMBIENT, LuzAmbiente); 
-	glLightModeli(GL_LIGHT_MODEL_LOCAL_VIEWER, estado.lightViewer); 
+	glLightModeli(GL_LIGHT_MODEL_LOCAL_VIEWER, estado.getLightViewer()); 
 	glLightModeli(GL_LIGHT_MODEL_TWO_SIDE, GL_TRUE); 
 
 	initModelo();
@@ -323,7 +306,7 @@ void desenhaParede(GLfloat xi, GLfloat yi, GLfloat zi, GLfloat xf, GLfloat yf, G
 		glVertex3f(xi,yi,zi+1);
 	glEnd();
 
-	if(estado.apresentaNormais) {
+	if(estado.isApresentaNormais()) {
 		desenhaNormal(xi,yi,zi,cross,emerald);
 		desenhaNormal(xf,yf,zf,cross,emerald);
 		desenhaNormal(xf,yf,zf+1,cross,emerald);
@@ -356,7 +339,7 @@ void desenhaChao(GLfloat xi, GLfloat yi, GLfloat zi, GLfloat xf, GLfloat yf, GLf
 					glVertex3f(xf,yf,zf);
 					glVertex3f(xi,yf,zf);
 				glEnd();
-				if(estado.apresentaNormais) {
+				if(estado.isApresentaNormais()) {
 					desenhaNormal(xi,yi,zi,cross,red_plastic);
 					desenhaNormal(xf,yi,zi,cross,red_plastic);
 					desenhaNormal(xf,yf,zf,cross,red_plastic);
@@ -378,7 +361,7 @@ void desenhaChao(GLfloat xi, GLfloat yi, GLfloat zi, GLfloat xf, GLfloat yf, GLf
 					glVertex3f(xf,yf,zf);
 					glVertex3f(xi,yf,zi);
 				glEnd();
-				if(estado.apresentaNormais) {
+				if(estado.isApresentaNormais()) {
 					desenhaNormal(xi,yi,zi,cross,red_plastic);
 					desenhaNormal(xf,yi,zf,cross,red_plastic);
 					desenhaNormal(xf,yf,zf,cross,red_plastic);
@@ -397,7 +380,7 @@ void desenhaChao(GLfloat xi, GLfloat yi, GLfloat zi, GLfloat xf, GLfloat yf, GLf
 					glVertex3f(xf,yf,zf);
 					glVertex3f(xi,yf,zi);
 				glEnd();
-				if(estado.apresentaNormais) {
+				if(estado.isApresentaNormais()) {
 					desenhaNormal(xi,yi,zi,cross,azul);
 					desenhaNormal(xf,yi,zf,cross,azul);
 					desenhaNormal(xf,yf,zf,cross,azul);
@@ -549,23 +532,24 @@ void desenhaEixo(){
 #define EIXO_Z		3
 
 void desenhaPlanoDrag(int eixo){
+	Cameras camera = estado.getCamera();
 	glPushMatrix();
-		glTranslated(estado.eixo[0],estado.eixo[1],estado.eixo[2]);
+		glTranslated(estado.getEixo(0),estado.getEixo(1),estado.getEixo(2));
 		switch (eixo) {
 			case EIXO_Y :
-					if(abs(estado.camera.dir_lat)<M_PI/4)
+					if(abs(camera.getDir_Lat())<M_PI/4)
 						glRotatef(-90,0,0,1);
 					else
 						glRotatef(90,1,0,0);
 					material(red_plastic);
 				break;
 			case EIXO_X :
-					if(abs(estado.camera.dir_lat)>M_PI/6)
+					if(abs(camera.getDir_Lat())>M_PI/6)
 						glRotatef(90,1,0,0);
 					material(azul);
 				break;
 			case EIXO_Z :
-					if(abs(cos(estado.camera.dir_long))>0.5)
+					if(abs(cos(camera.getDir_Long()))>0.5)
 						glRotatef(90,0,0,1);
 
 					material(emerald);
@@ -584,7 +568,7 @@ void desenhaPlanoDrag(int eixo){
 void desenhaEixos(){
 
 	glPushMatrix();
-		glTranslated(estado.eixo[0],estado.eixo[1],estado.eixo[2]);
+		glTranslated(estado.getEixo(0),estado.getEixo(1),estado.getEixo(2));
 		material(emerald);
 		glPushName(EIXO_Z);
 			desenhaEixo();
@@ -608,16 +592,17 @@ void desenhaEixos(){
 
 void setCamera(){
 	Vertice eye;
-	eye[0]=estado.camera.center[0]+estado.camera.dist*cos(estado.camera.dir_long)*cos(estado.camera.dir_lat);
-	eye[1]=estado.camera.center[1]+estado.camera.dist*sin(estado.camera.dir_long)*cos(estado.camera.dir_lat);
-	eye[2]=estado.camera.center[2]+estado.camera.dist*sin(estado.camera.dir_lat);
+	Cameras camera = estado.getCamera();
+	eye[0]=camera.getCenter(0)+camera.getDist()*cos(camera.getDir_Long())*cos(camera.getDir_Lat());
+	eye[1]=camera.getCenter(1)+camera.getDist()*sin(camera.getDir_Long())*cos(camera.getDir_Lat());
+	eye[2]=camera.getCenter(2)+camera.getDist()*sin(camera.getDir_Lat());
 
-	if(estado.light){
-		gluLookAt(eye[0],eye[1],eye[2],estado.camera.center[0],estado.camera.center[1],estado.camera.center[2],0,0,1);
+	if(estado.isLight()){
+		gluLookAt(eye[0],eye[1],eye[2],camera.getCenter(0),camera.getCenter(1),camera.getCenter(2),0,0,1);
 		putLights((GLfloat*)white_light);
 	}else{
 		putLights((GLfloat*)white_light);
-		gluLookAt(eye[0],eye[1],eye[2],estado.camera.center[0],estado.camera.center[1],estado.camera.center[2],0,0,1);
+		gluLookAt(eye[0],eye[1],eye[2],camera.getCenter(0),camera.getCenter(1),camera.getCenter(2),0,0,1);
 	}
 }
 
@@ -634,10 +619,10 @@ void display(void){
 	
 	desenhaLabirinto();
  
-	if(estado.eixoTranslaccao) {
+	if(estado.getEixoTranslaccao()) {
 		// desenha plano de translacção
-		cout << "Translate... " << estado.eixoTranslaccao << endl; 
-		desenhaPlanoDrag(estado.eixoTranslaccao);
+		cout << "Translate... " << estado.getEixoTranslaccao() << endl; 
+		desenhaPlanoDrag(estado.getEixoTranslaccao());
 
 	}
 	glFlush();
@@ -657,16 +642,16 @@ void keyboard(unsigned char key, int x, int y){
 			break;
 		case 'l':
 		case 'L':
-				if(estado.lightViewer)
-					estado.lightViewer=0;
+				if(estado.getLightViewer())
+					estado.setLightViewer(0);
 				else
-					estado.lightViewer=1;
-				glLightModeli(GL_LIGHT_MODEL_LOCAL_VIEWER, estado.lightViewer);
+					estado.setLightViewer(1);
+				glLightModeli(GL_LIGHT_MODEL_LOCAL_VIEWER, estado.getLightViewer());
 				glutPostRedisplay();
 			break;
 		case 'k':
 		case 'K':
-				estado.light=!estado.light;
+				estado.setLight(!estado.isLight());
 				glutPostRedisplay();
 			break;
 		case 'w':
@@ -697,7 +682,7 @@ void keyboard(unsigned char key, int x, int y){
 			break;    
 		case 'n':
 		case 'N':
-				estado.apresentaNormais=!estado.apresentaNormais;
+				estado.setApresentaNormais(!estado.isApresentaNormais());
 				glutPostRedisplay();
 			break;    		
 		case 'i':
@@ -710,7 +695,7 @@ void keyboard(unsigned char key, int x, int y){
 }
 
 void Special(int key, int x, int y){
-
+	Cameras camera = estado.getCamera();
 	switch(key){
 		case GLUT_KEY_F1 :
 				gravaGrafo();
@@ -739,17 +724,21 @@ void Special(int key, int x, int y){
 				glutPostRedisplay();
 			break;	
 		case GLUT_KEY_UP:
-				estado.camera.dist-=1;
+				camera.setDist(camera.getDist()-1);
+				estado.setCamera(camera);
 				glutPostRedisplay();
 			break;
 		case GLUT_KEY_DOWN:
-				estado.camera.dist+=1;
+				camera.setDist(camera.getDist() + 1);
+				estado.setCamera(camera);
 				glutPostRedisplay();
-			break;	}
+			break;	
+	}
 }
 
 
 void setProjection(int x, int y, GLboolean picking){
+	Cameras camera = estado.getCamera();
     glLoadIdentity();
 	if (picking) { // se está no modo picking, lê viewport e define zona de picking
 		GLint vport[4];
@@ -757,7 +746,7 @@ void setProjection(int x, int y, GLboolean picking){
 		gluPickMatrix(x, glutGet(GLUT_WINDOW_HEIGHT)  - y, 4, 4, vport); // Inverte o y do rato para corresponder à jana
 	}
 	    
-	gluPerspective(estado.camera.fov,(GLfloat)glutGet(GLUT_WINDOW_WIDTH) /glutGet(GLUT_WINDOW_HEIGHT) ,1,500);
+	gluPerspective(camera.getFov(),(GLfloat)glutGet(GLUT_WINDOW_WIDTH) /glutGet(GLUT_WINDOW_HEIGHT) ,1,500);
 
 }
 
@@ -770,29 +759,35 @@ void myReshape(int w, int h){
 
 
 void motionRotate(int x, int y){
+	Cameras camera = estado.getCamera();
 #define DRAG_SCALE	0.01
 	double lim=M_PI/2-0.1;
-	estado.camera.dir_long+=(estado.xMouse-x)*DRAG_SCALE;
-	estado.camera.dir_lat-=(estado.yMouse-y)*DRAG_SCALE*0.5;
-	if(estado.camera.dir_lat>lim)
-		estado.camera.dir_lat=lim;
+	camera.setDir_Long(camera.getDir_Long() + (estado.getXMouse()-x)*DRAG_SCALE);
+	camera.setDir_Lat(camera.getDir_Lat() - (estado.getYMouse()-y)*DRAG_SCALE*0.5);
+	if(camera.getDir_Lat()>lim)
+		camera.setDir_Lat(lim);
 	else 
-		if(estado.camera.dir_lat<-lim)
-			estado.camera.dir_lat=-lim;
-	estado.xMouse=x;
-	estado.yMouse=y;
+		if(camera.getDir_Lat()<-lim)
+			camera.setDir_Lat(camera.getDir_Lat()-lim);
+
+	estado.setXMouse(x);
+	estado.setYMouse(y);
+	estado.setCamera(camera);
 	glutPostRedisplay();
 }
 
 void motionZoom(int x, int y){
+	Cameras camera = estado.getCamera();
 #define ZOOM_SCALE	0.5
-	estado.camera.dist-=(estado.yMouse-y)*ZOOM_SCALE;
-	if(estado.camera.dist<5)
-		estado.camera.dist=5;
+	camera.setDist(camera.getDist() - (estado.getYMouse()-y)*ZOOM_SCALE);
+	if(camera.getDist()<5)
+		camera.setDist(5);
 	else 
-		if(estado.camera.dist>200)
-			estado.camera.dist=200;
-	estado.yMouse=y;
+		if(camera.getDist()>200)
+			camera.setDist(200);
+
+	estado.setCamera(camera);
+	estado.setYMouse(y);
 	glutPostRedisplay();
 }
 
@@ -815,7 +810,7 @@ void motionDrag(int x, int y){
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
 	setCamera();
-	desenhaPlanoDrag(estado.eixoTranslaccao);
+	desenhaPlanoDrag(estado.getEixoTranslaccao());
 	
 	n = glRenderMode(GL_RENDER);
 	if (n > 0) {
@@ -824,18 +819,18 @@ void motionDrag(int x, int y){
 		glGetDoublev(GL_MODELVIEW_MATRIX, mv);
 		gluUnProject(x, glutGet(GLUT_WINDOW_HEIGHT) - y, (double) buffer[2] / UINT_MAX, mv, proj, vp, &newx, &newy, &newz);
 		printf("Novo x:%lf, y:%lf, z:%lf\n\n", newx, newy, newz);
-		switch (estado.eixoTranslaccao) {
+		switch (estado.getEixoTranslaccao()) {
 			case EIXO_X :
-					estado.eixo[0]=newx;
+					estado.setEixo(0, newx);
 					//estado.eixo[1]=newy;
 				break;
 			case EIXO_Y :
-					estado.eixo[1]=newy;
+					estado.setEixo(1, newy);
 					//estado.eixo[2]=newz;
 				break;
 			case EIXO_Z :
 					//estado.eixo[0]=newx;
-					estado.eixo[2]=newz;
+					estado.setEixo(2, newz);
 				break;		
 		}
 		glutPostRedisplay();
@@ -889,11 +884,12 @@ int picking(int x, int y){
 	return objid;
 }
 void mouse(int btn, int state, int x, int y){
+	Cameras camera = estado.getCamera();
 	switch(btn) {
 		case GLUT_RIGHT_BUTTON :
 					if(state == GLUT_DOWN){
-						estado.xMouse=x;
-						estado.yMouse=y;
+						estado.setXMouse(x);
+						estado.setYMouse(y);
 						if(glutGetModifiers() & GLUT_ACTIVE_CTRL)
 							glutMotionFunc(motionZoom);
 						else
@@ -907,18 +903,19 @@ void mouse(int btn, int state, int x, int y){
 				break;
 		case GLUT_LEFT_BUTTON :
 					if(state == GLUT_DOWN){
-						estado.eixoTranslaccao=picking(x,y);
-						if(estado.eixoTranslaccao)
+						estado.setEixoTranslaccao(picking(x,y));
+						if(estado.getEixoTranslaccao())
 							glutMotionFunc(motionDrag);
-						cout << "Right down - objecto:" << estado.eixoTranslaccao << endl;
+						cout << "Right down - objecto:" << estado.getEixoTranslaccao() << endl;
 					}
 					else{
-						if(estado.eixoTranslaccao!=0) {
-							estado.camera.center[0]=estado.eixo[0];
-							estado.camera.center[1]=estado.eixo[1];
-							estado.camera.center[2]=estado.eixo[2];
+						if(estado.getEixoTranslaccao()!=0) {
+							camera.setCenter(0, estado.getEixo(0));
+							camera.setCenter(1, estado.getEixo(1));
+							camera.setCenter(2, estado.getEixo(2));
 							glutMotionFunc(NULL);
-							estado.eixoTranslaccao=0;
+							estado.setEixoTranslaccao(0);
+							estado.setCamera(camera);
 							glutPostRedisplay();
 						}
 						cout << "Right up\n";
