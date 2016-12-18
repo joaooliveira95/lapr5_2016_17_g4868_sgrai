@@ -6,6 +6,7 @@
 #include "grafos.h"
 #include "som.h"
 #include "Estado.h"
+#include "Materials.h"
 
 typedef struct {
 	Audio musica, crowd, KO, Punch, Fight, YouWin, Select;
@@ -20,45 +21,6 @@ using namespace std;
 
 // luzes e materiais
 
-const GLfloat mat_ambient[][4] = {{0.33, 0.22, 0.03, 1.0},	// brass
-								  {0.0, 0.0, 0.0},			// red plastic
-								  {0.0215, 0.1745, 0.0215},	// emerald
-								  {0.02, 0.02, 0.02},		// slate
-								  {0.0, 0.0, 0.1745},		// azul
-								  {0.02, 0.02, 0.02},		// preto
-								  {0.1745, 0.1745, 0.1745}};// cinza
-
-const GLfloat mat_diffuse[][4] = {{0.78, 0.57, 0.11, 1.0},		// brass
-								  {0.5, 0.0, 0.0},				// red plastic
-								  {0.07568, 0.61424, 0.07568},	// emerald
-								  {0.78, 0.78, 0.78},			// slate
-								  {0.0, 0.0,  0.61424},			// azul
-								  {0.08, 0.08, 0.08},			// preto
-								  {0.61424, 0.61424, 0.61424}};	// cinza
-
-const GLfloat mat_specular[][4] = {{0.99, 0.91, 0.81, 1.0},			// brass
-								   {0.7, 0.6, 0.6},					// red plastic
-								   {0.633, 0.727811, 0.633},		// emerald
-								   {0.14, 0.14, 0.14},				// slate
-								   {0.0, 0.0, 0.727811},			// azul
-								   {0.03, 0.03, 0.03},				// preto
-								   {0.727811, 0.727811, 0.727811}};	// cinza
-
-const GLfloat mat_shininess[] = {27.8,	// brass
-								 32.0,	// red plastic
-								 76.8,	// emerald
-								 18.78,	// slate
-								 30.0,	// azul
-								 75.0,	// preto
-								 60.0};	// cinza
-
-enum tipo_material {brass, red_plastic, emerald, slate, azul, preto, cinza};
-
-#ifdef __cplusplus
-	inline tipo_material operator++(tipo_material &rs, int ) {
-		return rs = (tipo_material)(rs + 1);
-	}
-#endif
 
 
 typedef	GLdouble Vector[4];
@@ -77,6 +39,7 @@ typedef struct Modelo {
 	GLUquadric *quad;
 }Modelo;
 
+Materials materials = Materials();
 Estado estado = Estado();
 Modelo modelo;
 
@@ -165,14 +128,6 @@ void imprime_ajuda(void)
   printf("ESC - Sair\n");
 }
 
-
-void material(enum tipo_material mat)
-{
-	glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, mat_ambient[mat]);
-	glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, mat_diffuse[mat]);
-	glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, mat_specular[mat]);
-	glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, mat_shininess[mat]);
-}
 
 const GLfloat red_light[] = {1.0, 0.0, 0.0, 1.0};
 const GLfloat green_light[] = {0.0, 1.0, 0.0, 1.0};
@@ -284,6 +239,7 @@ void desenhaNormal(GLdouble x, GLdouble y, GLdouble z, GLdouble normal[], tipo_m
 }
 
 void desenhaParede(GLfloat xi, GLfloat yi, GLfloat zi, GLfloat xf, GLfloat yf, GLfloat zf){
+	
 	GLdouble v1[3],v2[3],cross[3];
 	GLdouble length;
 	v1[0]=xf-xi;
@@ -297,7 +253,7 @@ void desenhaParede(GLfloat xi, GLfloat yi, GLfloat zi, GLfloat xf, GLfloat yf, G
 	length=VectorNormalize(cross);
 	//printf("Normal x=%lf y=%lf z=%lf length=%lf\n",cross[0],cross[1],cross[2]);
 
-	material(emerald);
+	materials.material(emerald);
 	glBegin(GL_QUADS);
 		glNormal3dv(cross);
 		glVertex3f(xi,yi,zi);
@@ -331,7 +287,7 @@ void desenhaChao(GLfloat xi, GLfloat yi, GLfloat zi, GLfloat xf, GLfloat yf, GLf
 				length=VectorNormalize(cross);
 				//printf("Normal x=%lf y=%lf z=%lf length=%lf\n",cross[0],cross[1],cross[2]);
 
-				material(red_plastic);
+				materials.material(red_plastic);
 				glBegin(GL_QUADS);
 					glNormal3dv(cross);
 					glVertex3f(xi,yi,zi);
@@ -353,7 +309,7 @@ void desenhaChao(GLfloat xi, GLfloat yi, GLfloat zi, GLfloat xf, GLfloat yf, GLf
 				//printf("cross x=%lf y=%lf z=%lf",cross[0],cross[1],cross[2]);
 				length=VectorNormalize(cross);
 				//printf("Normal x=%lf y=%lf z=%lf length=%lf\n",cross[0],cross[1],cross[2]);
-				material(red_plastic);
+				materials.material(red_plastic);
 				glBegin(GL_QUADS);
 					glNormal3dv(cross);
 					glVertex3f(xi,yi,zi);
@@ -372,7 +328,7 @@ void desenhaChao(GLfloat xi, GLfloat yi, GLfloat zi, GLfloat xf, GLfloat yf, GLf
 				cross[0]=0;
 				cross[1]=0;
 				cross[2]=1;
-				material(azul);
+				materials.material(azul);
 				glBegin(GL_QUADS);
 					glNormal3f(0,0,1);
 					glVertex3f(xi,yi,zi);
@@ -500,16 +456,16 @@ void desenhaLabirinto(){
 	glPushMatrix();
 		glTranslatef(0,0,0.05);
 		glScalef(5,5,5);
-		material(red_plastic);
+		materials.material(red_plastic);
 		for(int i=0; i<numNos; i++){
 			glPushMatrix();
-				material(preto);
+			materials.material(preto);
 				glTranslatef(nos[i].x,nos[i].y,nos[i].z+0.25);
 				glutSolidCube(0.5);
 			glPopMatrix();
 			desenhaNo(i);
 		}
-		material(emerald);
+		materials.material(emerald);
 		for(int i=0; i<numArcos; i++)
 			desenhaArco(arcos[i]);
 	glPopMatrix();
@@ -541,18 +497,18 @@ void desenhaPlanoDrag(int eixo){
 						glRotatef(-90,0,0,1);
 					else
 						glRotatef(90,1,0,0);
-					material(red_plastic);
+					materials.material(red_plastic);
 				break;
 			case EIXO_X :
 					if(abs(camera.getDir_Lat())>M_PI/6)
 						glRotatef(90,1,0,0);
-					material(azul);
+					materials.material(azul);
 				break;
 			case EIXO_Z :
 					if(abs(cos(camera.getDir_Long()))>0.5)
 						glRotatef(90,0,0,1);
 
-					material(emerald);
+					materials.material(emerald);
 				break;
 		}
 		glBegin(GL_QUADS);
@@ -569,21 +525,21 @@ void desenhaEixos(){
 
 	glPushMatrix();
 		glTranslated(estado.getEixo(0),estado.getEixo(1),estado.getEixo(2));
-		material(emerald);
+		materials.material(emerald);
 		glPushName(EIXO_Z);
 			desenhaEixo();
 		glPopName();
 		glPushName(EIXO_Y);
 			glPushMatrix();
 				glRotatef(-90,1,0,0);
-				material(red_plastic);
+				materials.material(red_plastic);
 				desenhaEixo();
 			glPopMatrix();
 		glPopName();
 		glPushName(EIXO_X);
 			glPushMatrix();
 				glRotatef(90,0,1,0);
-				material(azul);
+				materials.material(azul);
 				desenhaEixo();
 			glPopMatrix();
 		glPopName();
@@ -611,7 +567,7 @@ void display(void){
 	glLoadIdentity();
 	setCamera();
 
-	material(slate);
+	materials.material(slate);
 	desenhaSolo();
 
 	
