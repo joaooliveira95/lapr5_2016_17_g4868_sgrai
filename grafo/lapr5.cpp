@@ -7,21 +7,17 @@
 #include "som.h"
 #include "Estado.h"
 #include "Materials.h"
+#include "Lights.h"
 
 typedef struct {
 	Audio musica, crowd, KO, Punch, Fight, YouWin, Select;
 }Sounds;
-
 Sounds sounds;
 
 using namespace std;
 
 #define graus(X) (double)((X)*180/M_PI)
 #define rad(X)   (double)((X)*M_PI/180)
-
-// luzes e materiais
-
-
 
 typedef	GLdouble Vector[4];
 
@@ -41,6 +37,7 @@ typedef struct Modelo {
 
 Materials materials = Materials();
 Estado estado = Estado();
+Lights lights = Lights();
 Modelo modelo;
 
 void initEstado(){
@@ -103,8 +100,7 @@ void myInit(){
 	leGrafo();
 }
 
-void imprime_ajuda(void)
-{
+void imprime_ajuda(void){
   printf("\n\nDesenho de um labirinto a partir de um grafo\n");
   printf("h,H - Ajuda \n");
   printf("i,I - Reset dos Valores \n");
@@ -128,47 +124,6 @@ void imprime_ajuda(void)
   printf("ESC - Sair\n");
 }
 
-
-const GLfloat red_light[] = {1.0, 0.0, 0.0, 1.0};
-const GLfloat green_light[] = {0.0, 1.0, 0.0, 1.0};
-const GLfloat blue_light[] = {0.0, 0.0, 1.0, 1.0};
-const GLfloat white_light[] = {1.0, 1.0, 1.0, 1.0};
-
-
-void putLights(GLfloat* diffuse)
-{
-	const GLfloat white_amb[] = {0.2, 0.2, 0.2, 1.0};
-
-	glLightfv(GL_LIGHT0, GL_DIFFUSE, diffuse);
-	glLightfv(GL_LIGHT0, GL_SPECULAR, white_light);
-	glLightfv(GL_LIGHT0, GL_AMBIENT, white_amb);
-	glLightfv(GL_LIGHT0, GL_POSITION, modelo.g_pos_luz1);
-
-	glLightfv(GL_LIGHT1, GL_DIFFUSE, diffuse);
-	glLightfv(GL_LIGHT1, GL_SPECULAR, white_light);
-	glLightfv(GL_LIGHT1, GL_AMBIENT, white_amb);
-	glLightfv(GL_LIGHT1, GL_POSITION, modelo.g_pos_luz2);
-
-	/* desenhar luz */
-	//material(red_plastic);
-	//glPushMatrix();
-	//	glTranslatef(modelo.g_pos_luz1[0], modelo.g_pos_luz1[1], modelo.g_pos_luz1[2]);
-	//	glDisable(GL_LIGHTING);
-	//	glColor3f(1.0, 1.0, 1.0);
-	//	glutSolidCube(0.1);
-	//	glEnable(GL_LIGHTING);
-	//glPopMatrix();
-	//glPushMatrix();
-	//	glTranslatef(modelo.g_pos_luz2[0], modelo.g_pos_luz2[1], modelo.g_pos_luz2[2]);
-	//	glDisable(GL_LIGHTING);
-	//	glColor3f(1.0, 1.0, 1.0);
-	//	glutSolidCube(0.1);
-	//	glEnable(GL_LIGHTING);
-	//glPopMatrix();
-
-	glEnable(GL_LIGHT0);
-	glEnable(GL_LIGHT1);
-}
 
 void desenhaSolo(){
 #define STEP 10
@@ -546,26 +501,11 @@ void desenhaEixos(){
 	glPopMatrix();
 }
 
-void setCamera(){
-	Vertice eye;
-	Cameras camera = estado.getCamera();
-	eye[0]=camera.getCenter(0)+camera.getDist()*cos(camera.getDir_Long())*cos(camera.getDir_Lat());
-	eye[1]=camera.getCenter(1)+camera.getDist()*sin(camera.getDir_Long())*cos(camera.getDir_Lat());
-	eye[2]=camera.getCenter(2)+camera.getDist()*sin(camera.getDir_Lat());
-
-	if(estado.isLight()){
-		gluLookAt(eye[0],eye[1],eye[2],camera.getCenter(0),camera.getCenter(1),camera.getCenter(2),0,0,1);
-		putLights((GLfloat*)white_light);
-	}else{
-		putLights((GLfloat*)white_light);
-		gluLookAt(eye[0],eye[1],eye[2],camera.getCenter(0),camera.getCenter(1),camera.getCenter(2),0,0,1);
-	}
-}
 
 void display(void){
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glLoadIdentity();
-	setCamera();
+	estado.getCamera().setCamera(estado.isLight(), lights, modelo.g_pos_luz1, modelo.g_pos_luz2);
 
 	materials.material(slate);
 	desenhaSolo();
@@ -765,7 +705,7 @@ void motionDrag(int x, int y){
 	
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
-	setCamera();
+	estado.getCamera().setCamera(estado.isLight(), lights, modelo.g_pos_luz1, modelo.g_pos_luz2);
 	desenhaPlanoDrag(estado.getEixoTranslaccao());
 	
 	n = glRenderMode(GL_RENDER);
@@ -815,7 +755,7 @@ int picking(int x, int y){
 	
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
-	setCamera();
+	estado.getCamera().setCamera(estado.isLight(), lights, modelo.g_pos_luz1, modelo.g_pos_luz2);
 	desenhaEixos();
 	
 	n = glRenderMode(GL_RENDER);

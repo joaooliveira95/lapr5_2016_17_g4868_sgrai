@@ -3,6 +3,7 @@
 #include <stdlib.h>     
 #include <GL\glut.h>
 #include <iostream>
+#include "Lights.h"
 
 typedef	GLdouble Vertice[3];
 
@@ -16,6 +17,8 @@ class Cameras{
 public:
 	Cameras();
 	~Cameras();
+
+	void setCamera(GLboolean isLight, Lights lights, GLfloat g_pos_luz1[3], GLfloat g_pos_luz2[3]);
 
 	GLfloat getFov();
 	GLdouble getDir_Lat();
