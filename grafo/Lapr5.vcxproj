@@ -121,6 +121,30 @@
       <TargetMachine>MachineX86</TargetMachine>
     </Link>
   </ItemDefinitionGroup>
+<<<<<<< HEAD
+=======
+  <ItemGroup>
+    <ClCompile Include="Cameras.cpp" />
+    <ClCompile Include="DesenhaLabirinto.cpp" />
+    <ClCompile Include="Estado.cpp" />
+    <ClCompile Include="grafos.cpp" />
+    <ClCompile Include="lapr5.cpp" />
+    <ClCompile Include="Lights.cpp" />
+    <ClCompile Include="Materials.cpp" />
+    <ClCompile Include="Som.cpp" />
+    <ClCompile Include="TextureLoader.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Cameras.h" />
+    <ClInclude Include="DesenhaLabirinto.h" />
+    <ClInclude Include="Estado.h" />
+    <ClInclude Include="grafos.h" />
+    <ClInclude Include="Lights.h" />
+    <ClInclude Include="Materials.h" />
+    <ClInclude Include="Som.h" />
+    <ClInclude Include="TextureLoader.h" />
+  </ItemGroup>
+>>>>>>> 620766c72e0392f0f2668c6135d3da86abda3204
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
