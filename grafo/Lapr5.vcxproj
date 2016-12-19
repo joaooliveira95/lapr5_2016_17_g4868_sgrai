@@ -94,6 +94,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Cameras.cpp" />
+    <ClCompile Include="DesenhaLabirinto.cpp" />
     <ClCompile Include="Estado.cpp" />
     <ClCompile Include="grafos.cpp" />
     <ClCompile Include="lapr5.cpp" />
@@ -104,6 +105,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Cameras.h" />
+    <ClInclude Include="DesenhaLabirinto.h" />
     <ClInclude Include="Estado.h" />
     <ClInclude Include="grafos.h" />
     <ClInclude Include="Lights.h" />
