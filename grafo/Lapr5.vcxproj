@@ -10,35 +10,6 @@
       <Platform>Win32</Platform>
     </ProjectConfiguration>
   </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="Cameras.h" />
-    <ClInclude Include="Estado.h" />
-    <ClInclude Include="grafos.h" />
-    <ClInclude Include="Lights.h" />
-    <ClInclude Include="Materials.h" />
-    <ClInclude Include="math.h" />
-    <ClInclude Include="mathlib.h" />
-    <ClInclude Include="mdlviewer.h" />
-    <ClInclude Include="Som.h" />
-    <ClInclude Include="studio.h" />
-    <ClInclude Include="studio_render.h" />
-    <ClInclude Include="studio_utils.h" />
-    <ClInclude Include="TextureLoader.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="Cameras.cpp" />
-    <ClCompile Include="Estado.cpp" />
-    <ClCompile Include="grafos.cpp" />
-    <ClCompile Include="lapr5.cpp" />
-    <ClCompile Include="Lights.cpp" />
-    <ClCompile Include="Materials.cpp" />
-    <ClCompile Include="math.cpp" />
-    <ClCompile Include="mdlviewer.cpp" />
-    <ClCompile Include="Som.cpp" />
-    <ClCompile Include="studio_render.cpp" />
-    <ClCompile Include="studio_utils.cpp" />
-    <ClCompile Include="TextureLoader.cpp" />
-  </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{BDDF42D2-0DFC-4DF2-A3C7-91B3D78759F4}</ProjectGuid>
     <RootNamespace>Lapr5</RootNamespace>
@@ -121,8 +92,6 @@
       <TargetMachine>MachineX86</TargetMachine>
     </Link>
   </ItemDefinitionGroup>
-<<<<<<< HEAD
-=======
   <ItemGroup>
     <ClCompile Include="Cameras.cpp" />
     <ClCompile Include="DesenhaLabirinto.cpp" />
@@ -131,7 +100,11 @@
     <ClCompile Include="lapr5.cpp" />
     <ClCompile Include="Lights.cpp" />
     <ClCompile Include="Materials.cpp" />
+    <ClCompile Include="math.cpp" />
+    <ClCompile Include="mdlviewer.cpp" />
     <ClCompile Include="Som.cpp" />
+    <ClCompile Include="studio_render.cpp" />
+    <ClCompile Include="studio_utils.cpp" />
     <ClCompile Include="TextureLoader.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -141,10 +114,15 @@
     <ClInclude Include="grafos.h" />
     <ClInclude Include="Lights.h" />
     <ClInclude Include="Materials.h" />
+    <ClInclude Include="math.h" />
+    <ClInclude Include="mathlib.h" />
+    <ClInclude Include="mdlviewer.h" />
     <ClInclude Include="Som.h" />
+    <ClInclude Include="studio.h" />
+    <ClInclude Include="studio_render.h" />
+    <ClInclude Include="studio_utils.h" />
     <ClInclude Include="TextureLoader.h" />
   </ItemGroup>
->>>>>>> 620766c72e0392f0f2668c6135d3da86abda3204
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

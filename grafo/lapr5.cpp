@@ -9,6 +9,8 @@
 #include "Materials.h"
 #include "Lights.h"
 #include "DesenhaLabirinto.h"
+#include "mdlviewer.h"
+#include "studio.h"
 
 typedef struct {
 	Audio musica, crowd, KO, Punch, Fight, YouWin, Select;
@@ -19,6 +21,8 @@ using namespace std;
 
 #define graus(X) (double)((X)*180/M_PI)
 #define rad(X)   (double)((X)*M_PI/180)
+#define NUM_JANELAS               2
+#define JANELA_TOP                0
 
 typedef	GLdouble Vector[4];
 
@@ -34,6 +38,7 @@ typedef struct Modelo {
 
 	GLfloat escala;
 	GLUquadric *quad;
+	StudioModel   homer[NUM_JANELAS];   // Modelo Homer
 }Modelo;
 
 Materials materials = Materials();
@@ -500,6 +505,8 @@ void main(int argc, char **argv)
 	alutInit(&argc, argv);
 	Som som_c = Som();
 	som_c.Backingtrack(sounds.musica);
+
+	mdlviewer_init("homer.mdl", modelo.homer[JANELA_TOP]);
 
 	myInit();
 
