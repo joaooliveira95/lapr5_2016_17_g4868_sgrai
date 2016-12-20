@@ -311,7 +311,7 @@ void Model_3DS::Draw()
 			for (int j = 0; j < Objects[i].numMatFaces; j ++)
 			{
 				// Use the material's texture
-			//	Materials[Objects[i].MatFaces[j].MatIndex].tex.Use();
+			Materials[Objects[i].MatFaces[j].MatIndex].tex.Use();
 
 				glPushMatrix();
 

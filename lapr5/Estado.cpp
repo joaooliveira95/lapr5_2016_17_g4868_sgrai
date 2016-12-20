@@ -50,7 +50,22 @@ GLdouble Estado::getEixo(int n)
 {
 	return eixo[n];
 }
+/*
+GLint Estado::getMainWindow()
+{
+	return mainWindow;
+}
 
+GLint Estado::getTopSubwindow()
+{
+	return topSubwindow;
+}
+
+GLint Estado::getNavigateSubwindow()
+{
+	return navigateSubwindow;
+}
+*/
 void Estado::setCamera(Cameras c)
 {
 	camera = c;
@@ -90,3 +105,18 @@ void Estado::setEixo(int n, GLdouble val)
 {
 	eixo[n] = val;
 }
+/*
+void Estado::setMainWindow(GLint window){
+	mainWindow = window;
+}
+
+void Estado::setTopSubwindow(GLint window)
+{
+	topSubwindow = window;
+}
+
+void Estado::setNavigateSubwindow(GLint window)
+{
+	navigateSubwindow = window;
+}
+*/

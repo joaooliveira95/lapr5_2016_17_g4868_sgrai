@@ -109,6 +109,7 @@
     <ClCompile Include="Lights.cpp" />
     <ClCompile Include="Materials.cpp" />
     <ClCompile Include="Model_3DS.cpp" />
+    <ClCompile Include="Monumentos.cpp" />
     <ClCompile Include="readjpeg.c" />
     <ClCompile Include="Som.cpp" />
     <ClCompile Include="TextureLoader.cpp" />
@@ -125,6 +126,7 @@
     <ClInclude Include="Lights.h" />
     <ClInclude Include="Materials.h" />
     <ClInclude Include="Model_3DS.h" />
+    <ClInclude Include="Monumentos.h" />
     <ClInclude Include="Som.h" />
     <ClInclude Include="TextureLoader.h" />
   </ItemGroup>

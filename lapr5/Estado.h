@@ -5,6 +5,7 @@
 #include "Cameras.h"
 
 class Estado{
+	GLint         mainWindow, topSubwindow, navigateSubwindow;
 	Cameras		camera;
 	int			xMouse, yMouse;
 	GLboolean	light;

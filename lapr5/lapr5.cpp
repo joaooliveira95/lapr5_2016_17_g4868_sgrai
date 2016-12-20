@@ -15,6 +15,7 @@
 #include "Lights.h"
 #include "DesenhaLabirinto.h"
 #include "Model_3DS.h"
+#include "Monumentos.h"
 
 #pragma comment (lib, "glaux.lib")
 
@@ -48,7 +49,7 @@ Materials materials = Materials();
 Estado estado = Estado();
 Lights lights = Lights();
 Modelo modelo;
-Model_3DS truck;
+Model_3DS truck,casaMusica;
 
 void initEstado(){
 	Cameras camera = Cameras();
@@ -94,8 +95,11 @@ void myInit(){
 	glEnable(GL_LIGHT0);
 	glEnable(GL_LIGHTING);
 
-	truck.Load("Freightliner-truck1/Freightliner Aerodyne.3ds");
+	truck.Load("Clerigos/clerigos.3ds");
 	truck.lit = true;
+
+	casaMusica.Load("CasadaMusica/Casa+da+Musica.3ds");
+	casaMusica.lit = true;
 
 	glEnable(GL_SMOOTH); /*enable smooth shading */
 	glEnable(GL_LIGHTING); /* enable lighting */
@@ -175,7 +179,7 @@ void desenhaPlanoDrag(int eixo){
 	glPopMatrix();
 }
 
-void display(void){
+void displayNavigateWindow(void){
 	DesenhaLabirinto dLabirinto = DesenhaLabirinto();
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glLoadIdentity();
@@ -194,7 +198,10 @@ void display(void){
 		desenhaPlanoDrag(estado.getEixoTranslaccao());
 
 	}
-	truck.Draw();
+
+	Monumentos monumentos = Monumentos();
+	monumentos.desenhaClerigos(truck);
+	monumentos.desenhaCasaMusica(casaMusica);
 
 	glFlush();
 	glutSwapBuffers();
@@ -492,16 +499,14 @@ void mouse(int btn, int state, int x, int y){
 	}
 }
 
-void main(int argc, char **argv)
-{
+void main(int argc, char **argv){
     glutInit(&argc, argv);
-
 
     glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
     glutInitWindowSize(640, 480);
     glutCreateWindow("OpenGL");
     glutReshapeFunc(myReshape);
-    glutDisplayFunc(display);
+    glutDisplayFunc(displayNavigateWindow);
 	glutKeyboardFunc(keyboard);
 	glutSpecialFunc(Special);
 	glutMouseFunc(mouse);
