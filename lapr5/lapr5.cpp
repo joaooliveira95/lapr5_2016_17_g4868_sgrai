@@ -72,7 +72,6 @@ void initEstado(){
 
 void initModelo(){
 	modelo.escala=0.2;
-
 	modelo.cor_cubo = brass;
 	modelo.g_pos_luz1[0]=-5.0;
 	modelo.g_pos_luz1[1]= 5.0;
@@ -82,15 +81,10 @@ void initModelo(){
 	modelo.g_pos_luz2[1]= -15.0;
 	modelo.g_pos_luz2[2]= 5.0;
 	modelo.g_pos_luz2[3]= 0.0;
-
-	truck.Load("Freightliner-truck1/Freightliner Aerodyne.3ds");
-	truck.lit = true;
 }
-
 
 void myInit(){
 	GLfloat LuzAmbiente[]={0.5,0.5,0.5, 0.0};
-
 	glClearColor (0.0, 0.0, 0.0, 0.0);
 
 	glEnable(GL_DEPTH_TEST);
@@ -99,6 +93,9 @@ void myInit(){
 	glEnable(GL_POLYGON_SMOOTH);
 	glEnable(GL_LIGHT0);
 	glEnable(GL_LIGHTING);
+
+	truck.Load("Freightliner-truck1/Freightliner Aerodyne.3ds");
+	truck.lit = true;
 
 	glEnable(GL_SMOOTH); /*enable smooth shading */
 	glEnable(GL_LIGHTING); /* enable lighting */
@@ -144,9 +141,6 @@ void imprime_ajuda(void){
   printf("ESC - Sair\n");
 }
 
-
-
-
 void desenhaPlanoDrag(int eixo){
 	Cameras camera = estado.getCamera();
 	glPushMatrix();
@@ -181,29 +175,27 @@ void desenhaPlanoDrag(int eixo){
 	glPopMatrix();
 }
 
-
 void display(void){
 	DesenhaLabirinto dLabirinto = DesenhaLabirinto();
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glLoadIdentity();
 	estado.getCamera().setCamera(estado.isLight(), lights, modelo.g_pos_luz1, modelo.g_pos_luz2);
-
+	
+	glPushMatrix();
 	materials.material(slate);
-
 	dLabirinto.desenhaSolo();
 	dLabirinto.desenhaEixos(estado.getEixo(0),estado.getEixo(1), estado.getEixo(2), modelo.quad);
 	dLabirinto.desenhaLabirinto(numNos, numArcos, estado.isApresentaNormais());
-
-	glPushMatrix();
-	truck.Draw();
 	glPopMatrix();
- 
+
 	if(estado.getEixoTranslaccao()) {
 		// desenha plano de translacção
 		cout << "Translate... " << estado.getEixoTranslaccao() << endl; 
 		desenhaPlanoDrag(estado.getEixoTranslaccao());
 
 	}
+	truck.Draw();
+
 	glFlush();
 	glutSwapBuffers();
 }
@@ -283,7 +275,6 @@ void Special(int key, int x, int y){
 				leGrafo();
 				glutPostRedisplay();
 			break;	
-
 		case GLUT_KEY_F6 :
 				numNos=numArcos=0;
 				addNo(criaNo( 0, 10,0));  // 0
@@ -315,18 +306,15 @@ void Special(int key, int x, int y){
 	}
 }
 
-
 void setProjection(int x, int y, GLboolean picking){
 	Cameras camera = estado.getCamera();
     glLoadIdentity();
 	if (picking) { // se está no modo picking, lê viewport e define zona de picking
 		GLint vport[4];
 		glGetIntegerv(GL_VIEWPORT, vport);
-		gluPickMatrix(x, glutGet(GLUT_WINDOW_HEIGHT)  - y, 4, 4, vport); // Inverte o y do rato para corresponder à jana
+		gluPickMatrix(x, glutGet(GLUT_WINDOW_HEIGHT) - y, 4, 4, vport); // Inverte o y do rato para corresponder à jana
 	}
-	    
 	gluPerspective(camera.getFov(),(GLfloat)glutGet(GLUT_WINDOW_WIDTH) /glutGet(GLUT_WINDOW_HEIGHT) ,1,500);
-
 }
 
 void myReshape(int w, int h){	
@@ -414,7 +402,6 @@ void motionDrag(int x, int y){
 		}
 		glutPostRedisplay();
 	}
-
 
 	glMatrixMode(GL_PROJECTION); //repõe matriz projecção
 	glPopMatrix();
@@ -509,7 +496,6 @@ void main(int argc, char **argv)
 {
     glutInit(&argc, argv);
 
-/* need both double buffering and z buffer */
 
     glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
     glutInitWindowSize(640, 480);
@@ -527,6 +513,5 @@ void main(int argc, char **argv)
 	myInit();
 
 	imprime_ajuda();
-
     glutMainLoop();
 }
