@@ -5,6 +5,8 @@
 #include <GL/glaux.h>
 #include <GL/glut.h>
 #include "Model_3DS.h"
+#include "DesenhaLabirinto.h"
+#include "Estado.h"
 
 #pragma comment (lib, "glaux.lib")
 
@@ -19,7 +21,7 @@
 typedef struct {
   GLboolean   doubleBuffer;
   GLint       delay;
-}Estado;
+}Estado1;
 
 typedef struct {
   GLfloat     ang_h;
@@ -27,9 +29,51 @@ typedef struct {
   GLfloat     dist;
 }Camara;
 
-Estado estado;
+typedef struct Modelo {
+#ifdef __cplusplus
+	tipo_material cor_cubo;
+#else
+	enum tipo_material cor_cubo;
+#endif
+
+	GLfloat g_pos_luz1[4];
+	GLfloat g_pos_luz2[4];
+
+	GLfloat escala;
+	GLUquadric *quad;
+}Modelo;
+
+Modelo modelo;
+Estado cenas = Estado();
+Estado1 estado;
 Camara camara;
-Model_3DS modelo;
+Model_3DS truck;
+
+void initModelo() {
+	modelo.escala = 0.2;
+
+	modelo.cor_cubo = brass;
+	modelo.g_pos_luz1[0] = -5.0;
+	modelo.g_pos_luz1[1] = 5.0;
+	modelo.g_pos_luz1[2] = 5.0;
+	modelo.g_pos_luz1[3] = 0.0;
+	modelo.g_pos_luz2[0] = 5.0;
+	modelo.g_pos_luz2[1] = -15.0;
+	modelo.g_pos_luz2[2] = 5.0;
+	modelo.g_pos_luz2[3] = 0.0;
+	modelo.quad = gluNewQuadric();
+}
+
+
+void initEstado() {
+	cenas.setEixo(0, 0);
+	cenas.setEixo(1, 0);
+	cenas.setEixo(2, 0);
+
+	cenas.setLight(GL_TRUE);
+	cenas.setApresentaNormais(GL_FALSE);
+	cenas.setLightViewer(1);
+}
 
 /* Inicialização do ambiente OPENGL */
 void Init(void)
@@ -45,8 +89,14 @@ void Init(void)
   camara.ang_h = 45.0;
   camara.ang_v = 40.0;
   camara.dist = 20.0;
-  modelo.Load("Freightliner-truck1/Freightliner Aerodyne.3ds");
-  modelo.lit = true;
+
+  initEstado();
+  initModelo();
+
+  truck.Load("Freightliner-truck1/Freightliner Aerodyne.3ds");
+  truck.lit = true;
+
+
 }
 
 /**************************************
@@ -90,8 +140,8 @@ void Reshape(int width, int height)
 
 // Callback de desenho
 
-void Draw(void)
-{
+void Draw(void){
+DesenhaLabirinto dLabirinto = DesenhaLabirinto();
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 // ... transformacoes de visualizacao ...
   glPushMatrix();
@@ -99,7 +149,12 @@ void Draw(void)
   glRotatef(camara.ang_v, 1.0, 0.0, 0.0);
   glRotatef(camara.ang_h, 0.0, 1.0, 0.0);
 // ... chamada das rotinas auxiliares de desenho ...
-  modelo.Draw();
+  truck.Draw();
+  
+  dLabirinto.desenhaSolo();
+  dLabirinto.desenhaEixos(cenas.getEixo(0), cenas.getEixo(1), cenas.getEixo(2), modelo.quad);
+  dLabirinto.desenhaLabirinto(numNos, numArcos, cenas.isApresentaNormais());
+
   glPopMatrix();
   glFlush();
   if (estado.doubleBuffer)
