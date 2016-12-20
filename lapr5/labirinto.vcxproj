@@ -171,6 +171,7 @@
     <ClInclude Include="mdlviewer.h" />
     <ClInclude Include="Model_3DS.h" />
     <ClInclude Include="Monumentos.h" />
+    <ClInclude Include="OverlaysDesign.h" />
     <ClInclude Include="Som.h" />
     <ClInclude Include="studio.h" />
     <ClInclude Include="TextureLoader.h" />
@@ -188,6 +189,7 @@
     <ClCompile Include="mdlviewer.cpp" />
     <ClCompile Include="Model_3DS.cpp" />
     <ClCompile Include="Monumentos.cpp" />
+    <ClCompile Include="OverlaysDesign.cpp" />
     <ClCompile Include="readjpeg.c" />
     <ClCompile Include="Som.cpp" />
     <ClCompile Include="studio_render.cpp" />

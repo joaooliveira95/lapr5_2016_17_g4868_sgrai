@@ -18,6 +18,7 @@
 #include "Model_3DS.h"
 #include "Monumentos.h"
 #include "DesenhaLabirinto.h"
+#include "OverlaysDesign.h"
 
 #pragma comment (lib, "glaux.lib")    /* link with Win32 GLAUX lib */
 #pragma comment (lib, "openAL32.lib")
@@ -99,6 +100,8 @@ typedef struct MODELO {
 	StudioModel   homer[NUM_JANELAS];   // Modelo Homer
 	GLboolean     andar;
 	GLuint        prev;
+	float         km;
+	int		  tempo;
 }MODELO;
 
 /////////////////////////////////////
@@ -107,6 +110,7 @@ typedef struct MODELO {
 ESTADO estado;
 MODELO modelo;
 Model_3DS clerigos, casaMusica;
+
 
 char mazedata[MAZE_HEIGHT][MAZE_WIDTH + 1] = {
 	"                  ",
@@ -560,6 +564,7 @@ void setNavigateSubwindowCamera(camera_t *cam, objecto_t obj)
 }
 
 
+
 void displayNavigateSubwindow()
 {
 	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
@@ -572,6 +577,7 @@ void displayNavigateSubwindow()
 
 	//glCallList(modelo.labirinto[JANELA_NAVIGATE]);
 	glCallList(modelo.chao[JANELA_NAVIGATE]);
+
 
 	if (!estado.vista[JANELA_NAVIGATE])
 	{
@@ -591,9 +597,21 @@ void displayNavigateSubwindow()
 		//material(slate);		
 		//dLabirinto.desenhaEixos(estado.getEixo(0), estado.getEixo(1), estado.getEixo(2), modelo.quad);
 		dLabirinto.desenhaLabirinto(numNos, numArcos, GL_TRUE);
+
 	}
 
 	desenhaBussola(glutGet(GLUT_WINDOW_WIDTH), glutGet(GLUT_WINDOW_HEIGHT));
+
+	OverlaysDesign ui = OverlaysDesign();
+	ui.desenhaKm(modelo.km);
+
+	time_t now = time(0);
+
+	int tempoDecorrido = now - modelo.tempo;
+
+	ui.desenhaTempo(tempoDecorrido);
+
+	
 
 	glutSwapBuffers();
 }
@@ -660,6 +678,8 @@ void displayMainWindow()
 
 void Timer(int value)
 {
+
+
 	GLfloat nx, nz;
 	GLboolean andar = GL_FALSE;
 
@@ -693,6 +713,7 @@ void Timer(int value)
 	}
 	modelo.prev = curr;
 
+	
 
 	if (estado.teclas.up) {
 		nx = modelo.objecto.pos.x + cos(modelo.objecto.dir)*velocidade;
@@ -700,10 +721,16 @@ void Timer(int value)
 		if (!detectaColisao(nx + cos(modelo.objecto.dir)*OBJECTO_RAIO, nz + sin(-modelo.objecto.dir)*OBJECTO_RAIO) &&
 			!detectaColisao(nx + cos(modelo.objecto.dir + M_PI / 4)*OBJECTO_RAIO, nz + sin(-modelo.objecto.dir + M_PI / 4)*OBJECTO_RAIO) &&
 			!detectaColisao(nx + cos(modelo.objecto.dir - M_PI / 4)*OBJECTO_RAIO, nz + sin(-modelo.objecto.dir - M_PI / 4)*OBJECTO_RAIO)) {
+			
+		
 			modelo.objecto.pos.x = nx;
 			modelo.objecto.pos.z = nz;
+
+			modelo.km += 0.5;
+			
 		}
 		andar = GL_TRUE;
+
 	}
 	if (estado.teclas.down) {
 		nx = modelo.objecto.pos.x - cos(modelo.objecto.dir)*velocidade;
@@ -713,6 +740,8 @@ void Timer(int value)
 			!detectaColisao(nx - cos(modelo.objecto.dir - M_PI / 4)*OBJECTO_RAIO, nz - sin(-modelo.objecto.dir - M_PI / 4)*OBJECTO_RAIO)) {
 			modelo.objecto.pos.x = nx;
 			modelo.objecto.pos.z = nz;
+
+			modelo.km += 0.5;
 		}
 		andar = GL_TRUE;
 	}
@@ -749,6 +778,8 @@ void Timer(int value)
 				modelo.homer[JANELA_TOP].SetSequence(0);
 			}
 	}
+
+
 	redisplayAll();
 
 }
@@ -971,6 +1002,7 @@ void init()
 	GLfloat amb[] = { 0.3f, 0.3f, 0.3f, 1.0f };
 
 	estado.timer = 100;
+	
 
 	estado.camera.eye.x = 0;
 	estado.camera.eye.y = OBJECTO_ALTURA * 2;
@@ -991,6 +1023,7 @@ void init()
 
 	modelo.xMouse = modelo.yMouse = -1;
 	modelo.andar = GL_FALSE;
+	modelo.km = 0;
 
 	glEnable(GL_DEPTH_TEST);
 	glShadeModel(GL_SMOOTH);
@@ -1008,6 +1041,10 @@ void initNavigate()
 	GLfloat amb[] = { 0.3f, 0.3f, 0.3f, 1.0f };
 
 	estado.timer = 100;
+
+	time_t timer = time(0);
+
+	modelo.tempo = timer;
 
 	estado.camera.eye.x = 0;
 	estado.camera.eye.y = OBJECTO_ALTURA * 2;
@@ -1109,6 +1146,8 @@ int main(int argc, char **argv)
 	glutSpecialUpFunc(SpecialKeyUp);
 
 	srand((unsigned)time(NULL));
+
+	
 
 	alutInit(&argc, argv);
 
