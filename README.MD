@@ -1,0 +1,31 @@
+<h1><strong>SGRAI</strong></h1>
+<p>&nbsp;</p>
+<p>Fazer o download do template do projeto de SGRAI dispon&iacute;vel na p&aacute;gina de LAPR5.</p>
+<p>Fazer download do Open Al, do Glut e texture loader fornecido pelos professores.</p>
+<p>Para correr o programa &eacute; necess&aacute;rio instalar o Glut. O tutorial de instala&ccedil;&atilde;o est&aacute; dispon&iacute;vel na p&aacute;gina de SGRAI no moodle, tal como as outras ferramentas.</p>
+<p>&nbsp;</p>
+<p>Existe um ficheiro na p&aacute;gina de LAPR5 para dar apoio aos grafos do labirinto</p>
+<p>O template tem um &uacute;nico project com o nome Lapr5.</p>
+<p>Para o desenvolvimento da aplica&ccedil;&atilde;o &eacute; necess&aacute;rio:</p>
+<p>Aplicar som;</p>
+<p>Texturas;</p>
+<p>Modela&ccedil;&atilde;o:</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Mdlviewer;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</p>
+<p>Luz;</p>
+<p>Implementa&ccedil;&atilde;o da personagem;</p>
+<p>Dete&ccedil;&atilde;o de colis&otilde;es;</p>
+<p>C&acirc;mara;</p>
+<p>Overlays 2D com informa&ccedil;&otilde;es relativas ao POI e minimapa;</p>
+<p>Utiliza&ccedil;&atilde;o do Rato;</p>
+<p>Barra de estado com feedback informativo da rua, informa&ccedil;&atilde;o dos outros POI pr&oacute;ximos;</p>
+<p>Informa&ccedil;&atilde;o do tempo percorrido e dist&acirc;ncia (barra de processo);</p>
+<p>Implementa&ccedil;&atilde;o de Skybox;</p>
+<p>Pode adicionar-se nevoeiro, chuva, etc;</p>
+<p>Desenhar o grafo no ficheiro existente no projeto com o nome exemplo.grafo.</p>
+<p>&nbsp;</p>
+<p>Identifica&ccedil;&atilde;o de casos de Uso:</p>
+<ul>
+<li>Identificar Utilizador.</li>
+<li>Obter POIs e percurso.</li>
+<li>Gerar percurso e im&oacute;veis.</li>
+</ul>
