@@ -1,8 +1,14 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
+#ifdef _WIN32
 #include "jpeglib.h"
-#include "setjmp.h"
+#else
+#include <jpeglib.h>
+#endif
+
+#include <setjmp.h>
 
 #pragma comment (lib, "libjpeg.lib")    /* link with Win32 libjpeg lib */
 #ifdef _DEBUG
@@ -28,7 +34,7 @@ my_error_exit(j_common_ptr cinfo)
 }
 
 GLOBAL(int)
-read_JPEG_file(char *filename, char **fbuffer,
+read_JPEG_file(const char *filename, char **fbuffer,
                 int *width, int *height, int *bpp)
 {
   struct jpeg_decompress_struct cinfo;
@@ -38,7 +44,8 @@ read_JPEG_file(char *filename, char **fbuffer,
   int row_stride;
   char *ptr;
 
-  if ((infile = fopen(filename, "rb")) == NULL) return 0;
+  if ((infile = fopen(filename, "rb")) == NULL)
+    return 0;
   cinfo.err = jpeg_std_error(&jerr.pub);
   jerr.pub.error_exit = my_error_exit;
   if (setjmp(jerr.setjmp_buffer)) {

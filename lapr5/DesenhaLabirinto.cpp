@@ -28,8 +28,9 @@ void DesenhaLabirinto:: desenhaSolo() {
 void DesenhaLabirinto:: desenhaLabirinto(int numNos, int numArcos, GLboolean isApresentaNormais) {
 	Materials materials = Materials();
 	glPushMatrix();
-	glTranslatef(0, 0, 0.05);
-	glScalef(5, 5, 5);
+	glTranslatef(0, 0, 5.05);
+	glRotatef(270, 1, 0, 0);
+	glScalef(0.5, 0.5, 0.5);
 	materials.material(red_plastic);
 	for (int i = 0; i<numNos; i++) {
 		glPushMatrix();
