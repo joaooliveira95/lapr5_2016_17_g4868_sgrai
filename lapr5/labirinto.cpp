@@ -18,6 +18,7 @@
 #include "Model_3DS.h"
 #include "Monumentos.h"
 #include "DesenhaLabirinto.h"
+#include "Estado.h"
 
 #pragma comment (lib, "glaux.lib")    /* link with Win32 GLAUX lib */
 #pragma comment (lib, "openAL32.lib")
@@ -105,6 +106,7 @@ typedef struct MODELO {
 //variaveis globais
 
 ESTADO estado;
+Estado estadoGrafo = Estado();
 MODELO modelo;
 Model_3DS clerigos, casaMusica;
 
@@ -133,9 +135,7 @@ char mazedata[MAZE_HEIGHT][MAZE_WIDTH + 1] = {
 ////////////////////////////////////
 /// Iluminação e materiais
 
-
-void setLight()
-{
+void setLight(){
 	GLfloat light_pos[4] = { -5.0, 20.0, -8.0, 0.0 };
 	GLfloat light_ambient[] = { 0.2f, 0.2f, 0.2f, 1.0f };
 	GLfloat light_diffuse[] = { 0.8f, 0.8f, 0.8f, 1.0f };
@@ -163,14 +163,10 @@ void setMaterial()
 	glMaterialf(GL_FRONT, GL_SHININESS, mat_shininess);
 }
 
-
 ///////////////////////////////////
 //// Redisplays
 
-
-
-void redisplayTopSubwindow(int width, int height)
-{
+void redisplayTopSubwindow(int width, int height){
 	// glViewport(botom, left, width, height)
 	// define parte da janela a ser utilizada pelo OpenGL
 	glViewport(0, 0, (GLint)width, (GLint)height);
@@ -182,12 +178,10 @@ void redisplayTopSubwindow(int width, int height)
 	// Matriz Modelview
 	// Matriz onde são realizadas as tranformacoes dos modelos desenhados
 	glMatrixMode(GL_MODELVIEW);
-
 }
 
 
-void reshapeNavigateSubwindow(int width, int height)
-{
+void reshapeNavigateSubwindow(int width, int height){
 	// glViewport(botom, left, width, height)
 	// define parte da janela a ser utilizada pelo OpenGL
 	glViewport(0, 0, (GLint)width, (GLint)height);
@@ -201,10 +195,7 @@ void reshapeNavigateSubwindow(int width, int height)
 	glMatrixMode(GL_MODELVIEW);
 }
 
-
-
-void reshapeMainWindow(int width, int height)
-{
+void reshapeMainWindow(int width, int height){
 	GLint w, h;
 	w = (width - GAP * 3)*.5;
 	h = (height - GAP * 2);
@@ -214,7 +205,6 @@ void reshapeMainWindow(int width, int height)
 	glutSetWindow(estado.navigateSubwindow);
 	glutPositionWindow(GAP + w + GAP, GAP);
 	glutReshapeWindow(w, h);
-
 }
 
 /////////////////////////////////////
@@ -419,6 +409,15 @@ void desenhaAngVisao(camera_t *cam)
 	glDisable(GL_BLEND);
 }
 
+void desenhaGrafo() {
+	DesenhaLabirinto dLabirinto = DesenhaLabirinto();
+	//clerigos.Draw();
+
+	glPushMatrix();
+	dLabirinto.desenhaLabirinto(numNos, numArcos, GL_TRUE);
+	glPopMatrix();
+}
+
 void desenhaModelo()
 {
 	glColor3f(0, 1, 0);
@@ -619,8 +618,9 @@ void displayTopSubwindow()
 	setTopSubwindowCamera(&estado.camera, modelo.objecto);
 	setLight();
 
-	glCallList(modelo.labirinto[JANELA_TOP]);
+	//glCallList(modelo.labirinto[JANELA_TOP]);
 	glCallList(modelo.chao[JANELA_TOP]);
+	desenhaGrafo();
 
 	glPushMatrix();
 	glTranslatef(modelo.objecto.pos.x, modelo.objecto.pos.y, modelo.objecto.pos.z);
@@ -632,6 +632,8 @@ void displayTopSubwindow()
 
 	desenhaAngVisao(&estado.camera);
 	desenhaModeloDir(modelo.objecto, glutGet(GLUT_WINDOW_WIDTH), glutGet(GLUT_WINDOW_HEIGHT));
+
+	glFlush();
 	glutSwapBuffers();
 }
 
