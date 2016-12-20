@@ -18,11 +18,10 @@
 #include "Model_3DS.h"
 #include "Monumentos.h"
 #include "DesenhaLabirinto.h"
-<<<<<<< HEAD
+
 #include "OverlaysDesign.h"
-=======
 #include "Estado.h"
->>>>>>> 7ff01d92f7421d0375597eb75d38da60b8843b73
+
 
 #pragma comment (lib, "glaux.lib")    /* link with Win32 GLAUX lib */
 #pragma comment (lib, "openAL32.lib")
