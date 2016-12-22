@@ -11,6 +11,7 @@
 #include "studio.h"
 #include "mdlviewer.h"
 #include "grafos.h"
+#include "OverlaysDesign.h"
 
 using namespace std;
 
@@ -125,7 +126,8 @@ typedef struct Modelo {
 	StudioModel   poi;
 	GLboolean     andar;
 	GLuint        prev;
-
+	float			  km;
+	int			  tempo;
 }Modelo;
 
 float colisoesNos[_MAX_NOS_GRAFO][6];
@@ -176,6 +178,11 @@ void myInit(){
 	modelo.objecto.dir = 0;
 	modelo.objecto.vel = OBJECTO_VELOCIDADE;
 	modelo.andar = GL_FALSE;
+
+	time_t timer = time(0);
+
+	modelo.tempo = timer;
+
 
 	estado.timer = 100;
 	GLfloat LuzAmbiente[] = { 0.5,0.5,0.5, 0.0 };
@@ -309,7 +316,7 @@ void timer(int value) {
 			estado.camera.center[1] = modelo.objecto.pos.y;
 			estado.camera.center[2] = modelo.objecto.pos.z;
 
-			//modelo.km += 0.5;
+			modelo.km += 0.5;
 
 		}
 		andar = GL_TRUE;
@@ -328,7 +335,7 @@ void timer(int value) {
 			estado.camera.center[1] = modelo.objecto.pos.y;
 			estado.camera.center[2] = modelo.objecto.pos.z;
 
-			//modelo.km += 0.5;
+			modelo.km += 0.5;
 		}
 		andar = GL_TRUE;
 	}
@@ -614,6 +621,21 @@ void desenhaChao(GLfloat xi, GLfloat yi, GLfloat zi, GLfloat xf, GLfloat yf, GLf
 		break;
 	}
 }
+void desenhaChaoRedondo(float largura, GLfloat x0, GLfloat y0, GLfloat z) {
+	material(red_plastic);
+	glBegin(GL_POLYGON);
+	int n = 30;
+	double alfa = 2 * M_PI / n;
+	double ang = 0;
+	for (int i = 0; i < n; i++) {
+		double x = x0 + largura * cos(ang);
+		double y = y0 + largura * sin(ang);
+		
+		glVertex3f(x, y,z);
+		ang += alfa;
+	}
+	glEnd();
+}
 
 void desenhaNo(int no) {
 	GLboolean norte, sul, este, oeste;
@@ -621,8 +643,8 @@ void desenhaNo(int no) {
 	Arco arco = arcos[0];
 	No *noi = &nos[no], *nof;
 	norte = sul = este = oeste = GL_TRUE;
-	desenhaChao(nos[no].x - 0.5*noi->largura, nos[no].y - 0.5*noi->largura, nos[no].z, nos[no].x + 0.5*noi->largura, nos[no].y + 0.5*noi->largura, nos[no].z, PLANO);
-	
+	//desenhaChao(nos[no].x - 0.5*noi->largura, nos[no].y - 0.5*noi->largura, nos[no].z, nos[no].x + 0.5*noi->largura, nos[no].y + 0.5*noi->largura, nos[no].z, PLANO);
+	desenhaChaoRedondo(noi->largura, noi->x, noi->y, noi->z);
 	for (int i = 0; i<numArcos; arco = arcos[++i]) {
 		if (arco.noi == no)
 			nof = &nos[arco.nof];
@@ -874,6 +896,16 @@ void display(void) {
 		desenhaPlanoDrag(estado.eixoTranslaccao);
 	}
 
+	//kms
+	OverlaysDesign ui = OverlaysDesign();
+	ui.desenhaKm(modelo.km);
+
+	//Tempo
+	time_t now = time(0);
+	int tempoDecorrido = now - modelo.tempo;
+	int mins = tempoDecorrido / 60;
+	int segs = tempoDecorrido - 60 * mins;
+	ui.desenhaTempo(segs, mins);
 	glFlush();
 	glutSwapBuffers();
 }

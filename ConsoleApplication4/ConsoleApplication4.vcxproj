@@ -22,12 +22,14 @@
     <ClInclude Include="grafos.h" />
     <ClInclude Include="mathlib.h" />
     <ClInclude Include="mdlviewer.h" />
+    <ClInclude Include="OverlaysDesign.h" />
     <ClInclude Include="studio.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="grafos.cpp" />
     <ClCompile Include="math.cpp" />
     <ClCompile Include="mdlviewer.cpp" />
+    <ClCompile Include="OverlaysDesign.cpp" />
     <ClCompile Include="Source.cpp" />
     <ClCompile Include="studio_render.cpp" />
     <ClCompile Include="studio_utils.cpp" />
