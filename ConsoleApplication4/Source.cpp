@@ -168,6 +168,7 @@ void myInit()
 	modelo.objecto.pos.z = 1;
 	modelo.objecto.dir = 0;
 	modelo.objecto.vel = OBJECTO_VELOCIDADE;
+	modelo.andar = GL_FALSE;
 
 	estado.timer = 100;
 	GLfloat LuzAmbiente[] = { 0.5,0.5,0.5, 0.0 };
@@ -214,6 +215,7 @@ GLboolean detectaColisao(GLfloat nx, GLfloat nz)
 }
 
 void timer(int value) {
+	GLboolean andar = GL_FALSE;
 	GLfloat ny, nx;
 	GLuint curr = GetTickCount();
 	float velocidade = modelo.objecto.vel*(curr - modelo.prev)*0.001;
@@ -240,7 +242,7 @@ void timer(int value) {
 			//modelo.km += 0.5;
 
 		}
-		//andar = GL_TRUE;
+		andar = GL_TRUE;
 
 	}
 	if (estado.teclas.down) {
@@ -258,7 +260,7 @@ void timer(int value) {
 
 			//modelo.km += 0.5;
 		}
-		//andar = GL_TRUE;
+		andar = GL_TRUE;
 	}
 	
 	if (estado.teclas.left) {
@@ -268,20 +270,22 @@ void timer(int value) {
 	if (estado.teclas.right) {
 		modelo.objecto.dir -= rad(OBJECTO_ROTACAO);
 		estado.camera.dir_long -= rad(OBJECTO_ROTACAO);
-
 	}
 
-	/*if (estado.teclas.up) { 
-		modelo.objecto.pos.x -= 1;
-		estado.camera.center[0] = modelo.objecto.pos.x;
-		estado.camera.center[1] = modelo.objecto.pos.y;
-		estado.camera.center[2] = modelo.objecto.pos.z;
-	} else if (estado.teclas.down) {
-		modelo.objecto.pos.x += 1;
-		estado.camera.center[0] = modelo.objecto.pos.x;
-		estado.camera.center[1] = modelo.objecto.pos.y;
-		estado.camera.center[2] = modelo.objecto.pos.z;
-	}*/
+	if (modelo.personagem.GetSequence() != 20)
+	{
+		if (andar && modelo.personagem.GetSequence() != 3)
+		{
+			modelo.personagem.SetSequence(3);
+		//	modelo.homer[JANELA_TOP].SetSequence(3);
+		}
+		else
+			if (!andar && modelo.personagem.GetSequence() != 0)
+			{
+				modelo.personagem.SetSequence(0);
+			//	modelo.homer[JANELA_TOP].SetSequence(0);
+			}
+	}
 
 	glutPostRedisplay();
 }
