@@ -21,7 +21,7 @@ using namespace std;
 #define	OBJECTO_ALTURA			0.4
 #define OBJECTO_VELOCIDADE		2.5
 #define SCALE_POI			    0.04
-#define SCALE_HOMER			    0.09
+#define SCALE_HOMER			    0.005
 //#define SCALE_HOMER				0.01
 
 // luzes e materiais
@@ -125,16 +125,23 @@ typedef struct Modelo {
 	StudioModel   poi;
 	GLboolean     andar;
 	GLuint        prev;
+
 }Modelo;
+
+float colisoesNos[_MAX_NOS_GRAFO][6];
+float colisoesArcos[_MAX_ARCOS_GRAFO][6];
+
 
 Estado estado;
 Modelo modelo;
+
+
 
 void initEstado() {
 	estado.camera.dir_lat = M_PI / 6;
 	estado.camera.dir_long = -M_PI / 2;
 	estado.camera.fov = 60;
-	estado.camera.dist = 20;
+	estado.camera.dist = 5;
 	estado.eixo[0] = 0;
 	estado.eixo[1] = 0;
 	estado.eixo[2] = 0;
@@ -161,11 +168,11 @@ void initModelo() {
 }
 
 
-void myInit()
-{
+void myInit(){
+
 	modelo.objecto.pos.x = 0;
-	modelo.objecto.pos.y = -75;
-	modelo.objecto.pos.z = 1;
+	modelo.objecto.pos.y = -5;
+	modelo.objecto.pos.z = 1.5;
 	modelo.objecto.dir = 0;
 	modelo.objecto.vel = OBJECTO_VELOCIDADE;
 	modelo.andar = GL_FALSE;
@@ -196,22 +203,85 @@ void myInit()
 }
 
 
-GLboolean detectaColisao(GLfloat nx, GLfloat nz)
-{
-	/*GLuint i = (nx + MAZE_HEIGHT*0.5 + 0.5), j = (int)(nz + MAZE_WIDTH*0.5 + 0.5);
-	if (mazedata[i][j] == '*')
-	{
-	if (modelo.homer[JANELA_NAVIGATE].GetSequence() != 20)
-	{
-	modelo.homer[JANELA_TOP].SetSequence(20);
-	modelo.homer[JANELA_NAVIGATE].SetSequence(20);
+void addColisaoNo() {
+	for (int no = 0; no < numNos; no++) {
+		float largura = nos[no].largura*0.5;
+		colisoesNos[no][0] = nos[no].x - largura;
+		colisoesNos[no][1] = nos[no].x + largura;
+		colisoesNos[no][2] = nos[no].y - largura;
+		colisoesNos[no][3] = nos[no].y + largura;
+		colisoesNos[no][4] = nos[no].z - largura;
+		colisoesNos[no][5] = nos[no].z + largura;
 	}
-	alSourceStop(estado.source[1]);
-	alSourcei(estado.source[1], AL_BUFFER, estado.buffer[rand() % 3 + 6]);
-	alSourcePlay(estado.source[1]);
+}
+
+
+void addColisaoArco() {
+	for (int arco = 0; arco < numArcos; arco++) {
+		float largurax = 0;
+		float larguray = 0;
+		int noi = arcos[arco].noi;
+		int nof = arcos[arco].nof;
+		
+		int dX = pow((nos[nof].x - nos[noi].x), 2);
+		int dY = pow((nos[nof].y - nos[noi].y), 2);
+		if (dX > dY) {
+			largurax = arcos[arco].largura*0.5;
+		}
+		else{
+			larguray = arcos[arco].largura*0.5;
+		}
+
+		colisoesArcos[arco][0] = nos[noi].x - larguray;
+		colisoesArcos[arco][1] = nos[nof].x + larguray;
+		colisoesArcos[arco][2] = nos[noi].y - largurax;
+		colisoesArcos[arco][3] = nos[nof].y + largurax;
+		colisoesArcos[arco][4] = nos[noi].z;
+		colisoesArcos[arco][5] = nos[nof].z;
+	}
+}
+
+GLboolean inAreaColisaoNo(int i, GLfloat nx, GLfloat nz) {
+	float x0 = colisoesNos[i][0];
+	float x1 = colisoesNos[i][1];
+	float y0 = colisoesNos[i][2];
+	float y1 = colisoesNos[i][3];
+	
+	if ((x0 < nz && nz <x1) && (y0 < nx && nx < y1)) {
+		return true;
+	}
+
+	return false;
+}
+
+GLboolean inAreaColisaoArco(int i, GLfloat nx, GLfloat nz) {
+	float x0 = colisoesArcos[i][0];
+	float x1 = colisoesArcos[i][1];
+	float y0 = colisoesArcos[i][2];
+	float y1 = colisoesArcos[i][3];
+
+	if ((x0 < nz && nz <x1) && (y0 < nx && nx < y1)) {
+		return true;
+	}
+
+	return false;
+}
+
+
+GLboolean detectaColisao(GLfloat nx, GLfloat nz){
+	for (int i = 0; i < numNos; i++) {
+		if (inAreaColisaoNo(i, nx, nz)) {
+			return(GL_FALSE);
+		}
+	}
+
+	for (int i = 0; i < numArcos; i++) {
+		if (inAreaColisaoArco(i, nx, nz)) {
+			return(GL_FALSE);
+		}
+	}
 	return(GL_TRUE);
-	}*/
-	return(GL_FALSE);
+	//return(GL_TRUE);
 }
 
 void timer(int value) {
@@ -313,6 +383,7 @@ void imprime_ajuda(void)
 	printf("Botão direito com CTRL - Zoom-in/out\n");
 	printf("PAGE_UP, PAGE_DOWN - Altera distância da camara \n");
 	printf("ESC - Sair\n");
+	listNos();
 }
 
 
@@ -407,6 +478,8 @@ GLdouble VectorNormalize(GLdouble v[])
 	return length;
 }
 
+
+
 void desenhaNormal(GLdouble x, GLdouble y, GLdouble z, GLdouble normal[], tipo_material mat) {
 
 	switch (mat) {
@@ -435,7 +508,7 @@ void desenhaNormal(GLdouble x, GLdouble y, GLdouble z, GLdouble normal[], tipo_m
 }
 
 void desenhaParede(GLfloat xi, GLfloat yi, GLfloat zi, GLfloat xf, GLfloat yf, GLfloat zf) {
-	GLdouble v1[3], v2[3], cross[3];
+	/*GLdouble v1[3], v2[3], cross[3];
 	GLdouble length;
 	v1[0] = xf - xi;
 	v1[1] = yf - yi;
@@ -462,10 +535,11 @@ void desenhaParede(GLfloat xi, GLfloat yi, GLfloat zi, GLfloat xf, GLfloat yf, G
 		desenhaNormal(xf, yf, zf, cross, emerald);
 		desenhaNormal(xf, yf, zf + 1, cross, emerald);
 		desenhaNormal(xi, yi, zi + 1, cross, emerald);
-	}
+	}*/
 }
 
 void desenhaChao(GLfloat xi, GLfloat yi, GLfloat zi, GLfloat xf, GLfloat yf, GLfloat zf, int orient) {
+
 	GLdouble v1[3], v2[3], cross[3];
 	GLdouble length;
 	v1[0] = xf - xi;
@@ -548,6 +622,7 @@ void desenhaNo(int no) {
 	No *noi = &nos[no], *nof;
 	norte = sul = este = oeste = GL_TRUE;
 	desenhaChao(nos[no].x - 0.5*noi->largura, nos[no].y - 0.5*noi->largura, nos[no].z, nos[no].x + 0.5*noi->largura, nos[no].y + 0.5*noi->largura, nos[no].z, PLANO);
+	
 	for (int i = 0; i<numArcos; arco = arcos[++i]) {
 		if (arco.noi == no)
 			nof = &nos[arco.nof];
@@ -611,6 +686,7 @@ void desenhaNo(int no) {
 }
 
 
+
 void desenhaArco(Arco arco) {
 	No *noi, *nof;
 
@@ -626,6 +702,7 @@ void desenhaArco(Arco arco) {
 		}
 
 		desenhaChao(noi->x - 0.5*arco.largura, noi->y + 0.5*noi->largura, noi->z, nof->x + 0.5*arco.largura, nof->y - 0.5*nof->largura, nof->z, NORTE_SUL);
+		//addColisaoArco(noi->x - 0.5*arco.largura, nof->x + 0.5*arco.largura, noi->y + 0.5*noi->largura, nof->y - 0.5*noi->largura, noi->z, nof->z);
 		desenhaParede(noi->x - 0.5*arco.largura, noi->y + 0.5*noi->largura, noi->z, nof->x - 0.5*arco.largura, nof->y - 0.5*nof->largura, nof->z);
 		desenhaParede(nof->x + 0.5*arco.largura, nof->y - 0.5*nof->largura, nof->z, noi->x + 0.5*arco.largura, noi->y + 0.5*noi->largura, noi->z);
 	}
@@ -641,6 +718,7 @@ void desenhaArco(Arco arco) {
 				noi = &nos[arco.nof];
 			}
 			desenhaChao(noi->x + 0.5*noi->largura, noi->y - 0.5*arco.largura, noi->z, nof->x - 0.5*nof->largura, nof->y + 0.5*arco.largura, nof->z, ESTE_OESTE);
+			//addColisaoArco(noi->x + 0.5*arco.largura, nof->x - 0.5*arco.largura, noi->y - 0.5*noi->largura, nof->y + 0.5*noi->largura, noi->z, nof->z);
 			desenhaParede(noi->x + 0.5*noi->largura, noi->y + 0.5*arco.largura, noi->z, nof->x - 0.5*nof->largura, nof->y + 0.5*arco.largura, nof->z);
 			desenhaParede(nof->x - 0.5*nof->largura, nof->y - 0.5*arco.largura, nof->z, noi->x + 0.5*noi->largura, noi->y - 0.5*arco.largura, noi->z);
 		}
@@ -650,10 +728,10 @@ void desenhaArco(Arco arco) {
 	}
 }
 
-void desenhaLabirinto() {
+void desenhaGrafo() {
 	glPushMatrix();
 	glTranslatef(0, 0, 0.05);
-	glScalef(5, 5, 5);
+//	glScalef(5, 5, 5);
 	material(red_plastic);
 	for (int i = 0; i<numNos; i++) {
 		glPushMatrix();
@@ -692,6 +770,7 @@ void desenhaEixo() {
 
 void desenhaPlanoDrag(int eixo) {
 	glPushMatrix();
+	glScalef(0.5, 0.5, 0.5);
 	glTranslated(estado.eixo[0], estado.eixo[1], estado.eixo[2]);
 	switch (eixo) {
 	case EIXO_Y:
@@ -785,7 +864,10 @@ void display(void) {
 	material(slate);
 	desenhaSolo();
 	desenhaEixos();
-	desenhaLabirinto();
+	desenhaGrafo();
+	addColisaoNo();
+	addColisaoArco();
+
 	if (estado.eixoTranslaccao) {
 		// desenha plano de translacção
 		cout << "Translate... " << estado.eixoTranslaccao << endl;
