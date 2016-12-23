@@ -130,7 +130,7 @@ typedef struct Modelo {
 	int			  tempo;
 }Modelo;
 
-float colisoesNos[_MAX_NOS_GRAFO][6];
+float colisoesNos[_MAX_NOS_GRAFO][4];
 float colisoesArcos[_MAX_ARCOS_GRAFO][6];
 
 
@@ -214,13 +214,10 @@ void myInit(){
 
 void addColisaoNo() {
 	for (int no = 0; no < numNos; no++) {
-		float largura = nos[no].largura*0.5;
-		colisoesNos[no][0] = nos[no].x - largura;
-		colisoesNos[no][1] = nos[no].x + largura;
-		colisoesNos[no][2] = nos[no].y - largura;
-		colisoesNos[no][3] = nos[no].y + largura;
-		colisoesNos[no][4] = nos[no].z;
-		colisoesNos[no][5] = nos[no].z;
+		colisoesNos[no][0] = nos[no].largura;
+		colisoesNos[no][1] = nos[no].x;
+		colisoesNos[no][2] = nos[no].y ;
+		colisoesNos[no][3] = nos[no].z;
 	}
 }
 
@@ -250,16 +247,13 @@ void addColisaoArco() {
 	}
 }
 
-GLboolean inAreaColisaoNo(int i, GLfloat nx, GLfloat nz) {
-	float x0 = colisoesNos[i][0];
-	float x1 = colisoesNos[i][1];
-	float y0 = colisoesNos[i][2];
-	float y1 = colisoesNos[i][3];
-	float z = colisoesNos[i][4];
-
-
+GLboolean inAreaColisaoNo(int i, GLfloat ny, GLfloat nx) {
+	float largura = colisoesNos[i][0];
+	float x = colisoesNos[i][1];
+	float y = colisoesNos[i][2];
+	float z = colisoesNos[i][3];
 	
-	if ((x0 < nz && nz <x1) && (y0 < nx && nx < y1)) {
+	if(pow(nx - x,2) + pow(ny-y,2) <= pow(largura,2)){
 		nextZ = z;
 		return true;
 	}
@@ -955,7 +949,7 @@ void display(void) {
 	int tempoDecorrido = now - modelo.tempo;
 	int mins = tempoDecorrido / 60;
 	int segs = tempoDecorrido - 60 * mins;
-	ui.desenhaTempo(segs, mins);
+	ui.desenhaTempo(mins, segs);
 	glFlush();
 	glutSwapBuffers();
 }
