@@ -137,6 +137,7 @@ float colisoesArcos[_MAX_ARCOS_GRAFO][6];
 Estado estado;
 Modelo modelo;
 
+GLfloat nextZ;
 
 
 void initEstado() {
@@ -175,6 +176,7 @@ void myInit(){
 	modelo.objecto.pos.x = 0;
 	modelo.objecto.pos.y = -5;
 	modelo.objecto.pos.z = 1.5;
+	nextZ = 0;
 	modelo.objecto.dir = 0;
 	modelo.objecto.vel = OBJECTO_VELOCIDADE;
 	modelo.andar = GL_FALSE;
@@ -217,8 +219,8 @@ void addColisaoNo() {
 		colisoesNos[no][1] = nos[no].x + largura;
 		colisoesNos[no][2] = nos[no].y - largura;
 		colisoesNos[no][3] = nos[no].y + largura;
-		colisoesNos[no][4] = nos[no].z - largura;
-		colisoesNos[no][5] = nos[no].z + largura;
+		colisoesNos[no][4] = nos[no].z;
+		colisoesNos[no][5] = nos[no].z;
 	}
 }
 
@@ -253,21 +255,64 @@ GLboolean inAreaColisaoNo(int i, GLfloat nx, GLfloat nz) {
 	float x1 = colisoesNos[i][1];
 	float y0 = colisoesNos[i][2];
 	float y1 = colisoesNos[i][3];
+	float z = colisoesNos[i][4];
+
+
 	
 	if ((x0 < nz && nz <x1) && (y0 < nx && nx < y1)) {
+		nextZ = z;
 		return true;
 	}
 
 	return false;
 }
 
+float getInclinacao(float x0, float x1, float z0, float z1) {
+	float dist = abs(x1 - x0);
+	float height = abs(z1 - z0);
+
+	float ang = asin(height/dist);
+	return ang;
+}
+
+
 GLboolean inAreaColisaoArco(int i, GLfloat nx, GLfloat nz) {
 	float x0 = colisoesArcos[i][0];
 	float x1 = colisoesArcos[i][1];
 	float y0 = colisoesArcos[i][2];
 	float y1 = colisoesArcos[i][3];
+	float z0 = colisoesArcos[i][4];
+	float z1 = colisoesArcos[i][5];
 
+	int noBaixo = 1;
+	if (z1 > z0) {
+		noBaixo = 0;
+	}
+
+	float ang;
+	//Validar o no mais baixo
 	if ((x0 < nz && nz <x1) && (y0 < nx && nx < y1)) {
+		if (abs(y1 - y0) > abs(x1 - x0)) {
+			ang = getInclinacao(y0, y1, z0, z1);
+
+			if (noBaixo == 0) {
+				float dist = abs(nx - y0);
+				nextZ = sin(ang)*dist + z0;
+			}else {
+				float dist = abs(nx - y1);
+				nextZ = sin(ang)*dist + z1;
+			}
+
+		}else {
+			ang = getInclinacao(x0, x1, z0, z1);
+			if (noBaixo == 0) {
+				float dist = abs(nz - x0);
+				nextZ = sin(ang)*dist + z0;
+			}else {
+				float dist = abs(nz - x1);
+				nextZ = sin(ang)*dist + z1;
+			}
+		}
 		return true;
 	}
 
@@ -311,6 +356,7 @@ void timer(int value) {
 
 			modelo.objecto.pos.y = ny;
 			modelo.objecto.pos.x = nx;
+			modelo.objecto.pos.z = nextZ + 0.25;
 
 			estado.camera.center[0] = modelo.objecto.pos.x;
 			estado.camera.center[1] = modelo.objecto.pos.y;
@@ -330,6 +376,7 @@ void timer(int value) {
 			!detectaColisao(ny - cos(modelo.objecto.dir - M_PI / 4)*OBJECTO_RAIO, nx - sin(-modelo.objecto.dir - M_PI / 4)*OBJECTO_RAIO)) {
 			modelo.objecto.pos.y = ny;
 			modelo.objecto.pos.x = nx;
+			modelo.objecto.pos.z = nextZ + 0.25;
 
 			estado.camera.center[0] = modelo.objecto.pos.x;
 			estado.camera.center[1] = modelo.objecto.pos.y;
@@ -622,19 +669,22 @@ void desenhaChao(GLfloat xi, GLfloat yi, GLfloat zi, GLfloat xf, GLfloat yf, GLf
 	}
 }
 void desenhaChaoRedondo(float largura, GLfloat x0, GLfloat y0, GLfloat z) {
+	double x, y;
 	material(red_plastic);
 	glBegin(GL_POLYGON);
+	glNormal3f(0, 0, 1);
 	int n = 30;
 	double alfa = 2 * M_PI / n;
 	double ang = 0;
 	for (int i = 0; i < n; i++) {
-		double x = x0 + largura * cos(ang);
-		double y = y0 + largura * sin(ang);
+		 x = x0 + largura * cos(ang);
+		 y = y0 + largura * sin(ang);
 		
 		glVertex3f(x, y,z);
 		ang += alfa;
 	}
 	glEnd();
+	
 }
 
 void desenhaNo(int no) {
