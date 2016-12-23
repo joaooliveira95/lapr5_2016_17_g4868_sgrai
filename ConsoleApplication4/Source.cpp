@@ -173,7 +173,7 @@ void initModelo() {
 
 void myInit(){
 
-	modelo.objecto.pos.x = 0;
+	modelo.objecto.pos.x = -2;
 	modelo.objecto.pos.y = -5;
 	modelo.objecto.pos.z = 1.5;
 	nextZ = 0;
@@ -253,6 +253,8 @@ GLboolean inAreaColisaoNo(int i, GLfloat ny, GLfloat nx) {
 	float y = colisoesNos[i][2];
 	float z = colisoesNos[i][3];
 	
+	//Valida se o Homer está dentro do nó de raio = largura, centrado em (X,y)
+	//Se estiver devolve True e atualiza nextZ ( altura do Homer)
 	if(pow(nx - x,2) + pow(ny-y,2) <= pow(largura,2)){
 		nextZ = z;
 		return true;
@@ -261,6 +263,8 @@ GLboolean inAreaColisaoNo(int i, GLfloat ny, GLfloat nx) {
 	return false;
 }
 
+//Calcula a inclinação de um triangulo rectangulo
+//Usado para calcular a inclinacao dos arcos
 float getInclinacao(float x0, float x1, float z0, float z1) {
 	float dist = abs(x1 - x0);
 	float height = abs(z1 - z0);
@@ -269,7 +273,7 @@ float getInclinacao(float x0, float x1, float z0, float z1) {
 	return ang;
 }
 
-
+//Valida se o Homer esta dentro de um arco
 GLboolean inAreaColisaoArco(int i, GLfloat nx, GLfloat nz) {
 	float x0 = colisoesArcos[i][0];
 	float x1 = colisoesArcos[i][1];
@@ -278,19 +282,30 @@ GLboolean inAreaColisaoArco(int i, GLfloat nx, GLfloat nz) {
 	float z0 = colisoesArcos[i][4];
 	float z1 = colisoesArcos[i][5];
 
-	int noBaixo = 1;
+	float xMaior = x1, xMenor = x0, yMaior = y1, yMenor = y0;
+
+	int noBaixo = 1;  //"flag" que guarda qual o nó que se encontra a menos altitude
 	if (z1 > z0) {
 		noBaixo = 0;
 	}
 
+	if (x0 > x1) {
+		xMaior = x0;
+		xMenor = x1;
+	}
+	if (y0 > y1){
+		yMaior = y0;
+		yMenor = y1;
+	}
+
 	float ang;
 	//Validar o no mais baixo
-	if ((x0 < nz && nz <x1) && (y0 < nx && nx < y1)) {
-		if (abs(y1 - y0) > abs(x1 - x0)) {
+	if ((xMenor < nz && nz <xMaior) && (yMenor < nx && nx < yMaior)) {
+		if (abs(y1 - y0) > abs(x1 - x0)) { //Valida se o arco se encontra orientado no eixo dos yy ou dos xx
 			ang = getInclinacao(y0, y1, z0, z1);
 
 			if (noBaixo == 0) {
-				float dist = abs(nx - y0);
+				float dist = abs(nx - y0); //distancia entre o no mais baixo e a posicao do homer
 				nextZ = sin(ang)*dist + z0;
 			}else {
 				float dist = abs(nx - y1);
@@ -313,7 +328,7 @@ GLboolean inAreaColisaoArco(int i, GLfloat nx, GLfloat nz) {
 	return false;
 }
 
-
+//Valida se o Homer encontra fora das áreas permitidas
 GLboolean detectaColisao(GLfloat nx, GLfloat nz){
 	for (int i = 0; i < numNos; i++) {
 		if (inAreaColisaoNo(i, nx, nz)) {
@@ -326,6 +341,11 @@ GLboolean detectaColisao(GLfloat nx, GLfloat nz){
 			return(GL_FALSE);
 		}
 	}
+	if (modelo.personagem.GetSequence() != 20)
+	{
+		modelo.personagem.SetSequence(20);
+		modelo.personagem.SetSequence(20);
+	}
 	return(GL_TRUE);
 	//return(GL_TRUE);
 }
@@ -335,8 +355,19 @@ void timer(int value) {
 	GLfloat ny, nx;
 	GLuint curr = GetTickCount();
 	float velocidade = modelo.objecto.vel*(curr - modelo.prev)*0.001;
-
-	glutTimerFunc(estado.timer, timer, 0);
+	
+	//animacao colisao
+	if (modelo.personagem.GetSequence() != 20){
+		glutTimerFunc(estado.timer, timer, 0);
+	}else if (value<4500){
+		glutTimerFunc(estado.timer, timer, value + curr - modelo.prev);
+		glutPostRedisplay();
+		return;
+	}else{
+		modelo.personagem.SetSequence(0);
+		modelo.personagem.SetSequence(0);
+		glutTimerFunc(estado.timer, timer, 0);
+	}
 
 	modelo.prev = curr;
 
@@ -404,6 +435,7 @@ void timer(int value) {
 			//	modelo.homer[JANELA_TOP].SetSequence(0);
 			}
 	}
+
 
 	glutPostRedisplay();
 }
@@ -1034,6 +1066,15 @@ void Special(int key, int x, int y) {
 	case GLUT_KEY_F3:
 
 		glutPostRedisplay();
+		break;
+
+	case GLUT_KEY_PAGE_UP:
+		if(estado.camera.dist>2)
+			estado.camera.dist--;
+		break;
+
+	case GLUT_KEY_PAGE_DOWN:
+			estado.camera.dist++;
 		break;
 
 	case GLUT_KEY_F6:
