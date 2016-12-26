@@ -12,6 +12,7 @@
 #include "mdlviewer.h"
 #include "grafos.h"
 #include "OverlaysDesign.h"
+#include "Skybox.h"
 
 using namespace std;
 
@@ -136,6 +137,7 @@ float colisoesArcos[_MAX_ARCOS_GRAFO][6];
 
 Estado estado;
 Modelo modelo;
+SKYBOX * skybox;
 
 GLfloat nextZ;
 
@@ -948,6 +950,7 @@ void display(void) {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glLoadIdentity();
 	setCamera();
+	skybox->Render((float)abs(estado.camera.dir_long) * 6, (float)(estado.camera.dir_lat) * 6);
 
 	glPushMatrix();
 	glTranslatef(modelo.objecto.pos.x, modelo.objecto.pos.y, modelo.objecto.pos.z);
@@ -1130,7 +1133,7 @@ void setProjection(int x, int y, GLboolean picking) {
 		gluPickMatrix(x, glutGet(GLUT_WINDOW_HEIGHT) - y, 4, 4, vport); // Inverte o y do rato para corresponder à jana
 	}
 
-	gluPerspective(estado.camera.fov, (GLfloat)glutGet(GLUT_WINDOW_WIDTH) / glutGet(GLUT_WINDOW_HEIGHT), 1, 500);
+	gluPerspective(estado.camera.fov, (GLfloat)glutGet(GLUT_WINDOW_WIDTH) / glutGet(GLUT_WINDOW_HEIGHT), 0.6, 500);
 
 }
 
@@ -1300,7 +1303,7 @@ void mouse(int btn, int state, int x, int y) {
 	}
 }
 
-void main(int argc, char **argv)
+int main(int argc, char **argv)
 {
 	glutInit(&argc, argv);
 
@@ -1322,5 +1325,17 @@ void main(int argc, char **argv)
 	mdlviewer_init("Yoda.mdl", modelo.poi);
 	imprime_ajuda();
 
-	glutMainLoop();
+	skybox = new SKYBOX();
+	if (skybox->Initialize())
+	{
+		// Início da aplicação
+		glutMainLoop();
+
+		// Destruição da skybox
+		skybox->Finalize();
+		delete skybox;
+
+		return 0;
+	}
+	return 1;
 }
