@@ -2,7 +2,7 @@
 #include <iostream>
 #include <fstream>
 
-#define __GRAFO__FILE__ "exemplo.grafo"
+#define __GRAFO__FILE__ "exemplo2.grafo"
 
 No nos[_MAX_NOS_GRAFO];
 Arco arcos[_MAX_ARCOS_GRAFO];

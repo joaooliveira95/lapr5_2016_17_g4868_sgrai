@@ -24,6 +24,7 @@ using namespace std;
 #define OBJECTO_VELOCIDADE		2.5
 #define SCALE_POI			    0.04
 #define SCALE_HOMER			    0.005
+#define K_LIGACAO	1.1
 //#define SCALE_HOMER				0.01
 
 // luzes e materiais
@@ -175,9 +176,9 @@ void initModelo() {
 
 void myInit(){
 
-	modelo.objecto.pos.x = -2;
-	modelo.objecto.pos.y = -5;
-	modelo.objecto.pos.z = 1.5;
+	modelo.objecto.pos.x = 0;
+	modelo.objecto.pos.y = -50;
+	modelo.objecto.pos.z = 2.5;
 	nextZ = 0;
 	modelo.objecto.dir = 0;
 	modelo.objecto.vel = OBJECTO_VELOCIDADE;
@@ -442,8 +443,7 @@ void timer(int value) {
 	glutPostRedisplay();
 }
 
-void imprime_ajuda(void)
-{
+void imprime_ajuda(void){
 	printf("\n\nDesenho de um labirinto a partir de um grafo\n");
 	printf("h,H - Ajuda \n");
 	printf("i,I - Reset dos Valores \n");
@@ -789,43 +789,32 @@ void desenhaNo(int no) {
 
 void desenhaArco(Arco arco) {
 	No *noi, *nof;
+	noi = &nos[arco.noi];
+	nof = &nos[arco.nof];
 
-	if (nos[arco.noi].x == nos[arco.nof].x) {
-		// arco vertical
-		if (nos[arco.noi].y<nos[arco.nof].y) {
-			noi = &nos[arco.noi];
-			nof = &nos[arco.nof];
-		}
-		else {
-			nof = &nos[arco.noi];
-			noi = &nos[arco.nof];
-		}
+	float si = K_LIGACAO * noi->largura/2;
+	float sf = K_LIGACAO * nof->largura/2;
 
-		desenhaChao(noi->x - 0.5*arco.largura, noi->y + 0.5*noi->largura, noi->z, nof->x + 0.5*arco.largura, nof->y - 0.5*nof->largura, nof->z, NORTE_SUL);
-		//addColisaoArco(noi->x - 0.5*arco.largura, nof->x + 0.5*arco.largura, noi->y + 0.5*noi->largura, nof->y - 0.5*noi->largura, noi->z, nof->z);
-		desenhaParede(noi->x - 0.5*arco.largura, noi->y + 0.5*noi->largura, noi->z, nof->x - 0.5*arco.largura, nof->y - 0.5*nof->largura, nof->z);
-		desenhaParede(nof->x + 0.5*arco.largura, nof->y - 0.5*nof->largura, nof->z, noi->x + 0.5*arco.largura, noi->y + 0.5*noi->largura, noi->z);
-	}
-	else {
-		if (nos[arco.noi].y == nos[arco.nof].y) {
-			//arco horizontal
-			if (nos[arco.noi].x<nos[arco.nof].x) {
-				noi = &nos[arco.noi];
-				nof = &nos[arco.nof];
-			}
-			else {
-				nof = &nos[arco.noi];
-				noi = &nos[arco.nof];
-			}
-			desenhaChao(noi->x + 0.5*noi->largura, noi->y - 0.5*arco.largura, noi->z, nof->x - 0.5*nof->largura, nof->y + 0.5*arco.largura, nof->z, ESTE_OESTE);
-			//addColisaoArco(noi->x + 0.5*arco.largura, nof->x - 0.5*arco.largura, noi->y - 0.5*noi->largura, nof->y + 0.5*noi->largura, noi->z, nof->z);
-			desenhaParede(noi->x + 0.5*noi->largura, noi->y + 0.5*arco.largura, noi->z, nof->x - 0.5*nof->largura, nof->y + 0.5*arco.largura, nof->z);
-			desenhaParede(nof->x - 0.5*nof->largura, nof->y - 0.5*arco.largura, nof->z, noi->x + 0.5*noi->largura, noi->y - 0.5*arco.largura, noi->z);
-		}
-		else {
-			cout << "arco diagonal... não será desenhado";
-		}
-	}
+	float xi = noi->x;
+	float xf = nof->x;
+	float yi = noi->y;
+	float yf = nof->y;
+	float zi = noi->z;
+	float zf = nof->z;
+	float comp_p = sqrt(pow(xf - xi, 2) + pow(yf - yi, 2)) - si - sf;
+	float desnivel_h = nof->z - noi->z;
+	float comprimento_sif = sqrt(pow(comp_p, 2) + pow(desnivel_h, 2));
+	float orientacao_a = atan2f((yf - yi), (xf - xi));
+	float inclinacao_B = atan2f(desnivel_h, comp_p);
+
+	glPushMatrix();
+	glTranslatef(xi, yi, zi);
+	glRotatef(graus(orientacao_a), 0, 0, 1);
+	glTranslatef(si, 0, 0);
+	glRotatef(graus(-inclinacao_B), 0, 1, 0);
+	glTranslatef(comprimento_sif / 2.0, 0, 0);
+	desenhaChao(-comprimento_sif*0.5, -arco.largura*0.5, 0, comprimento_sif*0.5, arco.largura*0.5, 0, NORTE_SUL);
+	glPopMatrix();
 }
 
 void desenhaGrafo() {
@@ -1326,8 +1315,7 @@ int main(int argc, char **argv)
 	imprime_ajuda();
 
 	skybox = new SKYBOX();
-	if (skybox->Initialize())
-	{
+	if (skybox->Initialize()){
 		// Início da aplicação
 		glutMainLoop();
 
