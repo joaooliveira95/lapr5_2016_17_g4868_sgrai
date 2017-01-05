@@ -132,10 +132,6 @@ typedef struct Modelo {
 	int			  tempo;
 }Modelo;
 
-float colisoesNos[_MAX_NOS_GRAFO][4];
-float colisoesArcos[_MAX_ARCOS_GRAFO][6];
-
-
 Estado estado;
 Modelo modelo;
 SKYBOX * skybox;
@@ -214,43 +210,7 @@ void myInit(){
 	leGrafo();
 }
 
-
-void addColisaoNo() {
-	for (int no = 0; no < numNos; no++) {
-		colisoesNos[no][0] = nos[no].largura;
-		colisoesNos[no][1] = nos[no].x;
-		colisoesNos[no][2] = nos[no].y ;
-		colisoesNos[no][3] = nos[no].z;
-	}
-}
-
-
-void addColisaoArco() {
-	for (int arco = 0; arco < numArcos; arco++) {
-		float largurax = 0;
-		float larguray = 0;
-		int noi = arcos[arco].noi;
-		int nof = arcos[arco].nof;
-		
-		int dX = pow((nos[nof].x - nos[noi].x), 2);
-		int dY = pow((nos[nof].y - nos[noi].y), 2);
-		if (dX > dY) {
-			largurax = arcos[arco].largura*0.5;
-		}
-		else{
-			larguray = arcos[arco].largura*0.5;
-		}
-
-		colisoesArcos[arco][0] = nos[noi].x - larguray;
-		colisoesArcos[arco][1] = nos[nof].x + larguray;
-		colisoesArcos[arco][2] = nos[noi].y - largurax;
-		colisoesArcos[arco][3] = nos[nof].y + largurax;
-		colisoesArcos[arco][4] = nos[noi].z;
-		colisoesArcos[arco][5] = nos[nof].z;
-	}
-}
-
-GLboolean inAreaColisaoNo(No no, GLfloat ny, GLfloat nx) {
+GLboolean inAreaNo(No no, GLfloat ny, GLfloat nx) {
 	float largura =no.largura;
 	float x = no.x;
 	float y = no.y;
@@ -261,25 +221,15 @@ GLboolean inAreaColisaoNo(No no, GLfloat ny, GLfloat nx) {
 	if(pow(nx - x,2) + pow(ny-y,2) <= pow(largura,2)){
 		modelo.objecto.pos.y = ny;
 		modelo.objecto.pos.x = nx;
-		modelo.objecto.pos.z = z + 0.25;
+		modelo.objecto.pos.z = z + OBJECTO_ALTURA/2;
 		return true;
 	}
 
 	return false;
 }
 
-//Calcula a inclinação de um triangulo rectangulo
-//Usado para calcular a inclinacao dos arcos
-float getInclinacao(float x0, float x1, float z0, float z1) {
-	float dist = abs(x1 - x0);
-	float height = abs(z1 - z0);
-
-	float ang = asin(height/dist);
-	return ang;
-}
-
 //Valida se o Homer esta dentro de um arco
-GLboolean inAreaColisaoArco(int i, GLfloat nx, GLfloat nz) {
+GLboolean inAreaArco(int i, GLfloat nx, GLfloat nz) {
 	//float x0 = colisoesArcos[i][0];
 	//float x1 = colisoesArcos[i][1];
 	//float y0 = colisoesArcos[i][2];
@@ -333,10 +283,11 @@ GLboolean inAreaColisaoArco(int i, GLfloat nx, GLfloat nz) {
 	return false;
 }
 
-boolean inAreaColisaoElemLiga(Arco arco, GLfloat x1P, GLfloat y1P) {
+boolean inAreaElemLiga(Arco arco, GLfloat x1P, GLfloat y1P) {
 	No *noi, *nof;
 	noi = &nos[arco.noi];
 	nof = &nos[arco.nof];
+
 	float si = K_LIGACAO * noi->largura;
 
 	float xi = noi->x;
@@ -344,44 +295,47 @@ boolean inAreaColisaoElemLiga(Arco arco, GLfloat x1P, GLfloat y1P) {
 	float yi = noi->y;
 	float yf = nof->y;
 	float zi = noi->z;
-	float zf = nof->z;
+
 	float orientacao_a = atan2f((yf - yi), (xf - xi));
 
 	float x2P = (x1P - xi) * cos(orientacao_a) + (y1P - yi) * sin(orientacao_a);
 	float y2P = (y1P - yi) * cos(orientacao_a) - (x1P - xi) * sin(orientacao_a);
 
-	if ((0.0 <= x2P <= si) && (-arco.largura / 2.0 <= y2P <= arco.largura / 2.0)) {
-		modelo.objecto.pos.x = x1P;
-		modelo.objecto.pos.y = y1P;
-		modelo.objecto.pos.z = zi + 0.5 / 2.0;
-	return true;
+	float largura = arco.largura / 2.0;
+	if (0.0 <= x2P && x2P <= si) {
+		if (-largura <= y2P && y2P <= largura) {
+			modelo.objecto.pos.x = x1P;
+			modelo.objecto.pos.y = y1P;
+			modelo.objecto.pos.z = zi + OBJECTO_ALTURA / 2;
+			return true;
+		}
 	}
 	return false;
 }
 
-//Valida se o Homer encontra fora das áreas permitidas
+//Valida se o Homer se encontra fora das áreas permitidas
 GLboolean detectaColisao(GLfloat nx, GLfloat nz){
 	for (int i = 0; i < numNos; i++) {
-		if (inAreaColisaoNo(nos[i], nx, nz)) {
+		if (inAreaNo(nos[i], nx, nz)) {
 			return(GL_FALSE);
 		}
 	}
 
 	for (int i = 0; i < numArcos; i++) {
-		/*if (inAreaColisaoArco(i, nx, nz)) {
+		/*if (inAreaArco(i, nx, nz)) {
 			return(GL_FALSE);
 		}*/
-		//if ((inAreaColisaoElemLiga(arcos[i], nz, nx))) {
-		//	return (GL_FALSE);
-		//}
+		if (inAreaElemLiga(arcos[i], nz, nx)) {
+			return (GL_FALSE);
+		}
 	}
+
 	if (modelo.personagem.GetSequence() != 20)
 	{
 		modelo.personagem.SetSequence(20);
 		modelo.personagem.SetSequence(20);
 	}
 	return(GL_TRUE);
-	//return(GL_TRUE);
 }
 
 void timer(int value) {
@@ -429,9 +383,6 @@ void timer(int value) {
 		if (!detectaColisao(ny, nx) &&
 			!detectaColisao(ny - cos(modelo.objecto.dir + M_PI / 4)*OBJECTO_RAIO, nx - sin(-modelo.objecto.dir + M_PI / 4)*OBJECTO_RAIO) &&
 			!detectaColisao(ny - cos(modelo.objecto.dir - M_PI / 4)*OBJECTO_RAIO, nx - sin(-modelo.objecto.dir - M_PI / 4)*OBJECTO_RAIO)) {
-			modelo.objecto.pos.y = ny;
-			modelo.objecto.pos.x = nx;
-			modelo.objecto.pos.z = nextZ + 0.25;
 
 			estado.camera.center[0] = modelo.objecto.pos.x;
 			estado.camera.center[1] = modelo.objecto.pos.y;
@@ -1030,9 +981,6 @@ void display(void) {
 	desenhaSolo();
 	desenhaEixos();
 	desenhaGrafo();
-	addColisaoNo();
-	addColisaoArco();
-
 	if (estado.eixoTranslaccao) {
 		// desenha plano de translacção
 		cout << "Translate... " << estado.eixoTranslaccao << endl;
