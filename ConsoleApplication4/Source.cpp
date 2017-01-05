@@ -784,7 +784,7 @@ void desenhaNo(int no) {
 			desenhaParede(nos[no].x + 0.5*noi->largura, nos[no].y - 0.5*larguraOeste, nos[no].z, nos[no].x + 0.5*noi->largura, nos[no].y - 0.5*noi->largura, nos[no].z);
 		}
 }
-void desenhaElemLiga(Arco arco){
+void desenhaElemLigaInicial(Arco arco){
 	No *noi, *nof;
 	noi = &nos[arco.noi];
 	nof = &nos[arco.nof];
@@ -860,7 +860,7 @@ void desenhaGrafo() {
 	material(emerald);
 	for (int i = 0; i < numArcos; i++) {
 		desenhaArco(arcos[i]);
-		desenhaElemLiga(arcos[i]);
+		desenhaElemLigaInicial(arcos[i]);
 	}
 	glPopMatrix();
 }
