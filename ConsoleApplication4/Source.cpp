@@ -250,16 +250,18 @@ void addColisaoArco() {
 	}
 }
 
-GLboolean inAreaColisaoNo(int i, GLfloat ny, GLfloat nx) {
-	float largura = colisoesNos[i][0];
-	float x = colisoesNos[i][1];
-	float y = colisoesNos[i][2];
-	float z = colisoesNos[i][3];
+GLboolean inAreaColisaoNo(No no, GLfloat ny, GLfloat nx) {
+	float largura =no.largura;
+	float x = no.x;
+	float y = no.y;
+	float z = no.z;
 	
 	//Valida se o Homer está dentro do nó de raio = largura, centrado em (X,y)
 	//Se estiver devolve True e atualiza nextZ ( altura do Homer)
 	if(pow(nx - x,2) + pow(ny-y,2) <= pow(largura,2)){
-		nextZ = z;
+		modelo.objecto.pos.y = ny;
+		modelo.objecto.pos.x = nx;
+		modelo.objecto.pos.z = z + 0.25;
 		return true;
 	}
 
@@ -278,71 +280,100 @@ float getInclinacao(float x0, float x1, float z0, float z1) {
 
 //Valida se o Homer esta dentro de um arco
 GLboolean inAreaColisaoArco(int i, GLfloat nx, GLfloat nz) {
-	float x0 = colisoesArcos[i][0];
-	float x1 = colisoesArcos[i][1];
-	float y0 = colisoesArcos[i][2];
-	float y1 = colisoesArcos[i][3];
-	float z0 = colisoesArcos[i][4];
-	float z1 = colisoesArcos[i][5];
+	//float x0 = colisoesArcos[i][0];
+	//float x1 = colisoesArcos[i][1];
+	//float y0 = colisoesArcos[i][2];
+	//float y1 = colisoesArcos[i][3];
+	//float z0 = colisoesArcos[i][4];
+	//float z1 = colisoesArcos[i][5];
 
-	float xMaior = x1, xMenor = x0, yMaior = y1, yMenor = y0;
+	//float xMaior = x1, xMenor = x0, yMaior = y1, yMenor = y0;
 
-	int noBaixo = 1;  //"flag" que guarda qual o nó que se encontra a menos altitude
-	if (z1 > z0) {
-		noBaixo = 0;
+	//int noBaixo = 1;  //"flag" que guarda qual o nó que se encontra a menos altitude
+	//if (z1 > z0) {
+	//	noBaixo = 0;
+	//}
+
+	//if (x0 > x1) {
+	//	xMaior = x0;
+	//	xMenor = x1;
+	//}
+	//if (y0 > y1){
+	//	yMaior = y0;
+	//	yMenor = y1;
+	//}
+
+	//float ang;
+	////Validar o no mais baixo
+	//if ((xMenor < nz && nz <xMaior) && (yMenor < nx && nx < yMaior)) {
+	//	if (abs(y1 - y0) > abs(x1 - x0)) { //Valida se o arco se encontra orientado no eixo dos yy ou dos xx
+	//		ang = getInclinacao(y0, y1, z0, z1);
+
+	//		if (noBaixo == 0) {
+	//			float dist = abs(nx - y0); //distancia entre o no mais baixo e a posicao do homer
+	//			nextZ = sin(ang)*dist + z0;
+	//		}else {
+	//			float dist = abs(nx - y1);
+	//			nextZ = sin(ang)*dist + z1;
+	//		}
+
+	//	}else {
+	//		ang = getInclinacao(x0, x1, z0, z1);
+	//		if (noBaixo == 0) {
+	//			float dist = abs(nz - x0);
+	//			nextZ = sin(ang)*dist + z0;
+	//		}else {
+	//			float dist = abs(nz - x1);
+	//			nextZ = sin(ang)*dist + z1;
+	//		}
+	//	}
+	//	return true;
+	//}
+
+	return false;
+}
+
+boolean inAreaColisaoElemLiga(Arco arco, GLfloat x1P, GLfloat y1P) {
+	No *noi, *nof;
+	noi = &nos[arco.noi];
+	nof = &nos[arco.nof];
+	float si = K_LIGACAO * noi->largura;
+
+	float xi = noi->x;
+	float xf = nof->x;
+	float yi = noi->y;
+	float yf = nof->y;
+	float zi = noi->z;
+	float zf = nof->z;
+	float orientacao_a = atan2f((yf - yi), (xf - xi));
+
+	float x2P = (x1P - xi) * cos(orientacao_a) + (y1P - yi) * sin(orientacao_a);
+	float y2P = (y1P - yi) * cos(orientacao_a) - (x1P - xi) * sin(orientacao_a);
+
+	if ((0.0 <= x2P <= si) && (-arco.largura / 2.0 <= y2P <= arco.largura / 2.0)) {
+		modelo.objecto.pos.x = x1P;
+		modelo.objecto.pos.y = y1P;
+		modelo.objecto.pos.z = zi + 0.5 / 2.0;
+	return true;
 	}
-
-	if (x0 > x1) {
-		xMaior = x0;
-		xMenor = x1;
-	}
-	if (y0 > y1){
-		yMaior = y0;
-		yMenor = y1;
-	}
-
-	float ang;
-	//Validar o no mais baixo
-	if ((xMenor < nz && nz <xMaior) && (yMenor < nx && nx < yMaior)) {
-		if (abs(y1 - y0) > abs(x1 - x0)) { //Valida se o arco se encontra orientado no eixo dos yy ou dos xx
-			ang = getInclinacao(y0, y1, z0, z1);
-
-			if (noBaixo == 0) {
-				float dist = abs(nx - y0); //distancia entre o no mais baixo e a posicao do homer
-				nextZ = sin(ang)*dist + z0;
-			}else {
-				float dist = abs(nx - y1);
-				nextZ = sin(ang)*dist + z1;
-			}
-
-		}else {
-			ang = getInclinacao(x0, x1, z0, z1);
-			if (noBaixo == 0) {
-				float dist = abs(nz - x0);
-				nextZ = sin(ang)*dist + z0;
-			}else {
-				float dist = abs(nz - x1);
-				nextZ = sin(ang)*dist + z1;
-			}
-		}
-		return true;
-	}
-
 	return false;
 }
 
 //Valida se o Homer encontra fora das áreas permitidas
 GLboolean detectaColisao(GLfloat nx, GLfloat nz){
 	for (int i = 0; i < numNos; i++) {
-		if (inAreaColisaoNo(i, nx, nz)) {
+		if (inAreaColisaoNo(nos[i], nx, nz)) {
 			return(GL_FALSE);
 		}
 	}
 
 	for (int i = 0; i < numArcos; i++) {
-		if (inAreaColisaoArco(i, nx, nz)) {
+		/*if (inAreaColisaoArco(i, nx, nz)) {
 			return(GL_FALSE);
-		}
+		}*/
+		//if ((inAreaColisaoElemLiga(arcos[i], nz, nx))) {
+		//	return (GL_FALSE);
+		//}
 	}
 	if (modelo.personagem.GetSequence() != 20)
 	{
@@ -381,10 +412,6 @@ void timer(int value) {
 			!detectaColisao(ny + cos(modelo.objecto.dir + M_PI / 4)*OBJECTO_RAIO, nx + sin(-modelo.objecto.dir + M_PI / 4)*OBJECTO_RAIO) &&
 			!detectaColisao(ny + cos(modelo.objecto.dir - M_PI / 4)*OBJECTO_RAIO, nx + sin(-modelo.objecto.dir - M_PI / 4)*OBJECTO_RAIO)) {
 
-
-			modelo.objecto.pos.y = ny;
-			modelo.objecto.pos.x = nx;
-			modelo.objecto.pos.z = nextZ + 0.25;
 
 			estado.camera.center[0] = modelo.objecto.pos.x;
 			estado.camera.center[1] = modelo.objecto.pos.y;
@@ -808,6 +835,29 @@ void desenhaElemLigaInicial(Arco arco){
 
 }
 
+void desenhaElemLigaFinal(Arco arco) {
+	No *noi, *nof;
+	noi = &nos[arco.nof];
+	nof = &nos[arco.noi];
+	float si = K_LIGACAO * noi->largura;
+	float xi = noi->x;
+	float xf = nof->x;
+	float yi = noi->y;
+	float yf = nof->y;
+	float zi = noi->z;
+	float zf = nof->z;
+
+	float orientacao_a = atan2f((yf - yi), (xf - xi));
+
+	glPushMatrix();
+	glTranslatef(xi, yi, zi);
+	glRotatef(graus(orientacao_a), 0, 0, 1);
+	glTranslatef(si / 2, 0, 0);
+
+	desenhaChao(-si*0.5, -arco.largura*0.5, 0, si*0.5, arco.largura*0.5, 0, NORTE_SUL);
+	glPopMatrix();
+
+}
 
 void desenhaArco(Arco arco) {
 	No *noi, *nof;
@@ -861,6 +911,7 @@ void desenhaGrafo() {
 	for (int i = 0; i < numArcos; i++) {
 		desenhaArco(arcos[i]);
 		desenhaElemLigaInicial(arcos[i]);
+		desenhaElemLigaFinal(arcos[i]);
 	}
 	glPopMatrix();
 }
