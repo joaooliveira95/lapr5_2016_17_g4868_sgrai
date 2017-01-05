@@ -784,7 +784,29 @@ void desenhaNo(int no) {
 			desenhaParede(nos[no].x + 0.5*noi->largura, nos[no].y - 0.5*larguraOeste, nos[no].z, nos[no].x + 0.5*noi->largura, nos[no].y - 0.5*noi->largura, nos[no].z);
 		}
 }
+void desenhaElemLiga(Arco arco){
+	No *noi, *nof;
+	noi = &nos[arco.noi];
+	nof = &nos[arco.nof];
+	float si = K_LIGACAO * noi->largura;
+	float xi = noi->x;
+	float xf = nof->x;
+	float yi = noi->y;
+	float yf = nof->y;
+	float zi = noi->z;
+	float zf = nof->z;
 
+	float orientacao_a = atan2f((yf - yi), (xf - xi));
+
+	glPushMatrix();
+	glTranslatef(xi, yi, zi);
+	glRotatef(graus(orientacao_a),0,0,1);
+	glTranslatef(si/2,0,0);
+
+	desenhaChao(-si*0.5, -arco.largura*0.5, 0, si*0.5, arco.largura*0.5, 0, NORTE_SUL);
+	glPopMatrix();
+
+}
 
 
 void desenhaArco(Arco arco) {
@@ -792,8 +814,8 @@ void desenhaArco(Arco arco) {
 	noi = &nos[arco.noi];
 	nof = &nos[arco.nof];
 
-	float si = K_LIGACAO * noi->largura/2;
-	float sf = K_LIGACAO * nof->largura/2;
+	float si = K_LIGACAO * noi->largura;
+	float sf = K_LIGACAO * nof->largura;
 
 	float xi = noi->x;
 	float xf = nof->x;
@@ -836,8 +858,10 @@ void desenhaGrafo() {
 		desenhaNo(i);
 	}
 	material(emerald);
-	for (int i = 0; i<numArcos; i++)
+	for (int i = 0; i < numArcos; i++) {
 		desenhaArco(arcos[i]);
+		desenhaElemLiga(arcos[i]);
+	}
 	glPopMatrix();
 }
 
