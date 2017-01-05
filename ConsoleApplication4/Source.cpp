@@ -229,57 +229,37 @@ GLboolean inAreaNo(No no, GLfloat ny, GLfloat nx) {
 }
 
 //Valida se o Homer esta dentro de um arco
-GLboolean inAreaArco(int i, GLfloat nx, GLfloat nz) {
-	//float x0 = colisoesArcos[i][0];
-	//float x1 = colisoesArcos[i][1];
-	//float y0 = colisoesArcos[i][2];
-	//float y1 = colisoesArcos[i][3];
-	//float z0 = colisoesArcos[i][4];
-	//float z1 = colisoesArcos[i][5];
+GLboolean inAreaArco(Arco arco, GLfloat x1P, GLfloat y1P) {
+	No *noi, *nof;
+	noi = &nos[arco.noi];
+	nof = &nos[arco.nof];
 
-	//float xMaior = x1, xMenor = x0, yMaior = y1, yMenor = y0;
+	float si = K_LIGACAO * noi->largura;
+	float sf = K_LIGACAO * nof->largura;
 
-	//int noBaixo = 1;  //"flag" que guarda qual o nó que se encontra a menos altitude
-	//if (z1 > z0) {
-	//	noBaixo = 0;
-	//}
+	float xi = noi->x;
+	float xf = nof->x;
+	float yi = noi->y;
+	float yf = nof->y;
+	float zi = noi->z;
 
-	//if (x0 > x1) {
-	//	xMaior = x0;
-	//	xMenor = x1;
-	//}
-	//if (y0 > y1){
-	//	yMaior = y0;
-	//	yMenor = y1;
-	//}
+	float orientacao_a = atan2f((yf - yi), (xf - xi));
+	float comp_p = sqrt(pow(xf - xi, 2) + pow(yf - yi, 2)) - si - sf;
+	float desnivel_h = nof->z - noi->z;
 
-	//float ang;
-	////Validar o no mais baixo
-	//if ((xMenor < nz && nz <xMaior) && (yMenor < nx && nx < yMaior)) {
-	//	if (abs(y1 - y0) > abs(x1 - x0)) { //Valida se o arco se encontra orientado no eixo dos yy ou dos xx
-	//		ang = getInclinacao(y0, y1, z0, z1);
 
-	//		if (noBaixo == 0) {
-	//			float dist = abs(nx - y0); //distancia entre o no mais baixo e a posicao do homer
-	//			nextZ = sin(ang)*dist + z0;
-	//		}else {
-	//			float dist = abs(nx - y1);
-	//			nextZ = sin(ang)*dist + z1;
-	//		}
+	float x2P = (x1P - xi) * cos(orientacao_a) + (y1P - yi) * sin(orientacao_a);
+	float y2P = (y1P - yi) * cos(orientacao_a) - (x1P - xi) * sin(orientacao_a);
 
-	//	}else {
-	//		ang = getInclinacao(x0, x1, z0, z1);
-	//		if (noBaixo == 0) {
-	//			float dist = abs(nz - x0);
-	//			nextZ = sin(ang)*dist + z0;
-	//		}else {
-	//			float dist = abs(nz - x1);
-	//			nextZ = sin(ang)*dist + z1;
-	//		}
-	//	}
-	//	return true;
-	//}
-
+	float largura = arco.largura / 2.0;
+	if (si <= x2P && x2P <= si+comp_p) {
+		if (-largura <= y2P && y2P <= largura) {
+			modelo.objecto.pos.x = x1P;
+			modelo.objecto.pos.y = y1P;
+			modelo.objecto.pos.z = zi + (x2P-si) / comp_p * desnivel_h + OBJECTO_ALTURA / 2;
+			return true;
+		}
+	}
 	return false;
 }
 
@@ -287,6 +267,36 @@ boolean inAreaElemLiga(Arco arco, GLfloat x1P, GLfloat y1P) {
 	No *noi, *nof;
 	noi = &nos[arco.noi];
 	nof = &nos[arco.nof];
+
+	float si = K_LIGACAO * noi->largura;
+
+	float xi = noi->x;
+	float xf = nof->x;
+	float yi = noi->y;
+	float yf = nof->y;
+	float zi = noi->z;
+
+	float orientacao_a = atan2f((yf - yi), (xf - xi));
+
+	float x2P = (x1P - xi) * cos(orientacao_a) + (y1P - yi) * sin(orientacao_a);
+	float y2P = (y1P - yi) * cos(orientacao_a) - (x1P - xi) * sin(orientacao_a);
+
+	float largura = arco.largura / 2.0;
+	if (0.0 <= x2P && x2P <= si) {
+		if (-largura <= y2P && y2P <= largura) {
+			modelo.objecto.pos.x = x1P;
+			modelo.objecto.pos.y = y1P;
+			modelo.objecto.pos.z = zi + OBJECTO_ALTURA / 2;
+			return true;
+		}
+	}
+	return false;
+}
+
+boolean inAreaElemLigaFinal(Arco arco, GLfloat x1P, GLfloat y1P) {
+	No *noi, *nof;
+	noi = &nos[arco.nof];
+	nof = &nos[arco.noi];
 
 	float si = K_LIGACAO * noi->largura;
 
@@ -322,10 +332,13 @@ GLboolean detectaColisao(GLfloat nx, GLfloat nz){
 	}
 
 	for (int i = 0; i < numArcos; i++) {
-		/*if (inAreaArco(i, nx, nz)) {
+		if (inAreaArco(arcos[i], nz, nx)) {
 			return(GL_FALSE);
-		}*/
+		}
 		if (inAreaElemLiga(arcos[i], nz, nx)) {
+			return (GL_FALSE);
+		}
+		if (inAreaElemLigaFinal(arcos[i], nz, nx)) {
 			return (GL_FALSE);
 		}
 	}
