@@ -20,6 +20,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="grafos.h" />
+    <ClInclude Include="MaterialAndLight.h" />
     <ClInclude Include="mathlib.h" />
     <ClInclude Include="mdlviewer.h" />
     <ClInclude Include="OverlaysDesign.h" />
@@ -28,6 +29,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="grafos.cpp" />
+    <ClCompile Include="MaterialAndLight.cpp" />
     <ClCompile Include="math.cpp" />
     <ClCompile Include="mdlviewer.cpp" />
     <ClCompile Include="OverlaysDesign.cpp" />
