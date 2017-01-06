@@ -23,20 +23,24 @@
     <ClInclude Include="MaterialAndLight.h" />
     <ClInclude Include="mathlib.h" />
     <ClInclude Include="mdlviewer.h" />
+    <ClInclude Include="MenuDesign.h" />
     <ClInclude Include="OverlaysDesign.h" />
     <ClInclude Include="Skybox.h" />
     <ClInclude Include="studio.h" />
+    <ClInclude Include="TextureLoader.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="grafos.cpp" />
     <ClCompile Include="MaterialAndLight.cpp" />
     <ClCompile Include="math.cpp" />
     <ClCompile Include="mdlviewer.cpp" />
+    <ClCompile Include="MenuDesign.cpp" />
     <ClCompile Include="OverlaysDesign.cpp" />
     <ClCompile Include="skybox.cpp" />
     <ClCompile Include="Source.cpp" />
     <ClCompile Include="studio_render.cpp" />
     <ClCompile Include="studio_utils.cpp" />
+    <ClCompile Include="TextureLoader.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{ACD05F2D-1985-4B7D-9595-A40C166D0461}</ProjectGuid>

@@ -13,6 +13,8 @@
 #include "grafos.h"
 #include "OverlaysDesign.h"
 #include "Skybox.h"
+#include "TextureLoader.h"
+#include "MenuDesign.h"
 
 using namespace std;
 
@@ -138,6 +140,8 @@ Modelo modelo;
 SKYBOX * skybox;
 
 GLfloat nextZ;
+MenuDesign menuDesign;
+Menu menus;
 
 
 void initEstado() {
@@ -180,7 +184,9 @@ void initModelo() {
 
 
 void myInit(){
-
+	menuDesign = MenuDesign();
+	menus.menuActivo = GL_FALSE;
+	menus.index = 0;
 	modelo.objecto.pos.x = 0;
 	modelo.objecto.pos.y = -50;
 	modelo.objecto.pos.z = 2.5;
@@ -220,19 +226,30 @@ void myInit(){
 }
 
 void myReshapeMainWindow(int width, int height){
-	GLint w, h;
-	w = (width - GAP * 3)*.5;
-	h = (height - GAP * 2);
-	glutSetWindow(estado.topSubwindow);
-	glutPositionWindow(GAP, GAP);
-	glutReshapeWindow(w/1.5, h);
-	glutSetWindow(estado.navigateSubwindow);
-	glutPositionWindow(GAP + w/1.5 + GAP, GAP);
-	glutReshapeWindow(w*1.35, h);
+	
 
+	if (menus.menuActivo) {
+		GLint w, h;
+		w = (width - GAP * 3)*.5;
+		h = (height - GAP * 2);
+		glutSetWindow(estado.topSubwindow);
+		glutPositionWindow(GAP, GAP);
+		glutReshapeWindow(0, h);
+		glutSetWindow(estado.navigateSubwindow);
+		glutPositionWindow(0, 0);
+		glutReshapeWindow(width, height);
+	}else {
+		GLint w, h;
+		w = (width - GAP * 3)*.5;
+		h = (height - GAP * 2);
+		glutSetWindow(estado.topSubwindow);
+		glutPositionWindow(GAP, GAP);
+		glutReshapeWindow(w / 1.5, h);
+		glutSetWindow(estado.navigateSubwindow);
+		glutPositionWindow(GAP + w / 1.5 + GAP, GAP);
+		glutReshapeWindow(w*1.35, h);
+	}
 }
-
-
 
 void myReshapeTopWindow(int width, int height) {
 	// glViewport(botom, left, width, height)
@@ -263,6 +280,8 @@ void displayMainWindow()
 {
 	glClearColor(0.8f, 0.8f, 0.8f, 0.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+
 	glutSwapBuffers();
 }
 
@@ -651,36 +670,6 @@ void desenhaNormal(GLdouble x, GLdouble y, GLdouble z, GLdouble normal[], tipo_m
 	glEnable(GL_LIGHTING);
 }
 
-void desenhaParede(GLfloat xi, GLfloat yi, GLfloat zi, GLfloat xf, GLfloat yf, GLfloat zf) {
-	/*GLdouble v1[3], v2[3], cross[3];
-	GLdouble length;
-	v1[0] = xf - xi;
-	v1[1] = yf - yi;
-	v1[2] = 0;
-	v2[0] = 0;
-	v2[1] = 0;
-	v2[2] = 1;
-	CrossProduct(v1, v2, cross);
-	//printf("cross x=%lf y=%lf z=%lf",cross[0],cross[1],cross[2]);
-	length = VectorNormalize(cross);
-	//printf("Normal x=%lf y=%lf z=%lf length=%lf\n",cross[0],cross[1],cross[2]);
-
-	material(emerald);
-	glBegin(GL_QUADS);
-	glNormal3dv(cross);
-	glVertex3f(xi, yi, zi);
-	glVertex3f(xf, yf, zf + 0);
-	glVertex3f(xf, yf, zf + 1);
-	glVertex3f(xi, yi, zi + 1);
-	glEnd();
-
-	if (estado.apresentaNormais) {
-		desenhaNormal(xi, yi, zi, cross, emerald);
-		desenhaNormal(xf, yf, zf, cross, emerald);
-		desenhaNormal(xf, yf, zf + 1, cross, emerald);
-		desenhaNormal(xi, yi, zi + 1, cross, emerald);
-	}*/
-}
 
 void desenhaChao(GLfloat xi, GLfloat yi, GLfloat zi, GLfloat xf, GLfloat yf, GLfloat zf, int orient) {
 
@@ -785,66 +774,7 @@ void desenhaNo(int no) {
 	norte = sul = este = oeste = GL_TRUE;
 	//desenhaChao(nos[no].x - 0.5*noi->largura, nos[no].y - 0.5*noi->largura, nos[no].z, nos[no].x + 0.5*noi->largura, nos[no].y + 0.5*noi->largura, nos[no].z, PLANO);
 	desenhaChaoRedondo(noi->largura, noi->x, noi->y, noi->z);
-	for (int i = 0; i<numArcos; arco = arcos[++i]) {
-		if (arco.noi == no)
-			nof = &nos[arco.nof];
-		else
-			if (arco.nof == no)
-				nof = &nos[arco.noi];
-			else
-				continue;
-		if (noi->x == nof->x)
-			if (noi->y<nof->y) {
-				norte = GL_FALSE;
-				larguraNorte = arco.largura;
-			}
-			else {
-				sul = GL_FALSE;
-				larguraSul = arco.largura;
-			}
-		else
-			if (noi->y == nof->y)
-				if (noi->x<nof->x) {
-					oeste = GL_FALSE;
-					larguraOeste = arco.largura;
-				}
-				else {
-					este = GL_FALSE;
-					larguraEste = arco.largura;
-				}
-			else
-				cout << "Arco dioagonal: " << arco.noi << " " << arco.nof << endl;
-		if (norte && sul && este && oeste)
-			return;
-	}
-	if (norte)
-		desenhaParede(nos[no].x - 0.5*noi->largura, nos[no].y + 0.5*noi->largura, nos[no].z, nos[no].x + 0.5*noi->largura, nos[no].y + 0.5*noi->largura, nos[no].z);
-	else
-		if (larguraNorte < noi->largura) {
-			desenhaParede(nos[no].x - 0.5*noi->largura, nos[no].y + 0.5*noi->largura, nos[no].z, nos[no].x - 0.5*larguraNorte, nos[no].y + 0.5*noi->largura, nos[no].z);
-			desenhaParede(nos[no].x + 0.5*larguraNorte, nos[no].y + 0.5*noi->largura, nos[no].z, nos[no].x + 0.5*noi->largura, nos[no].y + 0.5*noi->largura, nos[no].z);
-		}
-	if (sul)
-		desenhaParede(nos[no].x + 0.5*noi->largura, nos[no].y - 0.5*noi->largura, nos[no].z, nos[no].x - 0.5*noi->largura, nos[no].y - 0.5*noi->largura, nos[no].z);
-	else
-		if (larguraSul < noi->largura) {
-			desenhaParede(nos[no].x + 0.5*noi->largura, nos[no].y - 0.5*noi->largura, nos[no].z, nos[no].x + 0.5*larguraSul, nos[no].y - 0.5*noi->largura, nos[no].z);
-			desenhaParede(nos[no].x - 0.5*larguraSul, nos[no].y - 0.5*noi->largura, nos[no].z, nos[no].x - 0.5*noi->largura, nos[no].y - 0.5*noi->largura, nos[no].z);
-		}
-	if (este)
-		desenhaParede(nos[no].x - 0.5*noi->largura, nos[no].y - 0.5*noi->largura, nos[no].z, nos[no].x - 0.5*noi->largura, nos[no].y + 0.5*noi->largura, nos[no].z);
-	else
-		if (larguraEste < noi->largura) {
-			desenhaParede(nos[no].x - 0.5*noi->largura, nos[no].y - 0.5*noi->largura, nos[no].z, nos[no].x - 0.5*noi->largura, nos[no].y - 0.5*larguraEste, nos[no].z);
-			desenhaParede(nos[no].x - 0.5*noi->largura, nos[no].y + 0.5*larguraEste, nos[no].z, nos[no].x - 0.5*noi->largura, nos[no].y + 0.5*noi->largura, nos[no].z);
-		}
-	if (oeste)
-		desenhaParede(nos[no].x + 0.5*noi->largura, nos[no].y + 0.5*noi->largura, nos[no].z, nos[no].x + 0.5*noi->largura, nos[no].y - 0.5*noi->largura, nos[no].z);
-	else
-		if (larguraOeste < noi->largura) {
-			desenhaParede(nos[no].x + 0.5*noi->largura, nos[no].y + 0.5*noi->largura, nos[no].z, nos[no].x + 0.5*noi->largura, nos[no].y + 0.5*larguraOeste, nos[no].z);
-			desenhaParede(nos[no].x + 0.5*noi->largura, nos[no].y - 0.5*larguraOeste, nos[no].z, nos[no].x + 0.5*noi->largura, nos[no].y - 0.5*noi->largura, nos[no].z);
-		}
+
 }
 void desenhaElemLigaInicial(Arco arco){
 	No *noi, *nof;
@@ -1046,6 +976,7 @@ void setCamera() {
 }
 
 void displayNavigateWindow(void) {
+
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glLoadIdentity();
 	setCamera();
@@ -1076,12 +1007,20 @@ void displayNavigateWindow(void) {
 	OverlaysDesign ui = OverlaysDesign();
 	ui.desenhaKm(modelo.km);
 
+	if (menus.menuActivo) {
+		material(cinza);
+		menuDesign.drawMenu(menus.menuActivo, menus.index);
+	}
+
 	//Tempo
 	time_t now = time(0);
 	int tempoDecorrido = now - modelo.tempo;
 	int mins = tempoDecorrido / 60;
 	int segs = tempoDecorrido - 60 * mins;
 	ui.desenhaTempo(mins, segs);
+
+
+
 	glFlush();
 
 	glutSwapBuffers();
@@ -1263,6 +1202,7 @@ void Special(int key, int x, int y) {
 		addArco(criaArco(4, 6, 1, 1));  // 4 - 6
 		redisplayAll();
 		break;
+
 	case GLUT_KEY_UP: estado.teclas.up = GL_TRUE;
 		break;
 	case GLUT_KEY_DOWN: estado.teclas.down = GL_TRUE;
