@@ -19,22 +19,22 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="ConsolaMenu.h" />
     <ClInclude Include="grafos.h" />
     <ClInclude Include="MaterialAndLight.h" />
     <ClInclude Include="mathlib.h" />
     <ClInclude Include="mdlviewer.h" />
-    <ClInclude Include="MenuDesign.h" />
     <ClInclude Include="OverlaysDesign.h" />
     <ClInclude Include="Skybox.h" />
     <ClInclude Include="studio.h" />
     <ClInclude Include="TextureLoader.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="ConsolaMenu.cpp" />
     <ClCompile Include="grafos.cpp" />
     <ClCompile Include="MaterialAndLight.cpp" />
     <ClCompile Include="math.cpp" />
     <ClCompile Include="mdlviewer.cpp" />
-    <ClCompile Include="MenuDesign.cpp" />
     <ClCompile Include="OverlaysDesign.cpp" />
     <ClCompile Include="skybox.cpp" />
     <ClCompile Include="Source.cpp" />

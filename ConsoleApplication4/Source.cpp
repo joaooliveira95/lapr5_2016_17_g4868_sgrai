@@ -13,8 +13,7 @@
 #include "grafos.h"
 #include "OverlaysDesign.h"
 #include "Skybox.h"
-#include "TextureLoader.h"
-#include "MenuDesign.h"
+#include "ConsolaMenu.h"
 
 using namespace std;
 
@@ -93,7 +92,7 @@ typedef struct Estado {
 	Camera		camera, camera2;
 	GLint		timer;
 	int			xMouse, yMouse;
-	GLint		mainWindow, topSubwindow, navigateSubwindow;
+	GLint		mainWindow, topSubwindow, navigateSubwindow, menuSubwindow;
 	GLboolean	light;
 	GLboolean	apresentaNormais;
 	GLint		lightViewer;
@@ -140,8 +139,6 @@ Modelo modelo;
 SKYBOX * skybox;
 
 GLfloat nextZ;
-MenuDesign menuDesign;
-Menu menus;
 
 
 void initEstado() {
@@ -184,14 +181,11 @@ void initModelo() {
 
 
 void myInit(){
-	menuDesign = MenuDesign();
-	menus.menuActivo = GL_FALSE;
-	menus.index = 0;
 	modelo.objecto.pos.x = 0;
 	modelo.objecto.pos.y = -50;
 	modelo.objecto.pos.z = 2.5;
 	nextZ = 0;
-	modelo.objecto.dir = rad(-5);
+	modelo.objecto.dir = 0;
 	modelo.objecto.vel = OBJECTO_VELOCIDADE;
 	modelo.andar = GL_FALSE;
 
@@ -225,31 +219,24 @@ void myInit(){
 	leGrafo();
 }
 
+
+
 void myReshapeMainWindow(int width, int height){
 	
+		GLint w, h;
+		w = (width - GAP * 3)*.5;
+		h = (height - GAP * 2);
+		glutSetWindow(estado.topSubwindow);
+		glutPositionWindow(GAP+5, height -(GAP+h/3+5));
+		glutReshapeWindow(w/3, h/3);
 
-	if (menus.menuActivo) {
-		GLint w, h;
-		w = (width - GAP * 3)*.5;
-		h = (height - GAP * 2);
-		glutSetWindow(estado.topSubwindow);
-		glutPositionWindow(GAP, GAP);
-		glutReshapeWindow(0, h);
 		glutSetWindow(estado.navigateSubwindow);
-		glutPositionWindow(0, 0);
-		glutReshapeWindow(width, height);
-	}else {
-		GLint w, h;
-		w = (width - GAP * 3)*.5;
-		h = (height - GAP * 2);
-		glutSetWindow(estado.topSubwindow);
-		glutPositionWindow(GAP, GAP);
-		glutReshapeWindow(w / 1.5, h);
-		glutSetWindow(estado.navigateSubwindow);
-		glutPositionWindow(GAP + w / 1.5 + GAP, GAP);
-		glutReshapeWindow(w*1.35, h);
-	}
+		glutPositionWindow( GAP, GAP);
+		glutReshapeWindow(width - 2*GAP, height - 2*GAP);
+
 }
+
+
 
 void myReshapeTopWindow(int width, int height) {
 	// glViewport(botom, left, width, height)
@@ -273,11 +260,12 @@ void redisplayAll(void)
 	glutPostRedisplay();
 	glutSetWindow(estado.navigateSubwindow);
 	glutPostRedisplay();
+	glutSetWindow(estado.menuSubwindow);
+	glutPostRedisplay();
 
 }
 
-void displayMainWindow()
-{
+void displayMainWindow(){
 	glClearColor(0.8f, 0.8f, 0.8f, 0.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -398,8 +386,9 @@ boolean inAreaElemLigaFinal(Arco arco, GLfloat x1P, GLfloat y1P) {
 	return false;
 }
 
+
 //Valida se o Homer se encontra fora das áreas permitidas
-GLboolean detectaColisao(GLfloat nx, GLfloat nz){
+GLboolean detectaColisao(GLfloat nx, GLfloat nz) {
 	for (int i = 0; i < numNos; i++) {
 		if (inAreaNo(nos[i], nx, nz)) {
 			return(GL_FALSE);
@@ -426,9 +415,45 @@ GLboolean detectaColisao(GLfloat nx, GLfloat nz){
 	return(GL_TRUE);
 }
 
+
+void teclaUp(float velocidade) {
+	GLfloat ny, nx;
+	ny = modelo.objecto.pos.y + cos(modelo.objecto.dir)*velocidade;
+	nx = modelo.objecto.pos.x + sin(-modelo.objecto.dir)*velocidade;
+	if (!detectaColisao(ny + cos(modelo.objecto.dir)*OBJECTO_RAIO, nx + sin(-modelo.objecto.dir)*OBJECTO_RAIO) &&
+		!detectaColisao(ny + cos(modelo.objecto.dir + M_PI / 4)*OBJECTO_RAIO, nx + sin(-modelo.objecto.dir + M_PI / 4)*OBJECTO_RAIO) &&
+		!detectaColisao(ny + cos(modelo.objecto.dir - M_PI / 4)*OBJECTO_RAIO, nx + sin(-modelo.objecto.dir - M_PI / 4)*OBJECTO_RAIO)) {
+
+
+		estado.camera.center[0] = modelo.objecto.pos.x;
+		estado.camera.center[1] = modelo.objecto.pos.y;
+		estado.camera.center[2] = modelo.objecto.pos.z;
+
+		modelo.km += 0.5;
+
+	}
+}
+
+void teclaDown(float velocidade) {
+	GLfloat ny, nx;
+	ny = modelo.objecto.pos.y - cos(modelo.objecto.dir)*velocidade;
+	nx = modelo.objecto.pos.x - sin(-modelo.objecto.dir)*velocidade;
+	if (!detectaColisao(ny, nx) &&
+		!detectaColisao(ny - cos(modelo.objecto.dir + M_PI / 4)*OBJECTO_RAIO, nx - sin(-modelo.objecto.dir + M_PI / 4)*OBJECTO_RAIO) &&
+		!detectaColisao(ny - cos(modelo.objecto.dir - M_PI / 4)*OBJECTO_RAIO, nx - sin(-modelo.objecto.dir - M_PI / 4)*OBJECTO_RAIO)) {
+
+		estado.camera.center[0] = modelo.objecto.pos.x;
+		estado.camera.center[1] = modelo.objecto.pos.y;
+		estado.camera.center[2] = modelo.objecto.pos.z;
+
+		modelo.km += 0.5;
+	}
+	
+}
+
 void timer(int value) {
 	GLboolean andar = GL_FALSE;
-	GLfloat ny, nx;
+	
 	GLuint curr = GetTickCount();
 	float velocidade = modelo.objecto.vel*(curr - modelo.prev)*0.001;
 	
@@ -448,36 +473,11 @@ void timer(int value) {
 	modelo.prev = curr;
 
 	if (estado.teclas.up) {
-		ny = modelo.objecto.pos.y + cos(modelo.objecto.dir)*velocidade;
-		nx = modelo.objecto.pos.x + sin(-modelo.objecto.dir)*velocidade;
-		if (!detectaColisao(ny + cos(modelo.objecto.dir)*OBJECTO_RAIO, nx + sin(-modelo.objecto.dir)*OBJECTO_RAIO) &&
-			!detectaColisao(ny + cos(modelo.objecto.dir + M_PI / 4)*OBJECTO_RAIO, nx + sin(-modelo.objecto.dir + M_PI / 4)*OBJECTO_RAIO) &&
-			!detectaColisao(ny + cos(modelo.objecto.dir - M_PI / 4)*OBJECTO_RAIO, nx + sin(-modelo.objecto.dir - M_PI / 4)*OBJECTO_RAIO)) {
-
-
-			estado.camera.center[0] = modelo.objecto.pos.x;
-			estado.camera.center[1] = modelo.objecto.pos.y;
-			estado.camera.center[2] = modelo.objecto.pos.z;
-
-			modelo.km += 0.5;
-
-		}
+		teclaUp(velocidade);
 		andar = GL_TRUE;
-
 	}
 	if (estado.teclas.down) {
-		ny = modelo.objecto.pos.y - cos(modelo.objecto.dir)*velocidade;
-		nx = modelo.objecto.pos.x - sin(-modelo.objecto.dir)*velocidade;
-		if (!detectaColisao(ny, nx) &&
-			!detectaColisao(ny - cos(modelo.objecto.dir + M_PI / 4)*OBJECTO_RAIO, nx - sin(-modelo.objecto.dir + M_PI / 4)*OBJECTO_RAIO) &&
-			!detectaColisao(ny - cos(modelo.objecto.dir - M_PI / 4)*OBJECTO_RAIO, nx - sin(-modelo.objecto.dir - M_PI / 4)*OBJECTO_RAIO)) {
-
-			estado.camera.center[0] = modelo.objecto.pos.x;
-			estado.camera.center[1] = modelo.objecto.pos.y;
-			estado.camera.center[2] = modelo.objecto.pos.z;
-
-			modelo.km += 0.5;
-		}
+		teclaDown(velocidade);
 		andar = GL_TRUE;
 	}
 	
@@ -979,6 +979,7 @@ void displayNavigateWindow(void) {
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glLoadIdentity();
+
 	setCamera();
 	putFoco();
 	skybox->Render((float)abs(estado.camera.dir_long) * 6, (float)(estado.camera.dir_lat) * 6);
@@ -1007,10 +1008,6 @@ void displayNavigateWindow(void) {
 	OverlaysDesign ui = OverlaysDesign();
 	ui.desenhaKm(modelo.km);
 
-	if (menus.menuActivo) {
-		material(cinza);
-		menuDesign.drawMenu(menus.menuActivo, menus.index);
-	}
 
 	//Tempo
 	time_t now = time(0);
@@ -1018,8 +1015,6 @@ void displayNavigateWindow(void) {
 	int mins = tempoDecorrido / 60;
 	int segs = tempoDecorrido - 60 * mins;
 	ui.desenhaTempo(mins, segs);
-
-
 
 	glFlush();
 
@@ -1155,6 +1150,7 @@ void keyboard(unsigned char key, int x, int y) {
 		initModelo();
 		redisplayAll();
 		break;
+
 	}
 }
 
@@ -1408,10 +1404,12 @@ void mouse(int btn, int state, int x, int y) {
 	}
 }
 
-int main(int argc, char **argv)
-{
+int main(int argc, char **argv){
+	ConsolaMenu consola = ConsolaMenu();
+	consola.consolaMain();
+
 	glutInit(&argc, argv);
-	
+
 	glutInitWindowPosition(10, 10);
 	glutInitWindowSize(800 + GAP * 3, 400 + GAP * 2);
 	/* need both double buffering and z buffer */
@@ -1425,7 +1423,6 @@ int main(int argc, char **argv)
 	glutTimerFunc(estado.timer, timer, 0);
 	glutKeyboardFunc(keyboard);
 	glutSpecialFunc(Special);
-	glutMouseFunc(mouse);
 	glutSpecialUpFunc(SpecialKeyUp);
 	
 	//subwindow
@@ -1464,6 +1461,7 @@ int main(int argc, char **argv)
 
 		return 0;
 	}
+
 
 	return 1;
 }
