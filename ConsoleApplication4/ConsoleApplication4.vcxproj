@@ -28,6 +28,7 @@
     <ClInclude Include="Skybox.h" />
     <ClInclude Include="studio.h" />
     <ClInclude Include="TextureLoader.h" />
+    <ClInclude Include="wheather.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ConsolaMenu.cpp" />

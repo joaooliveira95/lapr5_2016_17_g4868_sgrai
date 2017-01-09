@@ -15,6 +15,7 @@
 #include "Skybox.h"
 #include "ConsolaMenu.h"
 #include "TextureLoader.h"
+#include "wheather.h"
 
 using namespace std;
 
@@ -28,6 +29,7 @@ using namespace std;
 #define SCALE_HOMER			    0.005
 #define K_LIGACAO				1.1
 #define GAP						25
+
 //#define SCALE_HOMER				0.01
 
 // luzes e materiais
@@ -150,9 +152,6 @@ GLfloat nextZ;
 
 TextureLoader tl = TextureLoader();
 
-
-
-
 void initEstado() {
 	estado.isFP = GL_FALSE;
 	estado.camera.dir_lat = M_PI / 6;
@@ -166,7 +165,6 @@ void initEstado() {
 	estado.camera.center[1] = modelo.objecto.pos.y;
 	estado.camera.center[2] = modelo.objecto.pos.z;
 
-
 	estado.light = GL_FALSE;
 	estado.apresentaNormais = GL_FALSE;
 	estado.lightViewer = 1;
@@ -174,7 +172,6 @@ void initEstado() {
 
 void initModelo() {
 	modelo.escala = 0.2;
-
 	modelo.cor_cubo = brass;
 	modelo.g_pos_luz1[0] = -5.0;
 	modelo.g_pos_luz1[1] = 5.0;
@@ -186,6 +183,22 @@ void initModelo() {
 	modelo.g_pos_luz2[3] = 0.0;
 }
 
+void initParticles(int i) {
+	par_sys[i].alive = true;
+	par_sys[i].life = 1.0;
+	par_sys[i].fade = float(rand() % 100) / 1000.0f + 0.003f;
+
+	par_sys[i].xpos = (float)(rand() % 21) - 10;
+	par_sys[i].ypos = (float)(rand() % 21) - 10;
+	par_sys[i].zpos = (float)(rand() % 21) - 10;
+
+	par_sys[i].red = 0.5;
+	par_sys[i].green = 0.5;
+	par_sys[i].blue = 1.0;
+
+	par_sys[i].vel = velocity;
+	par_sys[i].gravity = -0.8;//-0.8;
+}
 
 void myInit(){
 	modelo.objecto.pos.x = 0;
@@ -199,7 +212,6 @@ void myInit(){
 	time_t timer = time(0);
 
 	modelo.tempo = timer;
-
 
 	estado.timer = 100;
 	GLfloat LuzAmbiente[] = { 0.5,0.5,0.5, 0.0 };
@@ -227,9 +239,33 @@ void myInit(){
 	tl.LoadTextureFromDisk("rotunda.jpg", &textures.rotunda);
 
 	leGrafo();
+	int x, z;
+
+	glShadeModel(GL_SMOOTH);
+	glClearColor(0.0, 0.0, 0.0, 0.0);
+	glClearDepth(1.0);
+	glEnable(GL_DEPTH_TEST);
+
+	// Ground Verticies
+	// Ground Colors
+	for (z = 0; z < 21; z++) {
+		for (x = 0; x < 21; x++) {
+			ground_points[x][z][0] = x - 10.0;
+			ground_points[x][z][1] = accum;
+			ground_points[x][z][2] = z - 10.0;
+
+			ground_colors[z][x][0] = r; // red value
+			ground_colors[z][x][1] = g; // green value
+			ground_colors[z][x][2] = b; // blue value
+			ground_colors[z][x][3] = 0.0; // acummulation factor
+		}
+	}
+
+	// Initialize particles
+	for (loop = 0; loop < MAX_PARTICLES; loop++) {
+		initParticles(loop);
+	}
 }
-
-
 
 void material(enum tipo_material mat)
 {
@@ -239,12 +275,10 @@ void material(enum tipo_material mat)
 	glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, mat_shininess[mat]);
 }
 
-
 const GLfloat red_light[] = { 1.0, 0.0, 0.0, 1.0 };
 const GLfloat green_light[] = { 0.0, 1.0, 0.0, 1.0 };
 const GLfloat blue_light[] = { 0.0, 0.0, 1.0, 1.0 };
 const GLfloat white_light[] = { 1.0, 1.0, 1.0, 1.0 };
-
 
 void putLights(GLfloat* diffuse)
 {
@@ -322,8 +356,7 @@ void setCamera() {
 }
 
 
-void myReshapeMainWindow(int width, int height){
-	
+void myReshapeMainWindow(int width, int height){	
 		GLint w, h;
 		w = (width - GAP * 3)*.5;
 		h = (height - GAP * 2);
@@ -334,10 +367,7 @@ void myReshapeMainWindow(int width, int height){
 		glutSetWindow(estado.navigateSubwindow);
 		glutPositionWindow( GAP, GAP);
 		glutReshapeWindow(width - 2*GAP, height - 2*GAP);
-
 }
-
-
 
 void myReshapeTopWindow(int width, int height) {
 	// glViewport(botom, left, width, height)
@@ -363,14 +393,11 @@ void redisplayAll(void)
 	glutPostRedisplay();
 	glutSetWindow(estado.menuSubwindow);
 	glutPostRedisplay();
-
 }
 
 void displayMainWindow(){
 	glClearColor(0.8f, 0.8f, 0.8f, 0.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-
 	glutSwapBuffers();
 }
 
@@ -388,7 +415,6 @@ GLboolean inAreaNo(No no, GLfloat ny, GLfloat nx) {
 		modelo.objecto.pos.z = z + OBJECTO_ALTURA/2;
 		return true;
 	}
-
 	return false;
 }
 
@@ -433,19 +459,16 @@ boolean inAreaElemLiga(Arco arco, GLfloat x1P, GLfloat y1P) {
 	nof = &nos[arco.nof];
 
 	float si = K_LIGACAO * noi->largura;
-
 	float xi = noi->x;
 	float xf = nof->x;
 	float yi = noi->y;
 	float yf = nof->y;
 	float zi = noi->z;
-
 	float orientacao_a = atan2f((yf - yi), (xf - xi));
-
 	float x2P = (x1P - xi) * cos(orientacao_a) + (y1P - yi) * sin(orientacao_a);
 	float y2P = (y1P - yi) * cos(orientacao_a) - (x1P - xi) * sin(orientacao_a);
-
 	float largura = arco.largura / 2.0;
+
 	if (0.0 <= x2P && x2P <= si) {
 		if (-largura <= y2P && y2P <= largura) {
 			modelo.objecto.pos.x = x1P;
@@ -463,19 +486,16 @@ boolean inAreaElemLigaFinal(Arco arco, GLfloat x1P, GLfloat y1P) {
 	nof = &nos[arco.noi];
 
 	float si = K_LIGACAO * noi->largura;
-
 	float xi = noi->x;
 	float xf = nof->x;
 	float yi = noi->y;
 	float yf = nof->y;
 	float zi = noi->z;
-
 	float orientacao_a = atan2f((yf - yi), (xf - xi));
-
 	float x2P = (x1P - xi) * cos(orientacao_a) + (y1P - yi) * sin(orientacao_a);
 	float y2P = (y1P - yi) * cos(orientacao_a) - (x1P - xi) * sin(orientacao_a);
-
 	float largura = arco.largura / 2.0;
+
 	if (0.0 <= x2P && x2P <= si) {
 		if (-largura <= y2P && y2P <= largura) {
 			modelo.objecto.pos.x = x1P;
@@ -524,14 +544,12 @@ void teclaUp(float velocidade) {
 	if (!detectaColisao(ny + cos(modelo.objecto.dir)*OBJECTO_RAIO, nx + sin(-modelo.objecto.dir)*OBJECTO_RAIO) &&
 		!detectaColisao(ny + cos(modelo.objecto.dir + M_PI / 4)*OBJECTO_RAIO, nx + sin(-modelo.objecto.dir + M_PI / 4)*OBJECTO_RAIO) &&
 		!detectaColisao(ny + cos(modelo.objecto.dir - M_PI / 4)*OBJECTO_RAIO, nx + sin(-modelo.objecto.dir - M_PI / 4)*OBJECTO_RAIO)) {
-
-
+		
 		estado.camera.center[0] = modelo.objecto.pos.x;
 		estado.camera.center[1] = modelo.objecto.pos.y;
 		estado.camera.center[2] = modelo.objecto.pos.z;
 
 		modelo.km += 0.5;
-
 	}
 }
 
@@ -548,8 +566,7 @@ void teclaDown(float velocidade) {
 		estado.camera.center[2] = modelo.objecto.pos.z;
 
 		modelo.km += 0.5;
-	}
-	
+	}	
 }
 
 void timer(int value) {
@@ -608,9 +625,7 @@ void timer(int value) {
 				modelo.personagem.SetSequence(0);
 			//	modelo.homer[JANELA_TOP].SetSequence(0);
 			}
-	}
-
-
+	}	
 	redisplayAll();
 }
 
@@ -701,7 +716,6 @@ GLdouble VectorNormalize(GLdouble v[])
 }
 
 
-
 void desenhaNormal(GLdouble x, GLdouble y, GLdouble z, GLdouble normal[], tipo_material mat) {
 
 	switch (mat) {
@@ -772,6 +786,7 @@ void desenhaChao(GLfloat xi, GLfloat yi, GLfloat zi, GLfloat xf, GLfloat yf, GLf
 	
 	}
 }
+
 void desenhaChaoRedondo(float largura, GLfloat x0, GLfloat y0, GLfloat z) {
 	double x, y;
 	material(cinza);
@@ -832,7 +847,6 @@ void desenhaElemLigaInicial(Arco arco){
 	glTranslatef(xi, yi, zi);
 	glRotatef(graus(orientacao_a),0,0,1);
 	glTranslatef(si/2,0,0);
-
 
 	desenhaChao(-si*0.5, -arco.largura*0.5, 0, si*0.5, arco.largura*0.5, 0, NORTE_SUL);
 	glPopMatrix();
@@ -997,6 +1011,148 @@ void desenhaEixos() {
 	glPopMatrix();
 }
 
+// For Rain
+void drawRain() {
+	float x, y, z;
+	for (loop = 0; loop < MAX_PARTICLES; loop = loop + 2) {
+		if (par_sys[loop].alive == true) {
+			x = par_sys[loop].xpos;
+			y = par_sys[loop].ypos;
+			z = par_sys[loop].zpos + zoom;
+
+			// Draw particles
+			glColor3f(0.5, 0.5, 0.8);
+			glBegin(GL_LINES);
+			glVertex3f(x, y, z);
+			glVertex3f(x, y + 0.5, z);
+			glEnd();
+
+			// Update values
+			//Move
+			// Adjust slowdown for speed!
+			par_sys[loop].ypos += par_sys[loop].vel / (slowdown * 1000);
+			par_sys[loop].vel += par_sys[loop].gravity;
+			// Decay
+			par_sys[loop].life -= par_sys[loop].fade;
+
+			if (par_sys[loop].ypos <= -10) {
+				par_sys[loop].life = -1.0;
+			}
+			//Revive 
+			if (par_sys[loop].life < 0.0) {
+				initParticles(loop);
+			}
+		}
+	}
+}
+
+// For Hail
+void drawHail() {
+	float x, y, z;
+
+	for (loop = 0; loop < MAX_PARTICLES; loop = loop + 2) {
+		if (par_sys[loop].alive == true) {
+			x = par_sys[loop].xpos;
+			y = par_sys[loop].ypos;
+			z = par_sys[loop].zpos + zoom;
+
+			// Draw particles
+			glColor3f(0.8, 0.8, 0.9);
+			glBegin(GL_QUADS);
+			// Front
+			glVertex3f(x - hailsize, y - hailsize, z + hailsize); // lower left
+			glVertex3f(x - hailsize, y + hailsize, z + hailsize); // upper left
+			glVertex3f(x + hailsize, y + hailsize, z + hailsize); // upper right
+			glVertex3f(x + hailsize, y - hailsize, z + hailsize); // lower left
+																  //Left
+			glVertex3f(x - hailsize, y - hailsize, z + hailsize);
+			glVertex3f(x - hailsize, y - hailsize, z - hailsize);
+			glVertex3f(x - hailsize, y + hailsize, z - hailsize);
+			glVertex3f(x - hailsize, y + hailsize, z + hailsize);
+			// Back
+			glVertex3f(x - hailsize, y - hailsize, z - hailsize);
+			glVertex3f(x - hailsize, y + hailsize, z - hailsize);
+			glVertex3f(x + hailsize, y + hailsize, z - hailsize);
+			glVertex3f(x + hailsize, y - hailsize, z - hailsize);
+			//Right
+			glVertex3f(x + hailsize, y + hailsize, z + hailsize);
+			glVertex3f(x + hailsize, y + hailsize, z - hailsize);
+			glVertex3f(x + hailsize, y - hailsize, z - hailsize);
+			glVertex3f(x + hailsize, y - hailsize, z + hailsize);
+			//Top 
+			glVertex3f(x - hailsize, y + hailsize, z + hailsize);
+			glVertex3f(x - hailsize, y + hailsize, z - hailsize);
+			glVertex3f(x + hailsize, y + hailsize, z - hailsize);
+			glVertex3f(x + hailsize, y + hailsize, z + hailsize);
+			//Bottom 
+			glVertex3f(x - hailsize, y - hailsize, z + hailsize);
+			glVertex3f(x - hailsize, y - hailsize, z - hailsize);
+			glVertex3f(x + hailsize, y - hailsize, z - hailsize);
+			glVertex3f(x + hailsize, y - hailsize, z + hailsize);
+			glEnd();
+
+			// Update values
+			//Move
+			if (par_sys[loop].ypos <= -10) {
+				par_sys[loop].vel = par_sys[loop].vel * -1.0;
+			}
+			par_sys[loop].ypos += par_sys[loop].vel / (slowdown * 1000); // * 1000
+			par_sys[loop].vel += par_sys[loop].gravity;
+
+			// Decay
+			par_sys[loop].life -= par_sys[loop].fade;
+
+			//Revive 
+			if (par_sys[loop].life < 0.0) {
+				initParticles(loop);
+			}
+		}
+	}
+}
+
+// For Snow
+void drawSnow() {
+	float x, y, z;
+	for (loop = 0; loop < MAX_PARTICLES; loop = loop + 2) {
+		if (par_sys[loop].alive == true) {
+			x = par_sys[loop].xpos;
+			y = par_sys[loop].ypos;
+			z = par_sys[loop].zpos + zoom;
+
+			// Draw particles
+			glColor3f(1.0, 1.0, 1.0);
+			glPushMatrix();
+			glTranslatef(x, y, z);
+			glutSolidSphere(0.03, 16, 16);
+			glPopMatrix();
+
+			// Update values
+			//Move
+			par_sys[loop].ypos += par_sys[loop].vel / (slowdown * 1000);
+			par_sys[loop].vel += par_sys[loop].gravity;
+			// Decay
+			par_sys[loop].life -= par_sys[loop].fade;
+
+			if (par_sys[loop].ypos <= -10) {
+				int zi = z - zoom + 10;
+				int xi = x + 10;
+				ground_colors[zi][xi][0] = 1.0;
+				ground_colors[zi][xi][2] = 1.0;
+				ground_colors[zi][xi][3] += 1.0;
+				if (ground_colors[zi][xi][3] > 1.0) {
+					ground_points[xi][zi][1] += 0.1;
+				}
+				par_sys[loop].life = -1.0;
+			}
+
+			//Revive 
+			if (par_sys[loop].life < 0.0) {
+				initParticles(loop);
+			}
+		}
+	}
+}
+
 
 void displayNavigateWindow(void) {
 
@@ -1028,12 +1184,10 @@ void displayNavigateWindow(void) {
 		cout << "Translate... " << estado.eixoTranslaccao << endl;
 		desenhaPlanoDrag(estado.eixoTranslaccao);
 	}
-
 	//kms
 	material(azul);
 	OverlaysDesign ui = OverlaysDesign();
 	ui.desenhaKm(modelo.km);
-
 
 	//Tempo
 	time_t now = time(0);
@@ -1042,14 +1196,23 @@ void displayNavigateWindow(void) {
 	int segs = tempoDecorrido - 60 * mins;
 	ui.desenhaTempo(mins, segs);
 
+	material(cinza);
+
+	// Which Particles
+	if (fall == RAIN) {
+		drawRain();
+	}else if (fall == HAIL) {
+		drawHail();
+	}else if (fall == SNOW) {
+		drawSnow();
+	}
+
 	glFlush();
 
 	glutSwapBuffers();
 }
 
 void setTopSubwindowCamera(objecto_t obj){
-	
-
 
 	Vertice eye;
 	/*eye[0] = modelo.objecto.pos.x;
@@ -1067,8 +1230,8 @@ void setTopSubwindowCamera(objecto_t obj){
 		putLights((GLfloat*)white_light);
 		gluLookAt(eye[0], eye[1], eye[2], estado.camera.center[0], estado.camera.center[1], estado.camera.center[2], 0, 0, 1);
 	}
-
 }
+
 void desenhaAngVisao()
 {
 	GLfloat ratio;
@@ -1089,8 +1252,6 @@ void desenhaAngVisao()
 	glDepthMask(GL_TRUE);
 	glDisable(GL_BLEND);
 }
-
-
 
 void displayTopWindow() {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -1181,7 +1342,23 @@ void keyboard(unsigned char key, int x, int y) {
 	case 'F':
 		estado.isFP = !estado.isFP;
 		break;
-	}
+	case '1':
+		fall = RAIN;
+		glutPostRedisplay();
+		break;
+	case '2':
+		fall = HAIL;
+		glutPostRedisplay();
+		break;
+	case '3':
+		fall = SNOW;
+		glutPostRedisplay();
+		break;
+	case '4':
+		fall = 6;
+		glutPostRedisplay();
+		break;
+	}	
 }
 
 void Special(int key, int x, int y) {
@@ -1263,9 +1440,7 @@ void setProjection(int x, int y, GLboolean picking) {
 		glGetIntegerv(GL_VIEWPORT, vport);
 		gluPickMatrix(x, glutGet(GLUT_WINDOW_HEIGHT) - y, 4, 4, vport); // Inverte o y do rato para corresponder à jana
 	}
-
 	gluPerspective(estado.camera.fov, (GLfloat)glutGet(GLUT_WINDOW_WIDTH) / glutGet(GLUT_WINDOW_HEIGHT), 0.6, 500);
-
 }
 
 void myReshapeNavigateWindow(int width, int height) {
@@ -1348,7 +1523,6 @@ void motionDrag(int x, int y) {
 		redisplayAll();
 	}
 
-
 	glMatrixMode(GL_PROJECTION); //repõe matriz projecção
 	glPopMatrix();
 	glMatrixMode(GL_MODELVIEW);
@@ -1387,8 +1561,6 @@ int picking(int x, int y) {
 			ptr += 3 + ptr[0]; // ptr[0] contem o número de nomes (normalmente 1); 3 corresponde a numnomes, zmin e zmax
 		}
 	}
-
-
 	glMatrixMode(GL_PROJECTION); //repõe matriz projecção
 	glPopMatrix();
 	glMatrixMode(GL_MODELVIEW);
@@ -1491,7 +1663,5 @@ int main(int argc, char **argv){
 
 		return 0;
 	}
-
-
 	return 1;
 }
