@@ -141,12 +141,19 @@ typedef struct Modelo {
 typedef struct Texture {
 	glTexture chao;
 	glTexture rotunda;
+	glTexture info;
 }Texture;
+
+typedef struct InfoNo {
+	int i;
+	GLboolean isActive;
+}InfoNo;
 
 Estado estado;
 Modelo modelo;
 SKYBOX * skybox;
 Texture textures;
+InfoNo infoNo;
 
 GLfloat nextZ;
 
@@ -168,6 +175,8 @@ void initEstado() {
 	estado.light = GL_FALSE;
 	estado.apresentaNormais = GL_FALSE;
 	estado.lightViewer = 1;
+	infoNo.i = 0;
+	infoNo.isActive = GL_FALSE;
 }
 
 void initModelo() {
@@ -237,6 +246,7 @@ void myInit(){
 	
 	tl.LoadTextureFromDisk("calcada.jpg", &textures.chao);
 	tl.LoadTextureFromDisk("rotunda.jpg", &textures.rotunda);
+	tl.LoadTextureFromDisk("info.gif", &textures.info);
 
 	leGrafo();
 	int x, z;
@@ -401,7 +411,7 @@ void displayMainWindow(){
 	glutSwapBuffers();
 }
 
-GLboolean inAreaNo(No no, GLfloat ny, GLfloat nx) {
+GLboolean inAreaNo(No no, GLfloat ny, GLfloat nx, int i) {
 	float largura =no.largura;
 	float x = no.x;
 	float y = no.y;
@@ -413,8 +423,14 @@ GLboolean inAreaNo(No no, GLfloat ny, GLfloat nx) {
 		modelo.objecto.pos.y = ny;
 		modelo.objecto.pos.x = nx;
 		modelo.objecto.pos.z = z + OBJECTO_ALTURA/2;
+
+		infoNo.i = i;
+		infoNo.isActive = GL_TRUE;
 		return true;
 	}
+
+	infoNo.i = i;
+	infoNo.isActive = GL_FALSE;
 	return false;
 }
 
@@ -511,7 +527,7 @@ boolean inAreaElemLigaFinal(Arco arco, GLfloat x1P, GLfloat y1P) {
 //Valida se o Homer se encontra fora das áreas permitidas
 GLboolean detectaColisao(GLfloat nx, GLfloat nz) {
 	for (int i = 0; i < numNos; i++) {
-		if (inAreaNo(nos[i], nx, nz)) {
+		if (inAreaNo(nos[i], nx, nz, i)) {
 			return(GL_FALSE);
 		}
 	}
@@ -1195,6 +1211,11 @@ void displayNavigateWindow(void) {
 	int mins = tempoDecorrido / 60;
 	int segs = tempoDecorrido - 60 * mins;
 	ui.desenhaTempo(mins, segs);
+
+	material(cinza);
+	if (infoNo.isActive) {
+		ui.infoOverlay(nos[infoNo.i].nome, nos[infoNo.i].descricao, nos[infoNo.i].abertura, nos[infoNo.i].fecho, textures.info);
+	}
 
 	material(cinza);
 

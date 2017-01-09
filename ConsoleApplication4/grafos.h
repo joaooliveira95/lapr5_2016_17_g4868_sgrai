@@ -8,13 +8,20 @@
 #define ESTE_OESTE	1
 #define PLANO		2
 
-typedef struct No{
-	float x,y,z,largura;
-}No;
+typedef struct No {
+	char* nome = "Nome";
+	char* descricao = "Descricao";
+	char* abertura = "9h00";
+	char* fecho = "18h00";
+	double x, y, z, largura;
+	bool visitar = false;
+	//int id;
+} No;
 
 typedef struct Arco{
 	int noi,nof;
 	float peso,largura;
+	bool visitar = false;
 }Arco;
 
 extern No nos[];
