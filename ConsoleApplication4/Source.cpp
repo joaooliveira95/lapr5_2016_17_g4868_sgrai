@@ -89,7 +89,8 @@ typedef struct Camera {
 
 typedef struct Estado {
 	teclas_t      teclas;
-	Camera		camera, camera2;
+	Camera		camera;
+	GLboolean  isFP;
 	GLint		timer;
 	int			xMouse, yMouse;
 	GLint		mainWindow, topSubwindow, navigateSubwindow, menuSubwindow;
@@ -142,6 +143,7 @@ GLfloat nextZ;
 
 
 void initEstado() {
+	estado.isFP = GL_FALSE;
 	estado.camera.dir_lat = M_PI / 6;
 	estado.camera.dir_long = -M_PI/2;
 	estado.camera.fov = 60;
@@ -153,12 +155,6 @@ void initEstado() {
 	estado.camera.center[1] = modelo.objecto.pos.y;
 	estado.camera.center[2] = modelo.objecto.pos.z;
 
-	estado.camera2.dir_lat = M_PI / 2;
-	estado.camera2.dir_long = 0;
-	estado.camera2.fov = 80;
-	estado.camera2.center[0] = modelo.objecto.pos.x;
-	estado.camera2.center[1] = modelo.objecto.pos.y;
-	estado.camera2.center[2] = 80;
 
 	estado.light = GL_FALSE;
 	estado.apresentaNormais = GL_FALSE;
@@ -184,7 +180,7 @@ void myInit(){
 	modelo.objecto.pos.x = 0;
 	modelo.objecto.pos.y = -50;
 	modelo.objecto.pos.z = 2.5;
-	nextZ = 0;
+	
 	modelo.objecto.dir = 0;
 	modelo.objecto.vel = OBJECTO_VELOCIDADE;
 	modelo.andar = GL_FALSE;
@@ -219,6 +215,97 @@ void myInit(){
 	leGrafo();
 }
 
+
+
+void material(enum tipo_material mat)
+{
+	glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, mat_ambient[mat]);
+	glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, mat_diffuse[mat]);
+	glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, mat_specular[mat]);
+	glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, mat_shininess[mat]);
+}
+
+
+const GLfloat red_light[] = { 1.0, 0.0, 0.0, 1.0 };
+const GLfloat green_light[] = { 0.0, 1.0, 0.0, 1.0 };
+const GLfloat blue_light[] = { 0.0, 0.0, 1.0, 1.0 };
+const GLfloat white_light[] = { 1.0, 1.0, 1.0, 1.0 };
+
+
+void putLights(GLfloat* diffuse)
+{
+	const GLfloat white_amb[] = { 0.2, 0.2, 0.2, 1.0 };
+	const GLfloat dif2[] = { 0.0, 0.0, 0.8, 1.0 };
+
+	glLightfv(GL_LIGHT0, GL_DIFFUSE, diffuse);
+	glLightfv(GL_LIGHT0, GL_SPECULAR, white_light);
+	glLightfv(GL_LIGHT0, GL_AMBIENT, white_amb);
+	glLightfv(GL_LIGHT0, GL_POSITION, modelo.g_pos_luz1);
+
+	/* desenhar luz */
+	material(red_plastic);
+	glPushMatrix();
+	glTranslatef(modelo.g_pos_luz1[0], modelo.g_pos_luz1[1], modelo.g_pos_luz1[2]);
+	glDisable(GL_LIGHTING);
+	glColor3f(1.0, 1.0, 1.0);
+	glutSolidCube(0.1);
+	glEnable(GL_LIGHTING);
+	glPopMatrix();
+	glPushMatrix();
+	glTranslatef(modelo.g_pos_luz2[0], modelo.g_pos_luz2[1], modelo.g_pos_luz2[2]);
+	glDisable(GL_LIGHTING);
+	glColor3f(1.0, 1.0, 1.0);
+	glutSolidCube(0.1);
+	glEnable(GL_LIGHTING);
+	glPopMatrix();
+
+	glEnable(GL_LIGHT0);
+	glEnable(GL_LIGHT1);
+}
+
+
+void setCamera() {
+	Vertice eye;
+	/*eye[0] = modelo.objecto.pos.x;
+	eye[1] = modelo.objecto.pos.y-2;
+	eye[2] = modelo.objecto.pos.z;*/
+
+	if (estado.isFP) {
+		eye[0] = modelo.objecto.pos.x;
+		eye[1] = modelo.objecto.pos.y;
+		eye[2] = modelo.objecto.pos.z + 1.25;
+
+		estado.camera.center[0] = modelo.objecto.pos.x - sin(modelo.objecto.dir)*(0.25);
+		estado.camera.center[1] = modelo.objecto.pos.y + cos(modelo.objecto.dir)*(0.25);
+		estado.camera.center[2] = modelo.objecto.pos.z + 1.25;
+
+		if (estado.light) {
+			gluLookAt(eye[0], eye[1], eye[2], estado.camera.center[0], estado.camera.center[1], estado.camera.center[2], 0, 0, 1);
+			putLights((GLfloat*)white_light);
+		}
+		else {
+			putLights((GLfloat*)white_light);
+			gluLookAt(eye[0], eye[1], eye[2], estado.camera.center[0], estado.camera.center[1], estado.camera.center[2], 0, 0, 1);
+		}
+	}else {
+		estado.camera.center[0] = modelo.objecto.pos.x;
+		estado.camera.center[1] = modelo.objecto.pos.y;
+		estado.camera.center[2] = modelo.objecto.pos.z;
+
+		eye[0] = estado.camera.center[0] + estado.camera.dist*cos(estado.camera.dir_long)*cos(estado.camera.dir_lat);
+		eye[1] = estado.camera.center[1] + estado.camera.dist*sin(estado.camera.dir_long)*cos(estado.camera.dir_lat);
+		eye[2] = estado.camera.center[2] + estado.camera.dist*sin(estado.camera.dir_lat);
+
+		if (estado.light) {
+			gluLookAt(eye[0], eye[1], eye[2], estado.camera.center[0], estado.camera.center[1], estado.camera.center[2], 0, 0, 1);
+			putLights((GLfloat*)white_light);
+		}
+		else {
+			putLights((GLfloat*)white_light);
+			gluLookAt(eye[0], eye[1], eye[2], estado.camera.center[0], estado.camera.center[1], estado.camera.center[2], 0, 0, 1);
+		}
+	}
+}
 
 
 void myReshapeMainWindow(int width, int height){
@@ -490,6 +577,10 @@ void timer(int value) {
 		estado.camera.dir_long -= rad(OBJECTO_ROTACAO);
 	}
 
+	if (estado.isFP) {
+		setCamera();
+	}
+
 	if (modelo.personagem.GetSequence() != 20)
 	{
 		if (andar && modelo.personagem.GetSequence() != 3)
@@ -532,52 +623,6 @@ void imprime_ajuda(void){
 	printf("PAGE_UP, PAGE_DOWN - Altera distância da camara \n");
 	printf("ESC - Sair\n");
 	listNos();
-}
-
-
-void material(enum tipo_material mat)
-{
-	glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, mat_ambient[mat]);
-	glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, mat_diffuse[mat]);
-	glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, mat_specular[mat]);
-	glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, mat_shininess[mat]);
-}
-
-const GLfloat red_light[] = { 1.0, 0.0, 0.0, 1.0 };
-const GLfloat green_light[] = { 0.0, 1.0, 0.0, 1.0 };
-const GLfloat blue_light[] = { 0.0, 0.0, 1.0, 1.0 };
-const GLfloat white_light[] = { 1.0, 1.0, 1.0, 1.0 };
-
-
-void putLights(GLfloat* diffuse)
-{
-	const GLfloat white_amb[] = { 0.2, 0.2, 0.2, 1.0 };
-	const GLfloat dif2[] = { 0.0, 0.0, 0.8, 1.0 };
-
-	glLightfv(GL_LIGHT0, GL_DIFFUSE, diffuse);
-	glLightfv(GL_LIGHT0, GL_SPECULAR, white_light);
-	glLightfv(GL_LIGHT0, GL_AMBIENT, white_amb);
-	glLightfv(GL_LIGHT0, GL_POSITION, modelo.g_pos_luz1);
-
-	/* desenhar luz */
-	material(red_plastic);
-	glPushMatrix();
-		glTranslatef(modelo.g_pos_luz1[0], modelo.g_pos_luz1[1], modelo.g_pos_luz1[2]);
-		glDisable(GL_LIGHTING);
-		glColor3f(1.0, 1.0, 1.0);
-		glutSolidCube(0.1);
-		glEnable(GL_LIGHTING);
-	glPopMatrix();
-	glPushMatrix();
-		glTranslatef(modelo.g_pos_luz2[0], modelo.g_pos_luz2[1], modelo.g_pos_luz2[2]);
-		glDisable(GL_LIGHTING);
-		glColor3f(1.0, 1.0, 1.0);
-		glutSolidCube(0.1);
-		glEnable(GL_LIGHTING);
-	glPopMatrix();
-
-	glEnable(GL_LIGHT0);
-	glEnable(GL_LIGHT1);
 }
 
 void putFoco() {
@@ -956,24 +1001,6 @@ void desenhaEixos() {
 	glPopMatrix();
 }
 
-void setCamera() {
-	Vertice eye;
-	/*eye[0] = modelo.objecto.pos.x;
-	eye[1] = modelo.objecto.pos.y-2;
-	eye[2] = modelo.objecto.pos.z;*/
-	eye[0] = estado.camera.center[0] + estado.camera.dist*cos(estado.camera.dir_long)*cos(estado.camera.dir_lat);
-	eye[1] = estado.camera.center[1] + estado.camera.dist*sin(estado.camera.dir_long)*cos(estado.camera.dir_lat);
-	eye[2] = estado.camera.center[2] + estado.camera.dist*sin(estado.camera.dir_lat);
-
-	if (estado.light) {
-		gluLookAt(eye[0], eye[1], eye[2], estado.camera.center[0], estado.camera.center[1], estado.camera.center[2], 0, 0, 1);
-		putLights((GLfloat*)white_light);
-	}
-	else {
-		putLights((GLfloat*)white_light);
-		gluLookAt(eye[0], eye[1], eye[2], estado.camera.center[0], estado.camera.center[1], estado.camera.center[2], 0, 0, 1);
-	}
-}
 
 void displayNavigateWindow(void) {
 
@@ -1151,6 +1178,10 @@ void keyboard(unsigned char key, int x, int y) {
 		redisplayAll();
 		break;
 
+	case 'f':
+	case 'F':
+		estado.isFP = !estado.isFP;
+		break;
 	}
 }
 
