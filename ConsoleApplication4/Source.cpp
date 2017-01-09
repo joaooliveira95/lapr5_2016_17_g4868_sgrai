@@ -14,6 +14,7 @@
 #include "OverlaysDesign.h"
 #include "Skybox.h"
 #include "ConsolaMenu.h"
+#include "TextureLoader.h"
 
 using namespace std;
 
@@ -135,11 +136,21 @@ typedef struct Modelo {
 	int			  tempo;
 }Modelo;
 
+typedef struct Texture {
+	glTexture chao;
+	glTexture rotunda;
+}Texture;
+
 Estado estado;
 Modelo modelo;
 SKYBOX * skybox;
+Texture textures;
 
 GLfloat nextZ;
+
+TextureLoader tl = TextureLoader();
+
+
 
 
 void initEstado() {
@@ -210,7 +221,10 @@ void myInit(){
 	initEstado();
 	modelo.quad = gluNewQuadric();
 	gluQuadricDrawStyle(modelo.quad, GLU_FILL);
-	gluQuadricNormals(modelo.quad, GLU_OUTSIDE);
+	gluQuadricNormals(modelo.quad, GLU_OUTSIDE);	
+	
+	tl.LoadTextureFromDisk("calcada.jpg", &textures.chao);
+	tl.LoadTextureFromDisk("rotunda.jpg", &textures.rotunda);
 
 	leGrafo();
 }
@@ -717,7 +731,8 @@ void desenhaNormal(GLdouble x, GLdouble y, GLdouble z, GLdouble normal[], tipo_m
 
 
 void desenhaChao(GLfloat xi, GLfloat yi, GLfloat zi, GLfloat xf, GLfloat yf, GLfloat zf, int orient) {
-
+	zi = zi - 0.001;
+	zf = zf - 0.001;
 	GLdouble v1[3], v2[3], cross[3];
 	GLdouble length;
 	v1[0] = xf - xi;
@@ -734,80 +749,58 @@ void desenhaChao(GLfloat xi, GLfloat yi, GLfloat zi, GLfloat xf, GLfloat yf, GLf
 		length = VectorNormalize(cross);
 		//printf("Normal x=%lf y=%lf z=%lf length=%lf\n",cross[0],cross[1],cross[2]);
 
-		material(red_plastic);
+		material(cinza);
+		glEnable(GL_TEXTURE_2D);
+		glBindTexture(GL_TEXTURE_2D,textures.chao.TextureID);
+
 		glBegin(GL_QUADS);
 		glNormal3dv(cross);
+		glTexCoord2f(0.0, 0.0);
 		glVertex3f(xi, yi, zi);
+		glTexCoord2f(0.0, 1.0);
 		glVertex3f(xf, yi, zi);
+		glTexCoord2f(1.0, 1.0);
 		glVertex3f(xf, yf, zf);
+		glTexCoord2f(1.0, 0.0);
 		glVertex3f(xi, yf, zf);
-		glEnd();
-		if (estado.apresentaNormais) {
-			desenhaNormal(xi, yi, zi, cross, red_plastic);
-			desenhaNormal(xf, yi, zi, cross, red_plastic);
-			desenhaNormal(xf, yf, zf, cross, red_plastic);
-			desenhaNormal(xi, yi, zf, cross, red_plastic);
-		}
+		glEnd();		
+
+		glBindTexture(GL_TEXTURE_2D, NULL);
+		glDisable(GL_TEXTURE_2D);		
+
 		break;
-	case ESTE_OESTE:
-		v1[2] = zf - zi;
-		v2[2] = 0;
-		CrossProduct(v1, v2, cross);
-		//printf("cross x=%lf y=%lf z=%lf",cross[0],cross[1],cross[2]);
-		length = VectorNormalize(cross);
-		//printf("Normal x=%lf y=%lf z=%lf length=%lf\n",cross[0],cross[1],cross[2]);
-		material(red_plastic);
-		glBegin(GL_QUADS);
-		glNormal3dv(cross);
-		glVertex3f(xi, yi, zi);
-		glVertex3f(xf, yi, zf);
-		glVertex3f(xf, yf, zf);
-		glVertex3f(xi, yf, zi);
-		glEnd();
-		if (estado.apresentaNormais) {
-			desenhaNormal(xi, yi, zi, cross, red_plastic);
-			desenhaNormal(xf, yi, zf, cross, red_plastic);
-			desenhaNormal(xf, yf, zf, cross, red_plastic);
-			desenhaNormal(xi, yi, zi, cross, red_plastic);
-		}
-		break;
-	default:
-		cross[0] = 0;
-		cross[1] = 0;
-		cross[2] = 1;
-		material(azul);
-		glBegin(GL_QUADS);
-		glNormal3f(0, 0, 1);
-		glVertex3f(xi, yi, zi);
-		glVertex3f(xf, yi, zf);
-		glVertex3f(xf, yf, zf);
-		glVertex3f(xi, yf, zi);
-		glEnd();
-		if (estado.apresentaNormais) {
-			desenhaNormal(xi, yi, zi, cross, azul);
-			desenhaNormal(xf, yi, zf, cross, azul);
-			desenhaNormal(xf, yf, zf, cross, azul);
-			desenhaNormal(xi, yi, zi, cross, azul);
-		}
-		break;
+	
 	}
 }
 void desenhaChaoRedondo(float largura, GLfloat x0, GLfloat y0, GLfloat z) {
 	double x, y;
-	//material(red_plastic);
+	material(cinza);
+	
+	glEnable(GL_TEXTURE_2D);
+	glBindTexture(GL_TEXTURE_2D, textures.rotunda.TextureID);
+
 	glBegin(GL_POLYGON);
 	glNormal3f(0, 0, 1);
 	int n = 30;
 	double alfa = 2 * M_PI / n;
 	double ang = 0;
+	glNormal3f(0, 0, 1);
+	float coordx = 0.0, coordy = 0.0;
+
 	for (int i = 0; i < n; i++) {
 		 x = x0 + largura * cos(ang);
 		 y = y0 + largura * sin(ang);
-		
+
+		 coordx = cos(ang)*0.5 + 0.5;
+		 coordy = sin(ang)*0.5 + 0.5;
+
+		glTexCoord2f(coordx, coordy);
 		glVertex3f(x, y,z);
 		ang += alfa;
 	}
 	glEnd();
+	glBindTexture(GL_TEXTURE_2D, NULL);
+	glDisable(GL_TEXTURE_2D);	
 	
 }
 
@@ -839,6 +832,7 @@ void desenhaElemLigaInicial(Arco arco){
 	glTranslatef(xi, yi, zi);
 	glRotatef(graus(orientacao_a),0,0,1);
 	glTranslatef(si/2,0,0);
+
 
 	desenhaChao(-si*0.5, -arco.largura*0.5, 0, si*0.5, arco.largura*0.5, 0, NORTE_SUL);
 	glPopMatrix();
@@ -903,7 +897,7 @@ void desenhaGrafo() {
 	glPushMatrix();
 	glTranslatef(0, 0, 0.05);
 //	glScalef(5, 5, 5);
-	material(red_plastic);
+	//material(red_plastic);
 	for (int i = 0; i<numNos; i++) {
 		glPushMatrix();
 		glTranslatef(nos[i].x, nos[i].y, nos[i].z + 0.25);
@@ -911,13 +905,15 @@ void desenhaGrafo() {
 		glPushMatrix();
 		glScalef(SCALE_POI, SCALE_POI, SCALE_POI);
 		glDisable(GL_LIGHTING);
+		glEnable(GL_TEXTURE_2D);
 		mdlviewer_display(modelo.poi);
+		glDisable(GL_TEXTURE_2D);
 		glEnable(GL_LIGHTING);
 		glPopMatrix();
 		glPopMatrix();
 		desenhaNo(i);
 	}
-	material(emerald);
+	//material(emerald);
 	for (int i = 0; i < numArcos; i++) {
 		desenhaArco(arcos[i]);
 		desenhaElemLigaInicial(arcos[i]);
@@ -1017,7 +1013,9 @@ void displayNavigateWindow(void) {
 	glRotatef(90, 0, 0, 1);
 	glScalef(SCALE_HOMER, SCALE_HOMER, SCALE_HOMER);
 	glDisable(GL_LIGHTING);
+	glEnable(GL_TEXTURE_2D);
 	mdlviewer_display(modelo.personagem);
+	glDisable(GL_TEXTURE_2D);
 	glEnable(GL_LIGHTING);
 	glPopMatrix();
 
@@ -1032,6 +1030,7 @@ void displayNavigateWindow(void) {
 	}
 
 	//kms
+	material(azul);
 	OverlaysDesign ui = OverlaysDesign();
 	ui.desenhaKm(modelo.km);
 
