@@ -1204,12 +1204,7 @@ void displayNavigateWindow(void) {
 	int tempoDecorrido = now - modelo.tempo;
 	int mins = tempoDecorrido / 60;
 	int segs = tempoDecorrido - 60 * mins;
-	ui.desenhaTempo(mins, segs);
-
-	material(cinza);
-	if (infoNo.isActive) {
-		ui.infoOverlay(grafo.obterPonto(infoNo.i).nome.c_str(), grafo.obterPonto(infoNo.i).descricao.c_str(), grafo.obterPonto(infoNo.i).abertura.c_str(), grafo.obterPonto(infoNo.i).fecho.c_str(), textures.info);
-	}
+	ui.desenhaTempo(mins, segs);	
 
 	material(cinza);
 
@@ -1220,6 +1215,11 @@ void displayNavigateWindow(void) {
 		drawHail();
 	}else if (fall == SNOW) {
 		drawSnow();
+	}
+
+	//material(cinza);
+	if (infoNo.isActive) {
+		ui.infoOverlay(grafo.obterPonto(infoNo.i).nome.c_str(), grafo.obterPonto(infoNo.i).descricao.c_str(), grafo.obterPonto(infoNo.i).abertura.c_str(), grafo.obterPonto(infoNo.i).fecho.c_str(), textures.info);
 	}
 
 	glFlush();

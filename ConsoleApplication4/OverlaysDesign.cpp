@@ -24,9 +24,9 @@ void OverlaysDesign::bitmapString(char *str, double x, double y) {
 void OverlaysDesign::bitmapCenterString(char *str, double x, double y) {
 	int i, n;
 	n = strlen(str);
-	glRasterPos2d(x - glutBitmapLength(GLUT_BITMAP_TIMES_ROMAN_24, (const unsigned char *)str)*0.5, y);
+	glRasterPos2d(x - glutBitmapLength(GLUT_BITMAP_HELVETICA_18, (const unsigned char *)str)*0.5, y);
 	for (i = 0; i<n; i++)
-		glutBitmapCharacter(GLUT_BITMAP_TIMES_ROMAN_24, (int)str[i]);
+		glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, (int)str[i]);
 }
 
 
@@ -103,29 +103,32 @@ void OverlaysDesign::infoOverlay(const char* nome, const char* descricao, const 
 	glDisable(GL_DEPTH_TEST);
 	glColor3f(2, 2, 2);
 
+	/*glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE);*/
+
 	glEnable(GL_TEXTURE_2D);
 	glBindTexture(GL_TEXTURE_2D, textura.TextureID);
 
-
 	glBegin(GL_POLYGON);
 	glTexCoord2f(1.0, 1.0);
-	glVertex2f(-width*0.30, height*0.65);//VERTICE
+	glVertex2f(-width*0.30, -height*0.95);//VERTICE
 	glTexCoord2f(0, 1.0);
-	glVertex2f(-width, height*0.65);//VERTICE
+	glVertex2f(width*0.3, -height*0.95);//VERTICE
 	glTexCoord2f(0.0, 0.0);
-	glVertex2f(-width, 0);//VERTICE
+	glVertex2f(width*0.3, -height*0.25);//VERTICE
 	glTexCoord2f(1.0, 0.0);
-	glVertex2f(-width*0.30, 0);//VERTICE
+	glVertex2f(-width*0.30, -height*0.25);//VERTICE
 	glEnd();
+	glDisable(GL_BLEND);
 
 	sprintf_s(str, 255, "Nome: %s", nome);
-	bitmapCenterString(str, -width*0.7, height*0.5);
+	bitmapCenterString(str, 0, -height*0.5);
 	sprintf_s(str, 255, "Descricao: %s", descricao);
-	bitmapCenterString(str, -width*0.7, height*0.4);
+	bitmapCenterString(str, 0, -height*0.6);
 	sprintf_s(str, 255, "Hora da Abertura: %s ", abertura);
-	bitmapCenterString(str, -width*0.7, height*0.3);
+	bitmapCenterString(str, 0, -height*0.7);
 	sprintf_s(str, 255, " Hora do Fecho: %s \n", fecho);
-	bitmapCenterString(str, -width*0.7, height*0.2);
+	bitmapCenterString(str, 0, -height*0.8);
 		
 	//glPushAttrib(GL_CURRENT_BIT);
 	glMatrixMode(GL_PROJECTION);
