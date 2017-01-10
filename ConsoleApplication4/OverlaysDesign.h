@@ -16,6 +16,6 @@ public:
 	void bitmapCenterString(char *str, double x, double y);
 	void desenhaKm(float x);
 	void desenhaTempo(int seg,int min);
-	void OverlaysDesign::infoOverlay(char* nome, char* descricao, char* abertura, char* fecho, glTexture textura);
+	void infoOverlay(const char* nome, const char* descricao, const char* abertura,const char* fecho, glTexture textura);
 };
 

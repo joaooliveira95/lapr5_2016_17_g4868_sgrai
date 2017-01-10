@@ -85,7 +85,7 @@ void OverlaysDesign::desenhaTempo(int seg,int min) {
 	glEnable(GL_DEPTH_TEST);
 }
 
-void OverlaysDesign::infoOverlay(char* nome, char* descricao, char* abertura, char* fecho, glTexture textura) {
+void OverlaysDesign::infoOverlay(const char* nome, const char* descricao, const char* abertura, const char* fecho, glTexture textura) {
 	char str[255];
 	float width = glutGet(GLUT_WINDOW_WIDTH) / 2;
 	float height = glutGet(GLUT_WINDOW_HEIGHT) / 2;

@@ -10,7 +10,8 @@
 #include "mathlib.h"
 #include "studio.h"
 #include "mdlviewer.h"
-#include "grafos.h"
+//#include "grafos.h"
+#include "Grafo.h"
 #include "OverlaysDesign.h"
 #include "Skybox.h"
 #include "ConsolaMenu.h"
@@ -158,6 +159,7 @@ InfoNo infoNo;
 GLfloat nextZ;
 
 TextureLoader tl = TextureLoader();
+Grafo grafo = Grafo();
 
 void initEstado() {
 	estado.isFP = GL_FALSE;
@@ -210,8 +212,8 @@ void initParticles(int i) {
 }
 
 void myInit(){
-	modelo.objecto.pos.x = 0;
-	modelo.objecto.pos.y = -50;
+	modelo.objecto.pos.x = -50;
+	modelo.objecto.pos.y = 0;
 	modelo.objecto.pos.z = 2.5;
 	
 	modelo.objecto.dir = 0;
@@ -248,7 +250,7 @@ void myInit(){
 	tl.LoadTextureFromDisk("rotunda.jpg", &textures.rotunda);
 	tl.LoadTextureFromDisk("info.gif", &textures.info);
 
-	leGrafo();
+	grafo.carregarGrafo("Porto");
 	int x, z;
 
 	glShadeModel(GL_SMOOTH);
@@ -411,11 +413,11 @@ void displayMainWindow(){
 	glutSwapBuffers();
 }
 
-GLboolean inAreaNo(No no, GLfloat ny, GLfloat nx, int i) {
+GLboolean inAreaNo(Ponto no, GLfloat ny, GLfloat nx, int i) {
 	float largura =no.largura;
-	float x = no.x;
-	float y = no.y;
-	float z = no.z;
+	float x = no.longitude;
+	float y = no.latitude;
+	float z = no.altitude;
 	
 	//Valida se o Homer está dentro do nó de raio = largura, centrado em (X,y)
 	//Se estiver devolve True e atualiza nextZ ( altura do Homer)
@@ -435,23 +437,22 @@ GLboolean inAreaNo(No no, GLfloat ny, GLfloat nx, int i) {
 }
 
 //Valida se o Homer esta dentro de um arco
-GLboolean inAreaArco(Arco arco, GLfloat x1P, GLfloat y1P) {
-	No *noi, *nof;
-	noi = &nos[arco.noi];
-	nof = &nos[arco.nof];
+GLboolean inAreaArco(Ligacao arco, GLfloat x1P, GLfloat y1P) {
+	Ponto noi = arco.origem;
+	Ponto nof = arco.destino;
 
-	float si = K_LIGACAO * noi->largura;
-	float sf = K_LIGACAO * nof->largura;
+	float si = K_LIGACAO * noi.largura;
+	float sf = K_LIGACAO * nof.largura;
 
-	float xi = noi->x;
-	float xf = nof->x;
-	float yi = noi->y;
-	float yf = nof->y;
-	float zi = noi->z;
+	float xi = noi.longitude;
+	float xf = nof.longitude;
+	float yi = noi.latitude;
+	float yf = nof.latitude;
+	float zi = noi.altitude;
 
 	float orientacao_a = atan2f((yf - yi), (xf - xi));
 	float comp_p = sqrt(pow(xf - xi, 2) + pow(yf - yi, 2)) - si - sf;
-	float desnivel_h = nof->z - noi->z;
+	float desnivel_h = nof.altitude - noi.altitude;
 
 
 	float x2P = (x1P - xi) * cos(orientacao_a) + (y1P - yi) * sin(orientacao_a);
@@ -469,17 +470,16 @@ GLboolean inAreaArco(Arco arco, GLfloat x1P, GLfloat y1P) {
 	return false;
 }
 
-boolean inAreaElemLiga(Arco arco, GLfloat x1P, GLfloat y1P) {
-	No *noi, *nof;
-	noi = &nos[arco.noi];
-	nof = &nos[arco.nof];
+boolean inAreaElemLiga(Ligacao arco, GLfloat x1P, GLfloat y1P) {
+	Ponto noi = arco.origem;
+	Ponto nof = arco.destino;
 
-	float si = K_LIGACAO * noi->largura;
-	float xi = noi->x;
-	float xf = nof->x;
-	float yi = noi->y;
-	float yf = nof->y;
-	float zi = noi->z;
+	float si = K_LIGACAO * noi.largura;
+	float xi = noi.longitude;
+	float xf = nof.longitude;
+	float yi = noi.latitude;
+	float yf = nof.latitude;
+	float zi = noi.altitude;
 	float orientacao_a = atan2f((yf - yi), (xf - xi));
 	float x2P = (x1P - xi) * cos(orientacao_a) + (y1P - yi) * sin(orientacao_a);
 	float y2P = (y1P - yi) * cos(orientacao_a) - (x1P - xi) * sin(orientacao_a);
@@ -496,17 +496,16 @@ boolean inAreaElemLiga(Arco arco, GLfloat x1P, GLfloat y1P) {
 	return false;
 }
 
-boolean inAreaElemLigaFinal(Arco arco, GLfloat x1P, GLfloat y1P) {
-	No *noi, *nof;
-	noi = &nos[arco.nof];
-	nof = &nos[arco.noi];
+boolean inAreaElemLigaFinal(Ligacao arco, GLfloat x1P, GLfloat y1P) {
+	Ponto noi = arco.destino;
+	Ponto nof = arco.origem;
 
-	float si = K_LIGACAO * noi->largura;
-	float xi = noi->x;
-	float xf = nof->x;
-	float yi = noi->y;
-	float yf = nof->y;
-	float zi = noi->z;
+	float si = K_LIGACAO * noi.largura;
+	float xi = noi.longitude;
+	float xf = nof.longitude;
+	float yi = noi.latitude;
+	float yf = nof.latitude;
+	float zi = noi.altitude;
 	float orientacao_a = atan2f((yf - yi), (xf - xi));
 	float x2P = (x1P - xi) * cos(orientacao_a) + (y1P - yi) * sin(orientacao_a);
 	float y2P = (y1P - yi) * cos(orientacao_a) - (x1P - xi) * sin(orientacao_a);
@@ -526,20 +525,20 @@ boolean inAreaElemLigaFinal(Arco arco, GLfloat x1P, GLfloat y1P) {
 
 //Valida se o Homer se encontra fora das áreas permitidas
 GLboolean detectaColisao(GLfloat nx, GLfloat nz) {
-	for (int i = 0; i < numNos; i++) {
-		if (inAreaNo(nos[i], nx, nz, i)) {
+	for (int i = 0; i < grafo.quantidadePontos(); i++) {
+		if (inAreaNo(grafo.obterPonto(i), nx, nz, i)) {
 			return(GL_FALSE);
 		}
 	}
 
-	for (int i = 0; i < numArcos; i++) {
-		if (inAreaArco(arcos[i], nz, nx)) {
+	for (int i = 0; i < grafo.quantidadeLigacoes(); i++) {
+		if (inAreaArco(grafo.obterLigacao(i), nz, nx)) {
 			return(GL_FALSE);
 		}
-		if (inAreaElemLiga(arcos[i], nz, nx)) {
+		if (inAreaElemLiga(grafo.obterLigacao(i), nz, nx)) {
 			return (GL_FALSE);
 		}
-		if (inAreaElemLigaFinal(arcos[i], nz, nx)) {
+		if (inAreaElemLigaFinal(grafo.obterLigacao(i), nz, nx)) {
 			return (GL_FALSE);
 		}
 	}
@@ -667,7 +666,7 @@ void imprime_ajuda(void){
 	printf("Botão direito com CTRL - Zoom-in/out\n");
 	printf("PAGE_UP, PAGE_DOWN - Altera distância da camara \n");
 	printf("ESC - Sair\n");
-	listNos();
+	//listNos();
 }
 
 void putFoco() {
@@ -760,7 +759,7 @@ void desenhaNormal(GLdouble x, GLdouble y, GLdouble z, GLdouble normal[], tipo_m
 }
 
 
-void desenhaChao(GLfloat xi, GLfloat yi, GLfloat zi, GLfloat xf, GLfloat yf, GLfloat zf, int orient) {
+void desenhaChao(GLfloat xi, GLfloat yi, GLfloat zi, GLfloat xf, GLfloat yf, GLfloat zf) {
 	zi = zi - 0.001;
 	zf = zf - 0.001;
 	GLdouble v1[3], v2[3], cross[3];
@@ -770,37 +769,31 @@ void desenhaChao(GLfloat xi, GLfloat yi, GLfloat zi, GLfloat xf, GLfloat yf, GLf
 	v2[0] = 0;
 	v2[1] = yf - yi;
 
-	switch (orient) {
-	case NORTE_SUL:
-		v1[2] = 0;
-		v2[2] = zf - zi;
-		CrossProduct(v1, v2, cross);
-		//printf("cross x=%lf y=%lf z=%lf",cross[0],cross[1],cross[2]);
-		length = VectorNormalize(cross);
-		//printf("Normal x=%lf y=%lf z=%lf length=%lf\n",cross[0],cross[1],cross[2]);
+	v1[2] = 0;
+	v2[2] = zf - zi;
+	CrossProduct(v1, v2, cross);
+	//printf("cross x=%lf y=%lf z=%lf",cross[0],cross[1],cross[2]);
+	length = VectorNormalize(cross);
+	//printf("Normal x=%lf y=%lf z=%lf length=%lf\n",cross[0],cross[1],cross[2]);
 
-		material(cinza);
-		glEnable(GL_TEXTURE_2D);
-		glBindTexture(GL_TEXTURE_2D,textures.chao.TextureID);
+	material(cinza);
+	glEnable(GL_TEXTURE_2D);
+	glBindTexture(GL_TEXTURE_2D,textures.chao.TextureID);
 
-		glBegin(GL_QUADS);
-		glNormal3dv(cross);
-		glTexCoord2f(0.0, 0.0);
-		glVertex3f(xi, yi, zi);
-		glTexCoord2f(0.0, 1.0);
-		glVertex3f(xf, yi, zi);
-		glTexCoord2f(1.0, 1.0);
-		glVertex3f(xf, yf, zf);
-		glTexCoord2f(1.0, 0.0);
-		glVertex3f(xi, yf, zf);
-		glEnd();		
+	glBegin(GL_QUADS);
+	glNormal3dv(cross);
+	glTexCoord2f(0.0, 0.0);
+	glVertex3f(xi, yi, zi);
+	glTexCoord2f(0.0, 1.0);
+	glVertex3f(xf, yi, zi);
+	glTexCoord2f(1.0, 1.0);
+	glVertex3f(xf, yf, zf);
+	glTexCoord2f(1.0, 0.0);
+	glVertex3f(xi, yf, zf);
+	glEnd();		
 
-		glBindTexture(GL_TEXTURE_2D, NULL);
-		glDisable(GL_TEXTURE_2D);		
-
-		break;
-	
-	}
+	glBindTexture(GL_TEXTURE_2D, NULL);
+	glDisable(GL_TEXTURE_2D);		
 }
 
 void desenhaChaoRedondo(float largura, GLfloat x0, GLfloat y0, GLfloat z) {
@@ -838,24 +831,24 @@ void desenhaChaoRedondo(float largura, GLfloat x0, GLfloat y0, GLfloat z) {
 void desenhaNo(int no) {
 	GLboolean norte, sul, este, oeste;
 	GLfloat larguraNorte, larguraSul, larguraEste, larguraOeste;
-	Arco arco = arcos[0];
-	No *noi = &nos[no], *nof;
+
+	Ponto noi = grafo.obterPonto(no);
 	norte = sul = este = oeste = GL_TRUE;
 	//desenhaChao(nos[no].x - 0.5*noi->largura, nos[no].y - 0.5*noi->largura, nos[no].z, nos[no].x + 0.5*noi->largura, nos[no].y + 0.5*noi->largura, nos[no].z, PLANO);
-	desenhaChaoRedondo(noi->largura, noi->x, noi->y, noi->z);
+	desenhaChaoRedondo(noi.largura, noi.longitude, noi.latitude, noi.altitude);
 
 }
-void desenhaElemLigaInicial(Arco arco){
-	No *noi, *nof;
-	noi = &nos[arco.noi];
-	nof = &nos[arco.nof];
-	float si = K_LIGACAO * noi->largura;
-	float xi = noi->x;
-	float xf = nof->x;
-	float yi = noi->y;
-	float yf = nof->y;
-	float zi = noi->z;
-	float zf = nof->z;
+void desenhaElemLigaInicial(Ligacao arco){
+	
+	Ponto noi = arco.origem;
+	Ponto nof = arco.destino;
+	float si = K_LIGACAO * noi.largura;
+	float xi = noi.longitude;
+	float xf = nof.longitude;
+	float yi = noi.latitude;
+	float yf = nof.latitude;
+	float zi = noi.altitude;
+	float zf = nof.altitude;
 
 	float orientacao_a = atan2f((yf - yi), (xf - xi));
 
@@ -864,22 +857,22 @@ void desenhaElemLigaInicial(Arco arco){
 	glRotatef(graus(orientacao_a),0,0,1);
 	glTranslatef(si/2,0,0);
 
-	desenhaChao(-si*0.5, -arco.largura*0.5, 0, si*0.5, arco.largura*0.5, 0, NORTE_SUL);
+	desenhaChao(-si*0.5, -arco.largura*0.5, 0, si*0.5, arco.largura*0.5, 0);
 	glPopMatrix();
 
 }
 
-void desenhaElemLigaFinal(Arco arco) {
-	No *noi, *nof;
-	noi = &nos[arco.nof];
-	nof = &nos[arco.noi];
-	float si = K_LIGACAO * noi->largura;
-	float xi = noi->x;
-	float xf = nof->x;
-	float yi = noi->y;
-	float yf = nof->y;
-	float zi = noi->z;
-	float zf = nof->z;
+void desenhaElemLigaFinal(Ligacao arco) {
+
+	Ponto noi = arco.destino;
+	Ponto nof = arco.origem;
+	float si = K_LIGACAO * noi.largura;
+	float xi = noi.longitude;
+	float xf = nof.longitude;
+	float yi = noi.latitude;
+	float yf = nof.latitude;
+	float zi = noi.altitude;
+	float zf = nof.altitude;
 
 	float orientacao_a = atan2f((yf - yi), (xf - xi));
 
@@ -888,27 +881,28 @@ void desenhaElemLigaFinal(Arco arco) {
 	glRotatef(graus(orientacao_a), 0, 0, 1);
 	glTranslatef(si / 2, 0, 0);
 
-	desenhaChao(-si*0.5, -arco.largura*0.5, 0, si*0.5, arco.largura*0.5, 0, NORTE_SUL);
+	desenhaChao(-si*0.5, -arco.largura*0.5, 0, si*0.5, arco.largura*0.5, 0);
 	glPopMatrix();
 
 }
 
-void desenhaArco(Arco arco) {
-	No *noi, *nof;
-	noi = &nos[arco.noi];
-	nof = &nos[arco.nof];
+void desenhaArco(Ligacao arco) {
+	
+	Ponto noi = arco.origem;
+	Ponto nof = arco.destino;
 
-	float si = K_LIGACAO * noi->largura;
-	float sf = K_LIGACAO * nof->largura;
+	float si = K_LIGACAO * noi.largura;
+	float sf = K_LIGACAO * nof.largura;
 
-	float xi = noi->x;
-	float xf = nof->x;
-	float yi = noi->y;
-	float yf = nof->y;
-	float zi = noi->z;
-	float zf = nof->z;
+	float xi = noi.longitude;
+	float xf = nof.longitude;
+	float yi = noi.latitude;
+	float yf = nof.latitude;
+	float zi = noi.altitude;
+	float zf = nof.altitude;
+
 	float comp_p = sqrt(pow(xf - xi, 2) + pow(yf - yi, 2)) - si - sf;
-	float desnivel_h = nof->z - noi->z;
+	float desnivel_h = nof.altitude - noi.altitude;
 	float comprimento_sif = sqrt(pow(comp_p, 2) + pow(desnivel_h, 2));
 	float orientacao_a = atan2f((yf - yi), (xf - xi));
 	float inclinacao_B = atan2f(desnivel_h, comp_p);
@@ -919,7 +913,7 @@ void desenhaArco(Arco arco) {
 	glTranslatef(si, 0, 0);
 	glRotatef(graus(-inclinacao_B), 0, 1, 0);
 	glTranslatef(comprimento_sif / 2.0, 0, 0);
-	desenhaChao(-comprimento_sif*0.5, -arco.largura*0.5, 0, comprimento_sif*0.5, arco.largura*0.5, 0, NORTE_SUL);
+	desenhaChao(-comprimento_sif*0.5, -arco.largura*0.5, 0, comprimento_sif*0.5, arco.largura*0.5, 0);
 	glPopMatrix();
 }
 
@@ -928,9 +922,9 @@ void desenhaGrafo() {
 	glTranslatef(0, 0, 0.05);
 //	glScalef(5, 5, 5);
 	//material(red_plastic);
-	for (int i = 0; i<numNos; i++) {
+	for (int i = 0; i<grafo.quantidadePontos(); i++) {
 		glPushMatrix();
-		glTranslatef(nos[i].x, nos[i].y, nos[i].z + 0.25);
+		glTranslatef(grafo.obterPonto(i).longitude, grafo.obterPonto(i).latitude, grafo.obterPonto(i).altitude + 0.25);
 		glTranslatef(0, 0, 1.2);
 		glPushMatrix();
 		glScalef(SCALE_POI, SCALE_POI, SCALE_POI);
@@ -944,10 +938,10 @@ void desenhaGrafo() {
 		desenhaNo(i);
 	}
 	//material(emerald);
-	for (int i = 0; i < numArcos; i++) {
-		desenhaArco(arcos[i]);
-		desenhaElemLigaInicial(arcos[i]);
-		desenhaElemLigaFinal(arcos[i]);
+	for (int i = 0; i < grafo.quantidadeLigacoes(); i++) {
+		desenhaArco(grafo.obterLigacao(i));
+		desenhaElemLigaInicial(grafo.obterLigacao(i));
+		desenhaElemLigaFinal(grafo.obterLigacao(i));
 	}
 	glPopMatrix();
 }
@@ -1214,7 +1208,7 @@ void displayNavigateWindow(void) {
 
 	material(cinza);
 	if (infoNo.isActive) {
-		ui.infoOverlay(nos[infoNo.i].nome, nos[infoNo.i].descricao, nos[infoNo.i].abertura, nos[infoNo.i].fecho, textures.info);
+		ui.infoOverlay(grafo.obterPonto(infoNo.i).nome.c_str(), grafo.obterPonto(infoNo.i).descricao.c_str(), grafo.obterPonto(infoNo.i).abertura.c_str(), grafo.obterPonto(infoNo.i).fecho.c_str(), textures.info);
 	}
 
 	material(cinza);
@@ -1389,10 +1383,10 @@ void Special(int key, int x, int y) {
 		//gravaGrafo();
 
 		break;
-	case GLUT_KEY_F2:
+/*	case GLUT_KEY_F2:
 		leGrafo();
 		redisplayAll();
-		break;
+		break;*/
 
 	case GLUT_KEY_F3:
 
@@ -1408,7 +1402,7 @@ void Special(int key, int x, int y) {
 			estado.camera.dist++;
 		break;*/
 
-	case GLUT_KEY_F6:
+	/*case GLUT_KEY_F6:
 		numNos = numArcos = 0;
 		addNo(criaNo(0, 10, 0));  // 0
 		addNo(criaNo(0, 5, 0));  // 1
@@ -1425,7 +1419,7 @@ void Special(int key, int x, int y) {
 		addArco(criaArco(4, 5, 1, 1));  // 4 - 5
 		addArco(criaArco(4, 6, 1, 1));  // 4 - 6
 		redisplayAll();
-		break;
+		break;*/
 
 	case GLUT_KEY_UP: estado.teclas.up = GL_TRUE;
 		break;

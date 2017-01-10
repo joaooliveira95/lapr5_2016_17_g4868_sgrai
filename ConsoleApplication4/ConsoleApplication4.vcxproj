@@ -20,6 +20,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ConsolaMenu.h" />
+    <ClInclude Include="Grafo.h" />
     <ClInclude Include="grafos.h" />
     <ClInclude Include="MaterialAndLight.h" />
     <ClInclude Include="mathlib.h" />
@@ -32,6 +33,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ConsolaMenu.cpp" />
+    <ClCompile Include="Grafo.cpp" />
     <ClCompile Include="grafos.cpp" />
     <ClCompile Include="MaterialAndLight.cpp" />
     <ClCompile Include="math.cpp" />
