@@ -26,7 +26,7 @@ using namespace std;
 #define OBJECTO_ROTACAO			2
 #define	OBJECTO_ALTURA			0.5
 #define OBJECTO_VELOCIDADE		2.5
-#define SCALE_POI			    0.04
+#define SCALE_POI			    0.002
 #define SCALE_HOMER			    0.005
 #define K_LIGACAO				1.1
 #define GAP						25
@@ -924,7 +924,7 @@ void desenhaGrafo() {
 	//material(red_plastic);
 	for (int i = 0; i<grafo.quantidadePontos(); i++) {
 		glPushMatrix();
-		glTranslatef(grafo.obterPonto(i).longitude, grafo.obterPonto(i).latitude, grafo.obterPonto(i).altitude + 0.25);
+		glTranslatef(grafo.obterPonto(i).longitude, grafo.obterPonto(i).latitude, grafo.obterPonto(i).altitude + 1.1);
 		glTranslatef(0, 0, 1.2);
 		glPushMatrix();
 		glScalef(SCALE_POI, SCALE_POI, SCALE_POI);
@@ -1650,7 +1650,7 @@ int main(int argc, char **argv){
 	glutTimerFunc(estado.timer, timer, 0);
 	mdlviewer_init("homer.mdl", modelo.personagem);
 	modelo.personagem.SetSequence(3);
-	mdlviewer_init("Yoda.mdl", modelo.poi);
+	mdlviewer_init("building11.mdl", modelo.poi);
 
 	//subwindow
 	estado.navigateSubwindow = glutCreateSubWindow(estado.mainWindow, 400+GAP, GAP, 400, 800);
@@ -1664,7 +1664,7 @@ int main(int argc, char **argv){
 	glutTimerFunc(estado.timer, timer, 0);
 	mdlviewer_init("homer.mdl", modelo.personagem);
 	modelo.personagem.SetSequence(3);
-	mdlviewer_init("Yoda.mdl", modelo.poi);
+	mdlviewer_init("building11.mdl", modelo.poi);
 	imprime_ajuda();
 
 	skybox = new SKYBOX();
