@@ -5,7 +5,7 @@
 #include <iostream>
 #include <math.h>
 #include <time.h>
-#include <GL\glut.h>
+#include <GL/glut.h>
 #include <GL/GLAux.h>
 #include "mathlib.h"
 #include "TextureLoader.h"
