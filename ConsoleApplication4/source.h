@@ -21,6 +21,15 @@
 #define SCALE_HOMER			    0.005
 #define GAP						25
 
+#define EIXO_X		1
+#define EIXO_Y		2
+#define EIXO_Z		3
+
+const GLfloat red_light[] = { 1.0, 0.0, 0.0, 1.0 };
+const GLfloat green_light[] = { 0.0, 1.0, 0.0, 1.0 };
+const GLfloat blue_light[] = { 0.0, 0.0, 1.0, 1.0 };
+const GLfloat white_light[] = { 1.0, 1.0, 1.0, 1.0 };
+
 //#define SCALE_HOMER				0.01
 
 // luzes e materiais

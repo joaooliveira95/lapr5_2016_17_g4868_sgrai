@@ -147,11 +147,6 @@ void material(enum tipo_material mat)
 	glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, mat_shininess[mat]);
 }
 
-const GLfloat red_light[] = { 1.0, 0.0, 0.0, 1.0 };
-const GLfloat green_light[] = { 0.0, 1.0, 0.0, 1.0 };
-const GLfloat blue_light[] = { 0.0, 0.0, 1.0, 1.0 };
-const GLfloat white_light[] = { 1.0, 1.0, 1.0, 1.0 };
-
 void putLights(GLfloat* diffuse)
 {
 	const GLfloat white_amb[] = { 0.2, 0.2, 0.2, 1.0 };
@@ -229,16 +224,16 @@ void setCamera() {
 
 
 void myReshapeMainWindow(int width, int height){	
-		GLint w, h;
-		w = (width - GAP * 3)*.5;
-		h = (height - GAP * 2);
-		glutSetWindow(estado.topSubwindow);
-		glutPositionWindow(GAP+5, height -(GAP+h/3+5));
-		glutReshapeWindow(w/3, h/3);
+	GLint w, h;
+	w = (width - GAP * 3)*.5;
+	h = (height - GAP * 2);
+	glutSetWindow(estado.topSubwindow);
+	glutPositionWindow(GAP+5, height -(GAP+h/3+5));
+	glutReshapeWindow(w/3, h/3);
 
-		glutSetWindow(estado.navigateSubwindow);
-		glutPositionWindow( GAP, GAP);
-		glutReshapeWindow(width - 2*GAP, height - 2*GAP);
+	glutSetWindow(estado.navigateSubwindow);
+	glutPositionWindow( GAP, GAP);
+	glutReshapeWindow(width - 2*GAP, height - 2*GAP);
 }
 
 void myReshapeTopWindow(int width, int height) {
@@ -626,9 +621,6 @@ void desenhaEixo() {
 	glPopMatrix();
 }
 
-#define EIXO_X		1
-#define EIXO_Y		2
-#define EIXO_Z		3
 
 void desenhaPlanoDrag(int eixo) {
 	glPushMatrix();
