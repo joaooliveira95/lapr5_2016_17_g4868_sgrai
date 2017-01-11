@@ -111,7 +111,7 @@ void myInit(){
 	
 	tl.LoadTextureFromDisk("calcada.jpg", &textures.chao);
 	tl.LoadTextureFromDisk("rotunda.jpg", &textures.rotunda);
-	tl.LoadTextureFromDisk("info.gif", &textures.info);
+	tl.LoadTextureFromDisk("info2.gif", &textures.info);
 
 	grafo.carregarGrafo("Porto");
 	int x, z;
@@ -864,7 +864,7 @@ void displayNavigateWindow(void) {
 
 	material(slate);
 	desenhaSolo();
-	desenhaEixos();
+	//desenhaEixos();
 	desenhaGrafo();
 	if (estado.eixoTranslaccao) {
 		// desenha plano de translacção
@@ -890,10 +890,10 @@ void displayNavigateWindow(void) {
 		material(azul);
 		drawRain();
 	}else if (fall == HAIL) {
-		material(white);
+		material(cinza);
 		drawHail();
 	}else if (fall == SNOW) {
-		material(white);
+		material(cinza);
 		drawSnow();
 	}
 
@@ -1112,17 +1112,19 @@ void myReshapeNavigateWindow(int width, int height) {
 
 void motionRotate(int x, int y) {
 #define DRAG_SCALE	0.01
-	double lim = M_PI / 2 - 0.1;
-	estado.camera.dir_long += (estado.xMouse - x)*DRAG_SCALE;
-	estado.camera.dir_lat -= (estado.yMouse - y)*DRAG_SCALE*0.5;
-	if (estado.camera.dir_lat>lim)
-		estado.camera.dir_lat = lim;
-	else
-		if (estado.camera.dir_lat<-lim)
-			estado.camera.dir_lat = -lim;
-	estado.xMouse = x;
-	estado.yMouse = y;
-	redisplayAll();
+	if (!estado.isFP) {
+		double lim = M_PI / 2 - 0.1;
+		estado.camera.dir_long += (estado.xMouse - x)*DRAG_SCALE;
+		estado.camera.dir_lat -= (estado.yMouse - y)*DRAG_SCALE*0.5;
+		if (estado.camera.dir_lat > lim)
+			estado.camera.dir_lat = lim;
+		else
+			if (estado.camera.dir_lat < -lim)
+				estado.camera.dir_lat = -lim;
+		estado.xMouse = x;
+		estado.yMouse = y;
+		redisplayAll();
+	}
 }
 
 void motionZoom(int x, int y) {

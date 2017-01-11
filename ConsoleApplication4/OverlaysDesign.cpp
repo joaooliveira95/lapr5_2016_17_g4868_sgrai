@@ -78,7 +78,7 @@ void OverlaysDesign::desenhaTempo(int seg,int min) {
 	glColor3f(2, 2, 2);
 
 	sprintf_s(str, 255, "%d : %d", seg, min);
-	bitmapCenterString(str, width*0.1, height*0.9);
+	bitmapCenterString(str, 0, height*0.9);
 
 	glMatrixMode(GL_PROJECTION);
 	glPopMatrix();
