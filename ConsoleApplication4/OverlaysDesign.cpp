@@ -1,5 +1,6 @@
 ﻿#include "OverlaysDesign.h"
 
+
 #define HEALTH_BAR_HEIGHT 20
 
 OverlaysDesign::OverlaysDesign()
@@ -78,6 +79,33 @@ void OverlaysDesign::desenhaTempo(int seg,int min) {
 
 	sprintf_s(str, 255, "%d : %d", seg, min);
 	bitmapCenterString(str, width*0.1, height*0.9);
+
+	glMatrixMode(GL_PROJECTION);
+	glPopMatrix();
+	glMatrixMode(GL_MODELVIEW);
+	glEnable(GL_DEPTH_TEST);
+}
+
+void OverlaysDesign::desenhaNomeRua(string rua) {
+	char str[255];
+	float width = glutGet(GLUT_WINDOW_WIDTH) / 2;
+	float height = glutGet(GLUT_WINDOW_HEIGHT) / 2;
+
+	glLineWidth(3);
+	glLineStipple(2, 0xFF00);
+
+	glMatrixMode(GL_PROJECTION);
+	glPushMatrix();
+	glLoadIdentity();
+	gluOrtho2D(-width, width, -height, height);
+	glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();
+	glRasterPos2i(20, 20);
+	glDisable(GL_DEPTH_TEST);
+	glColor3f(2, 2, 2);
+
+	sprintf_s(str, 255, "Rua : %s", rua.c_str());
+	bitmapCenterString(str, -width*0.8, height*0.9);
 
 	glMatrixMode(GL_PROJECTION);
 	glPopMatrix();

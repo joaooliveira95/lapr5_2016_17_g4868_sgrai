@@ -15,6 +15,7 @@ Modelo modelo;
 SKYBOX * skybox;
 Texture textures;
 InfoNo infoNo;
+InfoArco infoArco;
 
 GLfloat nextZ;
 
@@ -39,6 +40,8 @@ void initEstado() {
 	estado.lightViewer = 1;
 	infoNo.i = 0;
 	infoNo.isActive = GL_FALSE;
+	infoArco.nome = "";
+	infoArco.isActive = GL_FALSE;
 }
 
 void initModelo() {
@@ -108,7 +111,7 @@ void myInit(){
 	
 	tl.LoadTextureFromDisk("calcada.jpg", &textures.chao);
 	tl.LoadTextureFromDisk("rotunda.jpg", &textures.rotunda);
-	tl.LoadTextureFromDisk("info.gif", &textures.info);
+	tl.LoadTextureFromDisk("info3.gif", &textures.info);
 
 	grafo.carregarGrafo("Porto");
 	int x, z;
@@ -292,6 +295,7 @@ GLboolean inAreaNo(Ponto no, GLfloat ny, GLfloat nx, int i) {
 
 //Valida se o Homer esta dentro de um arco
 GLboolean inAreaArco(Ligacao arco, GLfloat x1P, GLfloat y1P) {
+	OverlaysDesign ui = OverlaysDesign();
 	Ponto noi = arco.origem;
 	Ponto nof = arco.destino;
 
@@ -313,14 +317,20 @@ GLboolean inAreaArco(Ligacao arco, GLfloat x1P, GLfloat y1P) {
 	float y2P = (y1P - yi) * cos(orientacao_a) - (x1P - xi) * sin(orientacao_a);
 
 	float largura = arco.largura / 2.0;
-	if (si <= x2P && x2P <= si+comp_p) {
+	if (si <= x2P && x2P <= si + comp_p) {
 		if (-largura <= y2P && y2P <= largura) {
 			modelo.objecto.pos.x = x1P;
 			modelo.objecto.pos.y = y1P;
-			modelo.objecto.pos.z = zi + (x2P-si) / comp_p * desnivel_h + OBJECTO_ALTURA / 2;
+			modelo.objecto.pos.z = zi + (x2P - si) / comp_p * desnivel_h + OBJECTO_ALTURA / 2;
+
+			infoArco.nome = arco.nome;
+			infoArco.isActive = GL_TRUE;
 			return true;
 		}
 	}
+
+	infoArco.nome = "";
+	infoArco.isActive = GL_FALSE;
 	return false;
 }
 
@@ -880,9 +890,14 @@ void displayNavigateWindow(void) {
 		drawSnow();
 	}
 
-	material(white);
+	material(cinza);
 	if (infoNo.isActive) {
 		ui.infoOverlay(grafo.obterPonto(infoNo.i).nome.c_str(), grafo.obterPonto(infoNo.i).descricao.c_str(), grafo.obterPonto(infoNo.i).abertura.c_str(), grafo.obterPonto(infoNo.i).fecho.c_str(), textures.info);
+	}
+
+	if (infoArco.isActive) {
+		material(azul);
+		ui.desenhaNomeRua(infoArco.nome);
 	}
 
 	glFlush();

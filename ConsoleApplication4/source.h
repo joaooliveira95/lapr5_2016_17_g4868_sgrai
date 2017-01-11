@@ -25,6 +25,8 @@
 #define EIXO_Y		2
 #define EIXO_Z		3
 
+using namespace std;
+
 const GLfloat red_light[] = { 1.0, 0.0, 0.0, 1.0 };
 const GLfloat green_light[] = { 0.0, 1.0, 0.0, 1.0 };
 const GLfloat blue_light[] = { 0.0, 0.0, 1.0, 1.0 };
@@ -151,3 +153,11 @@ typedef struct InfoNo {
 	int i;
 	GLboolean isActive;
 }InfoNo;
+
+
+typedef struct InfoArco {
+	string nome;
+	GLboolean isActive;
+}InfoArco;
+
+

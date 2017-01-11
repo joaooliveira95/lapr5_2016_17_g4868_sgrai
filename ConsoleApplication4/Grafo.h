@@ -29,9 +29,11 @@ public:
 
 class Ligacao {
 public:
+	string nome = "Nome";
 	Ponto origem, destino;
 	double distancia, largura;
 	bool visitar = false;
+	bool bidireccional = false;
 };
 
 class Visita {
