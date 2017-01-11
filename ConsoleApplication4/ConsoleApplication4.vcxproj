@@ -20,6 +20,8 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ConsolaMenu.h" />
+    <ClInclude Include="DrawGraph.h" />
+    <ClInclude Include="DrawWeather.h" />
     <ClInclude Include="Grafo.h" />
     <ClInclude Include="grafos.h" />
     <ClInclude Include="MaterialAndLight.h" />
@@ -29,10 +31,10 @@
     <ClInclude Include="Skybox.h" />
     <ClInclude Include="studio.h" />
     <ClInclude Include="TextureLoader.h" />
-    <ClInclude Include="wheather.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ConsolaMenu.cpp" />
+    <ClCompile Include="DrawGraph.cpp" />
     <ClCompile Include="Grafo.cpp" />
     <ClCompile Include="grafos.cpp" />
     <ClCompile Include="MaterialAndLight.cpp" />

@@ -101,7 +101,7 @@ void OverlaysDesign::infoOverlay(const char* nome, const char* descricao, const 
 	glLoadIdentity();
 	glRasterPos2i(20, 20);
 	glDisable(GL_DEPTH_TEST);
-	glColor3f(2, 2, 2);
+	glColor3f(4, 4, 4);
 
 	/*glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE);*/
@@ -120,7 +120,7 @@ void OverlaysDesign::infoOverlay(const char* nome, const char* descricao, const 
 	glVertex2f(-width*0.30, -height*0.25);//VERTICE
 	glEnd();
 	glDisable(GL_BLEND);
-
+	glColor3f(4, 4, 4);
 	sprintf_s(str, 255, "Nome: %s", nome);
 	bitmapCenterString(str, 0, -height*0.5);
 	sprintf_s(str, 255, "Descricao: %s", descricao);

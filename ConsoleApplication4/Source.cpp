@@ -16,19 +16,17 @@
 #include "Skybox.h"
 #include "ConsolaMenu.h"
 #include "TextureLoader.h"
-#include "wheather.h"
+#include "DrawGraph.h"
+#include "DrawWeather.h"
 
 using namespace std;
 
-#define graus(X) (double)((X)*180/M_PI)
-#define rad(X)   (double)((X)*M_PI/180)
 #define OBJECTO_RAIO		    0.12
 #define OBJECTO_ROTACAO			2
 #define	OBJECTO_ALTURA			0.5
 #define OBJECTO_VELOCIDADE		2.5
 #define SCALE_POI			    0.002
 #define SCALE_HOMER			    0.005
-#define K_LIGACAO				1.1
 #define GAP						25
 
 //#define SCALE_HOMER				0.01
@@ -49,7 +47,8 @@ const GLfloat mat_diffuse[][4] = { { 0.78, 0.57, 0.11, 1.0 },		// brass
 { 0.78, 0.78, 0.78 },			// slate
 { 0.0, 0.0,  0.61424 },			// azul
 { 0.08, 0.08, 0.08 },			// preto
-{ 0.61424, 0.61424, 0.61424 } };	// cinza
+{ 0.61424, 0.61424, 0.61424 },
+{ 0.0, 0.0, 0.0 }};	// branco
 
 const GLfloat mat_specular[][4] = { { 0.99, 0.91, 0.81, 1.0 },			// brass
 { 0.7, 0.6, 0.6 },					// red plastic
@@ -57,7 +56,8 @@ const GLfloat mat_specular[][4] = { { 0.99, 0.91, 0.81, 1.0 },			// brass
 { 0.14, 0.14, 0.14 },				// slate
 { 0.0, 0.0, 0.727811 },			// azul
 { 0.03, 0.03, 0.03 },				// preto
-{ 0.727811, 0.727811, 0.727811 } };	// cinza
+{ 0.727811, 0.727811, 0.727811 },
+{ 0.0, 0.0, 0.0 } };	// branco
 
 const GLfloat mat_shininess[] = { 27.8,	// brass
 32.0,	// red plastic
@@ -65,9 +65,10 @@ const GLfloat mat_shininess[] = { 27.8,	// brass
 18.78,	// slate
 30.0,	// azul
 75.0,	// preto
-60.0 };	// cinza
+60.0,
+10.0};	// cinza
 
-enum tipo_material { brass, red_plastic, emerald, slate, azul, preto, cinza };
+enum tipo_material { brass, red_plastic, emerald, slate, azul, preto, cinza, white };
 
 #ifdef __cplusplus
 inline tipo_material operator++(tipo_material &rs, int) {
@@ -627,19 +628,12 @@ void timer(int value) {
 		setCamera();
 	}
 
-	if (modelo.personagem.GetSequence() != 20)
-	{
-		if (andar && modelo.personagem.GetSequence() != 3)
-		{
+	if (modelo.personagem.GetSequence() != 20){
+		if (andar && modelo.personagem.GetSequence() != 3){
 			modelo.personagem.SetSequence(3);
-		//	modelo.homer[JANELA_TOP].SetSequence(3);
-		}
-		else
-			if (!andar && modelo.personagem.GetSequence() != 0)
-			{
+		}else if (!andar && modelo.personagem.GetSequence() != 0){
 				modelo.personagem.SetSequence(0);
-			//	modelo.homer[JANELA_TOP].SetSequence(0);
-			}
+		}
 	}	
 	redisplayAll();
 }
@@ -702,34 +696,6 @@ void desenhaSolo() {
 	glEnd();
 }
 
-void CrossProduct(GLdouble v1[], GLdouble v2[], GLdouble cross[])
-{
-	cross[0] = v1[1] * v2[2] - v1[2] * v2[1];
-	cross[1] = v1[2] * v2[0] - v1[0] * v2[2];
-	cross[2] = v1[0] * v2[1] - v1[1] * v2[0];
-}
-
-GLdouble VectorNormalize(GLdouble v[])
-{
-	int		i;
-	GLdouble	length;
-
-	if (fabs(v[1] - 0.000215956) < 0.0001)
-		i = 1;
-
-	length = 0;
-	for (i = 0; i< 3; i++)
-		length += v[i] * v[i];
-	length = sqrt(length);
-	if (length == 0)
-		return 0;
-
-	for (i = 0; i< 3; i++)
-		v[i] /= length;
-
-	return length;
-}
-
 
 void desenhaNormal(GLdouble x, GLdouble y, GLdouble z, GLdouble normal[], tipo_material mat) {
 
@@ -758,170 +724,12 @@ void desenhaNormal(GLdouble x, GLdouble y, GLdouble z, GLdouble normal[], tipo_m
 	glEnable(GL_LIGHTING);
 }
 
-
-void desenhaChao(GLfloat xi, GLfloat yi, GLfloat zi, GLfloat xf, GLfloat yf, GLfloat zf) {
-	zi = zi - 0.001;
-	zf = zf - 0.001;
-	GLdouble v1[3], v2[3], cross[3];
-	GLdouble length;
-	v1[0] = xf - xi;
-	v1[1] = 0;
-	v2[0] = 0;
-	v2[1] = yf - yi;
-
-	v1[2] = 0;
-	v2[2] = zf - zi;
-	CrossProduct(v1, v2, cross);
-	//printf("cross x=%lf y=%lf z=%lf",cross[0],cross[1],cross[2]);
-	length = VectorNormalize(cross);
-	//printf("Normal x=%lf y=%lf z=%lf length=%lf\n",cross[0],cross[1],cross[2]);
-
-	material(cinza);
-	glEnable(GL_TEXTURE_2D);
-	glBindTexture(GL_TEXTURE_2D,textures.chao.TextureID);
-
-	glBegin(GL_QUADS);
-	glNormal3dv(cross);
-	glTexCoord2f(0.0, 0.0);
-	glVertex3f(xi, yi, zi);
-	glTexCoord2f(0.0, 1.0);
-	glVertex3f(xf, yi, zi);
-	glTexCoord2f(1.0, 1.0);
-	glVertex3f(xf, yf, zf);
-	glTexCoord2f(1.0, 0.0);
-	glVertex3f(xi, yf, zf);
-	glEnd();		
-
-	glBindTexture(GL_TEXTURE_2D, NULL);
-	glDisable(GL_TEXTURE_2D);		
-}
-
-void desenhaChaoRedondo(float largura, GLfloat x0, GLfloat y0, GLfloat z) {
-	double x, y;
-	material(cinza);
-	
-	glEnable(GL_TEXTURE_2D);
-	glBindTexture(GL_TEXTURE_2D, textures.rotunda.TextureID);
-
-	glBegin(GL_POLYGON);
-	glNormal3f(0, 0, 1);
-	int n = 30;
-	double alfa = 2 * M_PI / n;
-	double ang = 0;
-	glNormal3f(0, 0, 1);
-	float coordx = 0.0, coordy = 0.0;
-
-	for (int i = 0; i < n; i++) {
-		 x = x0 + largura * cos(ang);
-		 y = y0 + largura * sin(ang);
-
-		 coordx = cos(ang)*0.5 + 0.5;
-		 coordy = sin(ang)*0.5 + 0.5;
-
-		glTexCoord2f(coordx, coordy);
-		glVertex3f(x, y,z);
-		ang += alfa;
-	}
-	glEnd();
-	glBindTexture(GL_TEXTURE_2D, NULL);
-	glDisable(GL_TEXTURE_2D);	
-	
-}
-
-void desenhaNo(int no) {
-	GLboolean norte, sul, este, oeste;
-	GLfloat larguraNorte, larguraSul, larguraEste, larguraOeste;
-
-	Ponto noi = grafo.obterPonto(no);
-	norte = sul = este = oeste = GL_TRUE;
-	//desenhaChao(nos[no].x - 0.5*noi->largura, nos[no].y - 0.5*noi->largura, nos[no].z, nos[no].x + 0.5*noi->largura, nos[no].y + 0.5*noi->largura, nos[no].z, PLANO);
-	desenhaChaoRedondo(noi.largura, noi.longitude, noi.latitude, noi.altitude);
-
-}
-void desenhaElemLigaInicial(Ligacao arco){
-	
-	Ponto noi = arco.origem;
-	Ponto nof = arco.destino;
-	float si = K_LIGACAO * noi.largura;
-	float xi = noi.longitude;
-	float xf = nof.longitude;
-	float yi = noi.latitude;
-	float yf = nof.latitude;
-	float zi = noi.altitude;
-	float zf = nof.altitude;
-
-	float orientacao_a = atan2f((yf - yi), (xf - xi));
-
-	glPushMatrix();
-	glTranslatef(xi, yi, zi);
-	glRotatef(graus(orientacao_a),0,0,1);
-	glTranslatef(si/2,0,0);
-
-	desenhaChao(-si*0.5, -arco.largura*0.5, 0, si*0.5, arco.largura*0.5, 0);
-	glPopMatrix();
-
-}
-
-void desenhaElemLigaFinal(Ligacao arco) {
-
-	Ponto noi = arco.destino;
-	Ponto nof = arco.origem;
-	float si = K_LIGACAO * noi.largura;
-	float xi = noi.longitude;
-	float xf = nof.longitude;
-	float yi = noi.latitude;
-	float yf = nof.latitude;
-	float zi = noi.altitude;
-	float zf = nof.altitude;
-
-	float orientacao_a = atan2f((yf - yi), (xf - xi));
-
-	glPushMatrix();
-	glTranslatef(xi, yi, zi);
-	glRotatef(graus(orientacao_a), 0, 0, 1);
-	glTranslatef(si / 2, 0, 0);
-
-	desenhaChao(-si*0.5, -arco.largura*0.5, 0, si*0.5, arco.largura*0.5, 0);
-	glPopMatrix();
-
-}
-
-void desenhaArco(Ligacao arco) {
-	
-	Ponto noi = arco.origem;
-	Ponto nof = arco.destino;
-
-	float si = K_LIGACAO * noi.largura;
-	float sf = K_LIGACAO * nof.largura;
-
-	float xi = noi.longitude;
-	float xf = nof.longitude;
-	float yi = noi.latitude;
-	float yf = nof.latitude;
-	float zi = noi.altitude;
-	float zf = nof.altitude;
-
-	float comp_p = sqrt(pow(xf - xi, 2) + pow(yf - yi, 2)) - si - sf;
-	float desnivel_h = nof.altitude - noi.altitude;
-	float comprimento_sif = sqrt(pow(comp_p, 2) + pow(desnivel_h, 2));
-	float orientacao_a = atan2f((yf - yi), (xf - xi));
-	float inclinacao_B = atan2f(desnivel_h, comp_p);
-
-	glPushMatrix();
-	glTranslatef(xi, yi, zi);
-	glRotatef(graus(orientacao_a), 0, 0, 1);
-	glTranslatef(si, 0, 0);
-	glRotatef(graus(-inclinacao_B), 0, 1, 0);
-	glTranslatef(comprimento_sif / 2.0, 0, 0);
-	desenhaChao(-comprimento_sif*0.5, -arco.largura*0.5, 0, comprimento_sif*0.5, arco.largura*0.5, 0);
-	glPopMatrix();
-}
-
 void desenhaGrafo() {
+	DrawGraph dGraph = DrawGraph();
+	material(cinza);
 	glPushMatrix();
 	glTranslatef(0, 0, 0.05);
-//	glScalef(5, 5, 5);
-	//material(red_plastic);
+
 	for (int i = 0; i<grafo.quantidadePontos(); i++) {
 		glPushMatrix();
 		glTranslatef(grafo.obterPonto(i).longitude, grafo.obterPonto(i).latitude, grafo.obterPonto(i).altitude + 1.1);
@@ -935,13 +743,15 @@ void desenhaGrafo() {
 		glEnable(GL_LIGHTING);
 		glPopMatrix();
 		glPopMatrix();
-		desenhaNo(i);
+		Ponto no = grafo.obterPonto(i);
+		dGraph.desenhaNo(no, textures.rotunda);
 	}
-	//material(emerald);
+
+
 	for (int i = 0; i < grafo.quantidadeLigacoes(); i++) {
-		desenhaArco(grafo.obterLigacao(i));
-		desenhaElemLigaInicial(grafo.obterLigacao(i));
-		desenhaElemLigaFinal(grafo.obterLigacao(i));
+		dGraph.desenhaArco(grafo.obterLigacao(i), textures.chao);
+		dGraph.desenhaElemLigaInicial(grafo.obterLigacao(i), textures.chao);
+		dGraph.desenhaElemLigaFinal(grafo.obterLigacao(i), textures.chao);
 	}
 	glPopMatrix();
 }
@@ -1210,14 +1020,17 @@ void displayNavigateWindow(void) {
 
 	// Which Particles
 	if (fall == RAIN) {
+		material(azul);
 		drawRain();
 	}else if (fall == HAIL) {
+		material(white);
 		drawHail();
 	}else if (fall == SNOW) {
+		material(white);
 		drawSnow();
 	}
 
-	//material(cinza);
+	material(white);
 	if (infoNo.isActive) {
 		ui.infoOverlay(grafo.obterPonto(infoNo.i).nome.c_str(), grafo.obterPonto(infoNo.i).descricao.c_str(), grafo.obterPonto(infoNo.i).abertura.c_str(), grafo.obterPonto(infoNo.i).fecho.c_str(), textures.info);
 	}

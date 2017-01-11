@@ -54,7 +54,7 @@ typedef struct {
 }particles;
 
 // Paticle System
-particles par_sys[MAX_PARTICLES];	
+particles par_sys[MAX_PARTICLES];
 
 class wheather
 {
@@ -64,5 +64,5 @@ public:
 
 	void wheatherMain();
 private:
-	
+
 };
