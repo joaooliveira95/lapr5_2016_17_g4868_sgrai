@@ -1043,6 +1043,14 @@ void Special(int key, int x, int y) {
 		break;
 	case GLUT_KEY_RIGHT: estado.teclas.right = GL_TRUE;
 		break;
+	case GLUT_KEY_PAGE_UP:
+		if (estado.camera.dist<15)
+			estado.camera.dist++;
+		break;
+	case GLUT_KEY_PAGE_DOWN:
+		if (estado.camera.dist>5)
+			estado.camera.dist--;
+		break;
 	}
 }
 

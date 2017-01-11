@@ -55,10 +55,18 @@ void ConsolaMenu:: consolaMain() {
 		cout << "Password" << endl;
 		cin >> password;
 
-		//VALIDA
-		//if(valida())
+		//// Faz ou não a autentificação com username e password
+		//bool acesso = grafo.obterAcesso("username", "password");
+
 		cout << endl << "Utilizador " << username << endl;
+		
+		//// Obtem todas as cidades possiveis ara o usuario
+		//vector<string> cidades = grafo.obterCidades();
+
 		cout << "Escolha a cidade." << endl;
+
+		//// Define ou não a visita escolhida é uma opção apenas navegar no mapa
+		//grafo.definirVisita(visitas.front());
 
 		printCidades();
 		scanf("%d", &opcidade);
