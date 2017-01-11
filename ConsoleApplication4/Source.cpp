@@ -111,7 +111,7 @@ void myInit(){
 	
 	tl.LoadTextureFromDisk("calcada.jpg", &textures.chao);
 	tl.LoadTextureFromDisk("rotunda.jpg", &textures.rotunda);
-	tl.LoadTextureFromDisk("info3.gif", &textures.info);
+	tl.LoadTextureFromDisk("info.gif", &textures.info);
 
 	grafo.carregarGrafo("Porto");
 	int x, z;
@@ -595,10 +595,17 @@ void desenhaGrafo() {
 
 	for (int i = 0; i<grafo.quantidadePontos(); i++) {
 		glPushMatrix();
-		glTranslatef(grafo.obterPonto(i).longitude, grafo.obterPonto(i).latitude, grafo.obterPonto(i).altitude + 1.1);
-		glTranslatef(0, 0, 1.2);
+		//altitude predio= altiture + 1.1 grafo.obterPonto(i).longitude, grafo.obterPonto(i).latitude, grafo.obterPonto(i)
+		//altitude ponte = altitude -0.85
+		//altitude escola= altitude -1.09
+		//altitude comboio = altitude -0.53
+		//altitude fabrica = altitude -1.2
+		//altitude magazin = altitude -1.2
+		glTranslatef(grafo.obterPonto(i).longitude, grafo.obterPonto(i).latitude, grafo.obterPonto(i).altitude - 1.09);
+		// para centrar a escola glTranslatef (5,0,1.2)
+		glTranslatef(5, 0, 1.2);
 		glPushMatrix();
-		glScalef(SCALE_POI, SCALE_POI, SCALE_POI);
+		glScalef(ESCOLA_POI, ESCOLA_POI, ESCOLA_POI);
 		glDisable(GL_LIGHTING);
 		glEnable(GL_TEXTURE_2D);
 		mdlviewer_display(modelo.poi);
@@ -1287,7 +1294,7 @@ int main(int argc, char **argv){
 	glutTimerFunc(estado.timer, timer, 0);
 	mdlviewer_init("homer.mdl", modelo.personagem);
 	modelo.personagem.SetSequence(3);
-	mdlviewer_init("building11.mdl", modelo.poi);
+	mdlviewer_init("escola.mdl", modelo.poi);
 
 	//subwindow
 	estado.navigateSubwindow = glutCreateSubWindow(estado.mainWindow, 400+GAP, GAP, 400, 800);
@@ -1301,7 +1308,7 @@ int main(int argc, char **argv){
 	glutTimerFunc(estado.timer, timer, 0);
 	mdlviewer_init("homer.mdl", modelo.personagem);
 	modelo.personagem.SetSequence(3);
-	mdlviewer_init("building11.mdl", modelo.poi);
+	mdlviewer_init("escola.mdl", modelo.poi);
 	imprime_ajuda();
 
 	skybox = new SKYBOX();

@@ -18,6 +18,12 @@
 #define	OBJECTO_ALTURA			0.5
 #define OBJECTO_VELOCIDADE		2.5
 #define SCALE_POI			    0.002
+#define PREDIO1_POI			    0.002
+#define PONTE_POI				0.008
+#define ESCOLA_POI				0.002
+#define COMBOIO_POI				0.006
+#define FABRICA_POI				0.005
+#define MAGAZIN_POI				0.008
 #define SCALE_HOMER			    0.005
 #define GAP						25
 
