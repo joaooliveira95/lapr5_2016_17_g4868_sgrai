@@ -160,11 +160,9 @@ void Grafo::carregarGrafo(string cidade) {
 	adicionarLigacao("Ponto4", "Ponto5", 1, 3);
 	adicionarLigacao("Ponto5", "Ponto7", 1, 7);
 	for (int i = 0; i < quantidadePontos(); i++) {
-		Ponto ponto = obterPonto(i);
-		ponto.largura = 0.0;
 		for (int j = 0; j < quantidadeLigacoes(); j++) {
 			Ligacao ligacao = obterLigacao(j);
-			if ((ligacao.origem.nome == ponto.nome || ligacao.destino.nome == ponto.nome) && ponto.largura < ligacao.largura) {
+			if ((ligacao.origem.nome == pontos.at(i).nome || ligacao.destino.nome == pontos.at(i).nome) && pontos.at(i).largura < ligacao.largura) {
 				pontos.at(i).largura = ligacao.largura;
 			}
 		}
