@@ -24,7 +24,7 @@ class Ponto {
 public:
 	string nome, descricao, abertura, fecho;
 	double latitude, longitude, altitude, largura;
-	bool visitar = false;
+	bool visitar;
 };
 
 class Ligacao {
@@ -32,8 +32,8 @@ public:
 	string nome = "Nome";
 	Ponto origem, destino;
 	double distancia, largura;
-	bool visitar = false;
-	bool bidireccional = false;
+	bool visitar;
+	bool bidireccional;
 };
 
 class Visita {

@@ -113,6 +113,7 @@ void myInit(){
 	
 	tl.LoadTextureFromDisk("calcada.jpg", &textures.chao);
 	tl.LoadTextureFromDisk("rotunda.jpg", &textures.rotunda);
+	tl.LoadTextureFromDisk("rotundaVisita.jpg", &textures.rotundaVisita);
 	tl.LoadTextureFromDisk("info2.gif", &textures.info);
 
 	grafo.carregarGrafo("Porto");
@@ -636,7 +637,13 @@ void desenhaGrafo() {
 		glPopMatrix();
 		glPopMatrix();
 		Ponto no = grafo.obterPonto(i);
-		dGraph.desenhaNo(no, textures.rotunda);
+		if (no.visitar) {
+			dGraph.desenhaNo(no, textures.rotundaVisita);
+		}
+		else {
+			dGraph.desenhaNo(no, textures.rotunda);
+		}
+
 	}
 
 

@@ -71,6 +71,7 @@ void Grafo::adicionarPonto(string nome, string descricao, double latitude, doubl
 	ponto.longitude = longitude;
 	ponto.altitude = altitude;
 	ponto.visitar = visitaPonto(nome);
+	//ponto.visitar = true;
 	pontos.push_back(ponto);
 }
 
