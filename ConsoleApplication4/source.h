@@ -12,6 +12,8 @@
 #include "studio.h"
 #include "mdlviewer.h"
 #include "mathlib.h"
+#include "Sounds.h"
+#include <AL\alut.h>
 
 #define OBJECTO_RAIO		    0.12
 #define OBJECTO_ROTACAO			2
@@ -123,6 +125,7 @@ typedef struct Estado {
 	GLint		lightViewer;
 	GLint		eixoTranslaccao;
 	GLdouble	eixo[3];
+	Som musica;
 }Estado;
 
 typedef struct pos_t {

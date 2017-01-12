@@ -6,6 +6,7 @@
 #include "ConsolaMenu.h"
 #include "DrawGraph.h"
 #include "DrawWeather.h"
+#include "Sounds.h"
 
 #include "Import3DS\Model_3DS.h"
 
@@ -1323,6 +1324,13 @@ void initModelos() {
 int main(int argc, char **argv){
 	ConsolaMenu consola = ConsolaMenu();
 	consola.consolaMain();
+
+	alutInit(&argc, argv);
+	estado.musica.buffer = alutCreateBufferFromFile("Survivor-Burning Heart.wav");
+	alGenSources(1, &estado.musica.source);
+	alSourcei(estado.musica.source, AL_BUFFER, estado.musica.buffer);
+	alSourcef(estado.musica.source, AL_GAIN, 0.2);
+	alSourcePlay(estado.musica.source);
 
 	glutInit(&argc, argv);
 
