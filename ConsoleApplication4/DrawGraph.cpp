@@ -97,8 +97,8 @@ void DrawGraph:: desenhaArco(Ligacao arco, glTexture textura) {
 
 
 void DrawGraph:: desenhaChao(GLfloat xi, GLfloat yi, GLfloat zi, GLfloat xf, GLfloat yf, GLfloat zf, glTexture textura) {
-	zi = zi - 0.001;
-	zf = zf - 0.001;
+	zi = zi - 0.0001;
+	zf = zf - 0.0001;
 	GLdouble v1[3], v2[3], cross[3];
 	GLdouble length;
 	v1[0] = xf - xi;
@@ -115,6 +115,8 @@ void DrawGraph:: desenhaChao(GLfloat xi, GLfloat yi, GLfloat zi, GLfloat xf, GLf
 
 	glEnable(GL_TEXTURE_2D);
 	glBindTexture(GL_TEXTURE_2D, textura.TextureID);
+	//FAZER 1 FOR
+
 
 	glBegin(GL_QUADS);
 	glNormal3dv(cross);
@@ -155,7 +157,7 @@ void  DrawGraph:: desenhaChaoRedondo(float largura, GLfloat x0, GLfloat y0, GLfl
 		coordy = sin(ang)*0.5 + 0.5;
 
 		glTexCoord2f(coordx, coordy);
-		glVertex3f(x, y, z);
+		glVertex3f(x, y, z+0.01);
 		ang += alfa;
 	}
 	glEnd();

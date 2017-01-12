@@ -42,6 +42,8 @@ void initEstado() {
 	infoNo.isActive = GL_FALSE;
 	infoArco.nome = "";
 	infoArco.isActive = GL_FALSE;
+
+	
 }
 
 void initModelo() {
@@ -84,7 +86,7 @@ void myInit(){
 	modelo.andar = GL_FALSE;
 
 	time_t timer = time(0);
-
+	
 	modelo.tempo = timer;
 
 	estado.timer = 100;
@@ -140,6 +142,8 @@ void myInit(){
 	for (loop = 0; loop < MAX_PARTICLES; loop++) {
 		initParticles(loop);
 	}
+
+	fall = 4;
 }
 
 void material(enum tipo_material mat)
@@ -587,6 +591,30 @@ void desenhaNormal(GLdouble x, GLdouble y, GLdouble z, GLdouble normal[], tipo_m
 	glEnable(GL_LIGHTING);
 }
 
+int getModel(string nome) {
+	for (int i = 0; i < NUM_MODELS_POIS; i++) {
+		if (nome == modelo.poi[i].nome) {
+			return i;
+		}
+	}
+	return -1;
+}
+
+void desenhaModelo(int i) {
+	int id = getModel(grafo.obterPonto(i).nome);
+	if (id != -1) {
+		mdlviewer_display(modelo.poi[id].model);
+	}else if (id == ESCOLA_ID) {
+		glScalef(0.05, 0.05, 0.05);
+		glTranslatef(5.0, 5.0, 0);
+		mdlviewer_display(modelo.poi[id].model);
+	}else {
+		glRotatef(180, 1, 0, 0);
+		glTranslatef(0, 0, modelo.poi[PREDIO_ID].altitude);
+		mdlviewer_display(modelo.poi[PREDIO_ID].model);
+	}
+}
+
 void desenhaGrafo() {
 	DrawGraph dGraph = DrawGraph();
 	material(cinza);
@@ -595,20 +623,14 @@ void desenhaGrafo() {
 
 	for (int i = 0; i<grafo.quantidadePontos(); i++) {
 		glPushMatrix();
-		//altitude predio= altiture + 1.1 grafo.obterPonto(i).longitude, grafo.obterPonto(i).latitude, grafo.obterPonto(i)
-		//altitude ponte = altitude -0.85
-		//altitude escola= altitude -1.09
-		//altitude comboio = altitude -0.53
-		//altitude fabrica = altitude -1.2
-		//altitude magazin = altitude -1.2
-		glTranslatef(grafo.obterPonto(i).longitude, grafo.obterPonto(i).latitude, grafo.obterPonto(i).altitude - 1.09);
-		// para centrar a escola glTranslatef (5,0,1.2)
-		glTranslatef(5, 0, 1.2);
+		glTranslatef(grafo.obterPonto(i).longitude, grafo.obterPonto(i).latitude, grafo.obterPonto(i).altitude);
 		glPushMatrix();
-		glScalef(ESCOLA_POI, ESCOLA_POI, ESCOLA_POI);
+		glScalef(0.005, 0.005, 0.005);
 		glDisable(GL_LIGHTING);
 		glEnable(GL_TEXTURE_2D);
-		mdlviewer_display(modelo.poi);
+
+		desenhaModelo(i);
+
 		glDisable(GL_TEXTURE_2D);
 		glEnable(GL_LIGHTING);
 		glPopMatrix();
@@ -862,8 +884,8 @@ void displayNavigateWindow(void) {
 	glEnable(GL_LIGHTING);
 	glPopMatrix();
 
-	material(slate);
-	desenhaSolo();
+	material(cinza);
+	//desenhaSolo();
 	//desenhaEixos();
 	desenhaGrafo();
 	if (estado.eixoTranslaccao) {
@@ -1267,6 +1289,29 @@ void mouse(int btn, int state, int x, int y) {
 	}
 }
 
+void initModelos() {
+	modelo.poi[PREDIO_ID].altitude = 1.1;
+	modelo.poi[PONTE_ID].altitude = -0.85;
+	modelo.poi[ESCOLA_ID].altitude = -1.09;
+	modelo.poi[COMBOIO_ID].altitude = -0.53;
+	modelo.poi[FABRICA_ID].altitude = -1.2;
+	modelo.poi[MAGAZIN_ID].altitude = -1.2;
+
+
+	mdlviewer_init("Modelos/magazin.mdl", modelo.poi[MAGAZIN_ID].model);
+	modelo.poi[MAGAZIN_ID].nome = "Ponto5";
+	mdlviewer_init("Modelos/escola.mdl", modelo.poi[ESCOLA_ID].model);
+	modelo.poi[ESCOLA_ID].nome = "Ponto4";
+	mdlviewer_init("Modelos/fabrica.mdl", modelo.poi[FABRICA_ID].model);
+	modelo.poi[FABRICA_ID].nome = "Ponto3";
+	mdlviewer_init("Modelos/ponte.mdl", modelo.poi[PONTE_ID].model);
+	modelo.poi[PONTE_ID].nome = "Ponto1";
+	mdlviewer_init("Modelos/predio.mdl", modelo.poi[PREDIO_ID].model);
+	modelo.poi[PREDIO_ID].nome = "predio";
+	mdlviewer_init("Modelos/comboio.mdl", modelo.poi[COMBOIO_ID].model);
+	modelo.poi[COMBOIO_ID].nome = "Ponto2";
+}
+
 int main(int argc, char **argv){
 	ConsolaMenu consola = ConsolaMenu();
 	consola.consolaMain();
@@ -1296,7 +1341,7 @@ int main(int argc, char **argv){
 	glutTimerFunc(estado.timer, timer, 0);
 	mdlviewer_init("homer.mdl", modelo.personagem);
 	modelo.personagem.SetSequence(3);
-	mdlviewer_init("escola.mdl", modelo.poi);
+	initModelos();
 
 	//subwindow
 	estado.navigateSubwindow = glutCreateSubWindow(estado.mainWindow, 400+GAP, GAP, 400, 800);
@@ -1310,7 +1355,7 @@ int main(int argc, char **argv){
 	glutTimerFunc(estado.timer, timer, 0);
 	mdlviewer_init("homer.mdl", modelo.personagem);
 	modelo.personagem.SetSequence(3);
-	mdlviewer_init("escola.mdl", modelo.poi);
+	initModelos();
 	imprime_ajuda();
 
 	skybox = new SKYBOX();

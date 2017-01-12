@@ -27,6 +27,16 @@
 #define SCALE_HOMER			    0.005
 #define GAP						25
 
+#define PREDIO_ID				0
+#define PONTE_ID				1
+#define ESCOLA_ID				2
+#define COMBOIO_ID				3
+#define FABRICA_ID				4
+#define MAGAZIN_ID				5
+
+
+#define NUM_MODELS_POIS			6	
+
 #define EIXO_X		1
 #define EIXO_Y		2
 #define EIXO_Z		3
@@ -126,6 +136,14 @@ typedef struct objecto_t {
 	GLfloat		andar;
 } objecto_t;
 
+typedef struct Poi {
+	StudioModel  model;
+	string		nome;
+	GLfloat		scale;
+	GLfloat altitude;
+};
+
+
 typedef struct Modelo {
 #ifdef __cplusplus
 	tipo_material cor_cubo;
@@ -142,7 +160,7 @@ typedef struct Modelo {
 	GLuint        xMouse;
 	GLuint        yMouse;
 	StudioModel   personagem;
-	StudioModel   poi;
+	Poi   poi[NUM_MODELS_POIS];
 	GLboolean     andar;
 	GLuint        prev;
 	float			  km;
