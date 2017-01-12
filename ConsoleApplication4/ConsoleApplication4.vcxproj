@@ -24,6 +24,11 @@
     <ClInclude Include="DrawWeather.h" />
     <ClInclude Include="Grafo.h" />
     <ClInclude Include="grafos.h" />
+    <ClInclude Include="Import3DS\GLTexture.h" />
+    <ClInclude Include="Import3DS\jconfig.h" />
+    <ClInclude Include="Import3DS\jmorecfg.h" />
+    <ClInclude Include="Import3DS\jpeglib.h" />
+    <ClInclude Include="Import3DS\Model_3DS.h" />
     <ClInclude Include="mathlib.h" />
     <ClInclude Include="mdlviewer.h" />
     <ClInclude Include="OverlaysDesign.h" />
@@ -37,6 +42,9 @@
     <ClCompile Include="DrawGraph.cpp" />
     <ClCompile Include="Grafo.cpp" />
     <ClCompile Include="grafos.cpp" />
+    <ClCompile Include="Import3DS\GLTexture.cpp" />
+    <ClCompile Include="Import3DS\Model_3DS.cpp" />
+    <ClCompile Include="Import3DS\readjpeg.c" />
     <ClCompile Include="math.cpp" />
     <ClCompile Include="mdlviewer.cpp" />
     <ClCompile Include="OverlaysDesign.cpp" />
@@ -48,6 +56,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Library Include="Import3DS\libjpeg.lib" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{ACD05F2D-1985-4B7D-9595-A40C166D0461}</ProjectGuid>
