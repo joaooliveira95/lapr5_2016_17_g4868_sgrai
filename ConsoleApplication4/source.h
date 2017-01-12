@@ -170,6 +170,7 @@ typedef struct Modelo {
 typedef struct Texture {
 	glTexture chao;
 	glTexture rotunda;
+	glTexture rotundaVisita;
 	glTexture info;
 }Texture;
 
