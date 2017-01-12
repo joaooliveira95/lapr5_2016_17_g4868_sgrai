@@ -195,11 +195,11 @@ void setCamera() {
 	if (estado.isFP) {
 		eye[0] = modelo.objecto.pos.x;
 		eye[1] = modelo.objecto.pos.y;
-		eye[2] = modelo.objecto.pos.z + 1.25;
+		eye[2] = modelo.objecto.pos.z + 0.5;
 
 		estado.camera.center[0] = modelo.objecto.pos.x - sin(modelo.objecto.dir)*(0.25);
 		estado.camera.center[1] = modelo.objecto.pos.y + cos(modelo.objecto.dir)*(0.25);
-		estado.camera.center[2] = modelo.objecto.pos.z + 1.25;
+		estado.camera.center[2] = modelo.objecto.pos.z + 0.5;
 
 		if (estado.light) {
 			gluLookAt(eye[0], eye[1], eye[2], estado.camera.center[0], estado.camera.center[1], estado.camera.center[2], 0, 0, 1);

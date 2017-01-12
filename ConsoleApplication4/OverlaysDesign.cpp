@@ -139,24 +139,24 @@ void OverlaysDesign::infoOverlay(const char* nome, const char* descricao, const 
 
 	glBegin(GL_POLYGON);
 	glTexCoord2f(1.0, 1.0);
-	glVertex2f(-width*0.30, -height*0.95);//VERTICE
+	glVertex2f(width*0.40, -height*0.98);//VERTICE
 	glTexCoord2f(0, 1.0);
-	glVertex2f(width*0.3, -height*0.95);//VERTICE
+	glVertex2f(width*0.99, -height*0.98);//VERTICE
 	glTexCoord2f(0.0, 0.0);
-	glVertex2f(width*0.3, -height*0.25);//VERTICE
+	glVertex2f(width*0.99, -height*0.25);//VERTICE
 	glTexCoord2f(1.0, 0.0);
-	glVertex2f(-width*0.30, -height*0.25);//VERTICE
+	glVertex2f(width*0.40, -height*0.25);//VERTICE
 	glEnd();
 	glDisable(GL_BLEND);
 	glColor3f(4, 4, 4);
 	sprintf_s(str, 255, "Nome: %s", nome);
-	bitmapCenterString(str, 0, -height*0.5);
+	bitmapCenterString(str, width*0.70, -height*0.5);
 	sprintf_s(str, 255, "Descricao: %s", descricao);
-	bitmapCenterString(str, 0, -height*0.6);
+	bitmapCenterString(str, width*0.70, -height*0.6);
 	sprintf_s(str, 255, "Hora da Abertura: %s ", abertura);
-	bitmapCenterString(str, 0, -height*0.7);
+	bitmapCenterString(str, width*0.70, -height*0.7);
 	sprintf_s(str, 255, " Hora do Fecho: %s \n", fecho);
-	bitmapCenterString(str, 0, -height*0.8);
+	bitmapCenterString(str, width*0.70, -height*0.8);
 		
 	//glPushAttrib(GL_CURRENT_BIT);
 	glMatrixMode(GL_PROJECTION);
