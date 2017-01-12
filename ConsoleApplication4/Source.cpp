@@ -1,12 +1,13 @@
 //SOURCE
 #include "source.h"
-
 #include "Grafo.h"
 #include "OverlaysDesign.h"
 #include "Skybox.h"
 #include "ConsolaMenu.h"
 #include "DrawGraph.h"
 #include "DrawWeather.h"
+
+#include "Import3DS\Model_3DS.h"
 
 using namespace std;
 
