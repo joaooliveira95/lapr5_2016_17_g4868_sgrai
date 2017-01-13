@@ -44,7 +44,7 @@ void ConsolaMenu::printVisitas(Grafo grafo, string cidade) {
 	}
 }
 
-void ConsolaMenu:: consolaMain(Grafo grafo) {
+Grafo ConsolaMenu:: consolaMain(Grafo grafo) {
 	
 	int op, opcidade, opvisita;
 	
@@ -59,13 +59,21 @@ void ConsolaMenu:: consolaMain(Grafo grafo) {
 	//nao registado
 	if (op == 0) {
 		//seleciona cidade
-		cout << endl << "Utilizador Nao Registado--------------" << endl;
-		cout << "Escolha a cidade." << endl;
+		cout << endl << "Utilizador Nao Registado--------------" << endl << endl;
+		cout << "Cidades Disponiveis:" << endl;
 		//FOR ESTATICO POR ENQUANTO
 		printCidades(grafo);
 		scanf("%d", &opcidade);
 		//importamos a info da cidade com id opcidade
-		loading();
+		if (opcidade >= 0 && opcidade < grafo.obterCidades().size()) {
+			string cidadeEscolhida;
+			cidadeEscolhida = grafo.obterCidades().at(opcidade);
+			grafo.carregarGrafo("Porto");
+			loading();
+		}else {
+			cout << "ERROR" << endl;
+			exit(0);
+		}
 	}else if (op == 1) {
 		cout << "Login" << endl;
 		cout << "Username" << endl;
@@ -87,6 +95,8 @@ void ConsolaMenu:: consolaMain(Grafo grafo) {
 		if (opcidade >= 0 && opcidade<grafo.obterCidades().size()) {
 			string cidadeEscolhida;
 			cidadeEscolhida = grafo.obterCidades().at(opcidade);
+			//grafo.carregarGrafo(cidadeEscolhida);
+			grafo.carregarGrafo("Porto");
 
 			cout << "Visitas Dispoiveis: " << endl;
 			printVisitas(grafo, cidadeEscolhida);
@@ -95,10 +105,11 @@ void ConsolaMenu:: consolaMain(Grafo grafo) {
 			//// Define ou não a visita escolhida é uma opção apenas navegar no mapa
 			if (opvisita == 0) {
 				loading();
-			}
-			else if (opvisita - 1 >= 0 && opvisita <= grafo.obterVisitas(cidadeEscolhida).size()) {
-				grafo.definirVisita(grafo.obterVisitas(cidadeEscolhida).at(opvisita));
+			}else if (opvisita - 1 >= 0 && opvisita <= grafo.obterVisitas(cidadeEscolhida).size()) {
+				grafo.definirVisita(grafo.obterVisitas(cidadeEscolhida).at(opvisita-1));
+				return grafo;
 				loading();
+
 			}
 			else {
 				cout << "ERROR" << endl;
@@ -108,8 +119,9 @@ void ConsolaMenu:: consolaMain(Grafo grafo) {
 			cout << "ERROR" << endl;
 			exit(0);
 		}
-
-	
-
+	}else {
+		cout << "ERROR" << endl;
+		exit(0);
 	}
+	return grafo;
 }

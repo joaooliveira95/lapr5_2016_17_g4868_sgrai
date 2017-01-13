@@ -14,7 +14,7 @@ public:
 	ConsolaMenu();
 	~ConsolaMenu();
 
-	void consolaMain(Grafo grafo);
+	Grafo consolaMain(Grafo grafo);
 private:
 	void printVisitas(Grafo grafo, string cidade);
 	void printCidades(Grafo grafo);

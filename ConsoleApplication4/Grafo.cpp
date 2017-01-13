@@ -71,6 +71,7 @@ void Grafo::adicionarPonto(string nome, string descricao, double latitude, doubl
 	ponto.longitude = longitude;
 	ponto.altitude = altitude;
 	ponto.visitar = visitaPonto(nome);
+	ponto.largura = 5;
 	//ponto.visitar = true;
 	pontos.push_back(ponto);
 }
@@ -160,14 +161,14 @@ void Grafo::carregarGrafo(string cidade) {
 	adicionarLigacao("Ponto3", "Ponto6", 1, 3);
 	adicionarLigacao("Ponto4", "Ponto5", 1, 3);
 	adicionarLigacao("Ponto5", "Ponto7", 1, 7);
-	for (int i = 0; i < quantidadePontos(); i++) {
-		for (int j = 0; j < quantidadeLigacoes(); j++) {
-			Ligacao ligacao = obterLigacao(j);
-			if ((ligacao.origem.nome == pontos.at(i).nome || ligacao.destino.nome == pontos.at(i).nome) && pontos.at(i).largura < ligacao.largura) {
-				pontos.at(i).largura = ligacao.largura;
-			}
-		}
-	}
+	////for (int i = 0; i < quantidadePontos(); i++) {
+	////	for (int j = 0; j < quantidadeLigacoes(); j++) {
+	////		Ligacao ligacao = obterLigacao(j);
+	////		if ((ligacao.origem.nome == pontos.at(i).nome || ligacao.destino.nome == pontos.at(i).nome) && pontos.at(i).largura < ligacao.largura) {
+	////			pontos.at(i).largura = 5;// ligacao.largura;
+	////		}
+	////	}
+	////}
 	/*
 	cidade = normaliza(cidade);
 	json::value pontos = httpGetJSON("api/cidade/nome/" + cidade + "/ponto");
@@ -208,9 +209,12 @@ vector<Visita> Grafo::obterVisitas(string cidade) {
 	visita.data = "2017-01-09 21:00:18";
 	visita.origem = "Torre dos Clérigos";
 	vector<string> paragens;
-	paragens.push_back("ISEP");
+	/*paragens.push_back("ISEP");
 	paragens.push_back("Trindade");
-	paragens.push_back("Camara do Porto");
+	paragens.push_back("Camara do Porto");*/
+	paragens.push_back("Ponto1");
+	paragens.push_back("Ponto2");
+	paragens.push_back("Ponto3");
 	vector<string> percurso;
 	percurso.push_back("Torre dos Clérigos");
 	percurso.push_back("Camara do Porto");

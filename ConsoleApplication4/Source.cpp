@@ -124,7 +124,7 @@ void myInit(){
 	tl.LoadTextureFromDisk("rotundaVisita.jpg", &textures.rotundaVisita);
 	tl.LoadTextureFromDisk("info2.gif", &textures.info);
 
-	grafo.carregarGrafo("Porto");
+	//grafo.carregarGrafo("Porto");
 	int x, z;
 
 	glShadeModel(GL_SMOOTH);
@@ -1436,7 +1436,8 @@ void initModelos() {
 int main(int argc, char **argv){
 	
 	ConsolaMenu consola = ConsolaMenu();
-	consola.consolaMain(grafo);
+	Grafo grafor = consola.consolaMain(grafo);
+	grafo = grafor;
 
 	alutInit(&argc, argv);
 	estado.musica.buffer = alutCreateBufferFromFile("music.wav");
