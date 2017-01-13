@@ -12,6 +12,7 @@
 #include "studio.h"
 #include "mdlviewer.h"
 #include "mathlib.h"
+#include "Import3DS\Model_3DS.h"
 #include <AL\alut.h>
 
 #define OBJECTO_RAIO		    0.12
@@ -173,6 +174,7 @@ typedef struct Modelo {
 	GLuint        prev;
 	float			  km;
 	int			  tempo;
+	Model_3DS m3ds;
 }Modelo;
 
 typedef struct Texture {

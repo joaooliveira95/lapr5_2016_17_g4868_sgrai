@@ -151,7 +151,7 @@ Model_3DS::Model_3DS()
 	pos.y = 0.0f;
 	pos.z = 0.0f;
 	// Set up the default rotation
-	rot.x = 0.0f;
+	rot.x = 90.0f;
 	rot.y = 0.0f;
 	rot.z = 0.0f;
 
@@ -252,8 +252,7 @@ void Model_3DS::Load(char *name)
 			Objects[k].TexCoords = new GLfloat[Objects[k].numTexCoords * 2];
 
 			// Make some texture coords
-			for (int m = 0; m < Objects[k].numTexCoords; m++)
-			{
+			for (int m = 0; m < Objects[k].numTexCoords; m++){
 				Objects[k].TexCoords[2*m] = Objects[k].Vertexes[3*m];
 				Objects[k].TexCoords[2*m+1] = Objects[k].Vertexes[3*m+1];
 			}

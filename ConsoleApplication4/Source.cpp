@@ -7,8 +7,6 @@
 #include "DrawGraph.h"
 #include "DrawWeather.h"
 
-#include "Import3DS\Model_3DS.h"
-
 using namespace std;
 
 Estado estado;
@@ -22,6 +20,7 @@ GLfloat nextZ;
 
 TextureLoader tl = TextureLoader();
 Grafo grafo = Grafo();
+
 
 void initEstado() {
 	estado.isFP = GL_FALSE;
@@ -58,6 +57,14 @@ void initModelo() {
 	modelo.g_pos_luz2[1] = -15.0;
 	modelo.g_pos_luz2[2] = 5.0;
 	modelo.g_pos_luz2[3] = 0.0;
+
+	Model_3DS m3ds = Model_3DS();
+	m3ds.Load("Modelos/casa_musica/CasaDaMusica.3ds");
+	m3ds.pos.x = 0;
+	m3ds.pos.y = 0;
+	m3ds.pos.z = 0;
+	m3ds.scale = 20;
+	modelo.m3ds = m3ds;
 }
 
 void initParticles(int i) {
@@ -631,7 +638,10 @@ void desenhaGrafo() {
 		glDisable(GL_LIGHTING);
 		glEnable(GL_TEXTURE_2D);
 
-		desenhaModelo(i);
+		//desenhaModelo(i);
+		glPushMatrix();
+		modelo.m3ds.Draw();
+		glPopMatrix();
 
 		glDisable(GL_TEXTURE_2D);
 		glEnable(GL_LIGHTING);
@@ -1318,9 +1328,12 @@ void initModelos() {
 	modelo.poi[PREDIO_ID].nome = "predio";
 	mdlviewer_init("Modelos/comboio.mdl", modelo.poi[COMBOIO_ID].model);
 	modelo.poi[COMBOIO_ID].nome = "Ponto2";
+
+	
 }
 
 int main(int argc, char **argv){
+	
 	ConsolaMenu consola = ConsolaMenu();
 	consola.consolaMain();
 
