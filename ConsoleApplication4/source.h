@@ -12,7 +12,6 @@
 #include "studio.h"
 #include "mdlviewer.h"
 #include "mathlib.h"
-#include "Sounds.h"
 #include <AL\alut.h>
 
 #define OBJECTO_RAIO		    0.12
@@ -99,6 +98,12 @@ inline tipo_material operator++(tipo_material &rs, int) {
 
 typedef	GLdouble Vertice[3];
 typedef	GLdouble Vector[4];
+
+typedef struct {
+	ALuint buffer, source;
+	ALboolean tecla_s;
+} Som;
+
 
 typedef struct teclas_t {
 	GLboolean   up, down, left, right;

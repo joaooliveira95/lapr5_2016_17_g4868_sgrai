@@ -33,7 +33,6 @@
     <ClInclude Include="mdlviewer.h" />
     <ClInclude Include="OverlaysDesign.h" />
     <ClInclude Include="Skybox.h" />
-    <ClInclude Include="Sounds.h" />
     <ClInclude Include="source.h" />
     <ClInclude Include="studio.h" />
     <ClInclude Include="TextureLoader.h" />
@@ -50,7 +49,6 @@
     <ClCompile Include="mdlviewer.cpp" />
     <ClCompile Include="OverlaysDesign.cpp" />
     <ClCompile Include="skybox.cpp" />
-    <ClCompile Include="Sounds.cpp" />
     <ClCompile Include="Source.cpp" />
     <ClCompile Include="studio_render.cpp" />
     <ClCompile Include="studio_utils.cpp" />
