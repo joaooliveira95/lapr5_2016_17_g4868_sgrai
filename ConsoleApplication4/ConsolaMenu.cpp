@@ -68,7 +68,7 @@ Grafo ConsolaMenu:: consolaMain(Grafo grafo) {
 		if (opcidade >= 0 && opcidade < grafo.obterCidades().size()) {
 			string cidadeEscolhida;
 			cidadeEscolhida = grafo.obterCidades().at(opcidade);
-			grafo.carregarGrafo("Porto");
+			grafo.carregarGrafo(cidadeEscolhida);
 			loading();
 		}else {
 			cout << "ERROR" << endl;
@@ -96,7 +96,7 @@ Grafo ConsolaMenu:: consolaMain(Grafo grafo) {
 			string cidadeEscolhida;
 			cidadeEscolhida = grafo.obterCidades().at(opcidade);
 			//grafo.carregarGrafo(cidadeEscolhida);
-			grafo.carregarGrafo("Porto");
+			grafo.carregarGrafo(cidadeEscolhida);
 
 			cout << "Visitas Dispoiveis: " << endl;
 			printVisitas(grafo, cidadeEscolhida);
@@ -109,7 +109,6 @@ Grafo ConsolaMenu:: consolaMain(Grafo grafo) {
 				grafo.definirVisita(grafo.obterVisitas(cidadeEscolhida).at(opvisita-1));
 				return grafo;
 				loading();
-
 			}
 			else {
 				cout << "ERROR" << endl;

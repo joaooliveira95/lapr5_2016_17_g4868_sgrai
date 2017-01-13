@@ -84,17 +84,51 @@ void initParticles(int i) {
 	par_sys[i].gravity = -0.8;//-0.8;
 }
 
+void initWeather() {
+	int x, z;
+
+	// Ground Verticies
+	// Ground Colors
+	for (z = 0; z < 21; z++) {
+		for (x = 0; x < 21; x++) {
+			ground_points[x][z][0] = x - 10.0;
+			ground_points[x][z][1] = accum;
+			ground_points[x][z][2] = z - 10.0;
+
+			ground_colors[z][x][0] = r; // red value
+			ground_colors[z][x][1] = g; // green value
+			ground_colors[z][x][2] = b; // blue value
+			ground_colors[z][x][3] = 0.0; // acummulation factor
+		}
+	}
+
+	// Initialize particles
+	for (loop = 0; loop < MAX_PARTICLES; loop++) {
+		initParticles(loop);
+	}
+
+	fall = 4;
+}
+
+void initTexturas() {
+	tl.LoadTextureFromDisk("calcada.jpg", &textures.chao);
+	tl.LoadTextureFromDisk("rotunda.jpg", &textures.rotunda);
+	tl.LoadTextureFromDisk("rotundaVisita.jpg", &textures.rotundaVisita);
+	tl.LoadTextureFromDisk("info2.gif", &textures.info);
+}
+
 void myInit(){
-	modelo.objecto.pos.x = -50;
-	modelo.objecto.pos.y = 0;
-	modelo.objecto.pos.z = 2.5;
+	//Posicao inicial do Homer
+	modelo.objecto.pos.x = grafo.obterPonto(0).longitude;
+	modelo.objecto.pos.y = grafo.obterPonto(0).latitude;
+	modelo.objecto.pos.z = grafo.obterPonto(0).altitude+ALTURA_HOMER;
 	
 	modelo.objecto.dir = 0;
 	modelo.objecto.vel = OBJECTO_VELOCIDADE;
 	modelo.andar = GL_FALSE;
 
+	//Guarda tempo inicial
 	time_t timer = time(0);
-	
 	modelo.tempo = timer;
 
 	estado.timer = 100;
@@ -118,41 +152,14 @@ void myInit(){
 	modelo.quad = gluNewQuadric();
 	gluQuadricDrawStyle(modelo.quad, GLU_FILL);
 	gluQuadricNormals(modelo.quad, GLU_OUTSIDE);	
-	
-	tl.LoadTextureFromDisk("calcada.jpg", &textures.chao);
-	tl.LoadTextureFromDisk("rotunda.jpg", &textures.rotunda);
-	tl.LoadTextureFromDisk("rotundaVisita.jpg", &textures.rotundaVisita);
-	tl.LoadTextureFromDisk("info2.gif", &textures.info);
-
-	//grafo.carregarGrafo("Porto");
-	int x, z;
 
 	glShadeModel(GL_SMOOTH);
 	glClearColor(0.0, 0.0, 0.0, 0.0);
 	glClearDepth(1.0);
 	glEnable(GL_DEPTH_TEST);
 
-	// Ground Verticies
-	// Ground Colors
-	for (z = 0; z < 21; z++) {
-		for (x = 0; x < 21; x++) {
-			ground_points[x][z][0] = x - 10.0;
-			ground_points[x][z][1] = accum;
-			ground_points[x][z][2] = z - 10.0;
-
-			ground_colors[z][x][0] = r; // red value
-			ground_colors[z][x][1] = g; // green value
-			ground_colors[z][x][2] = b; // blue value
-			ground_colors[z][x][3] = 0.0; // acummulation factor
-		}
-	}
-
-	// Initialize particles
-	for (loop = 0; loop < MAX_PARTICLES; loop++) {
-		initParticles(loop);
-	}
-
-	fall = 4;
+	initTexturas();
+	initWeather();
 }
 
 void material(enum tipo_material mat)
@@ -204,11 +211,11 @@ void setCamera() {
 	if (estado.isFP) {
 		eye[0] = modelo.objecto.pos.x;
 		eye[1] = modelo.objecto.pos.y;
-		eye[2] = modelo.objecto.pos.z + 0.5;
+		eye[2] = modelo.objecto.pos.z + ALTURA_HOMER;
 
 		estado.camera.center[0] = modelo.objecto.pos.x - sin(modelo.objecto.dir)*(0.25);
 		estado.camera.center[1] = modelo.objecto.pos.y + cos(modelo.objecto.dir)*(0.25);
-		estado.camera.center[2] = modelo.objecto.pos.z + 0.5;
+		estado.camera.center[2] = modelo.objecto.pos.z + ALTURA_HOMER;
 
 		if (estado.light) {
 			gluLookAt(eye[0], eye[1], eye[2], estado.camera.center[0], estado.camera.center[1], estado.camera.center[2], 0, 0, 1);
@@ -283,6 +290,32 @@ void displayMainWindow(){
 	glutSwapBuffers();
 }
 
+void desenhaCandeeiros(GLfloat comprimento_sif, GLfloat largura, GLfloat inclinacao_B, StudioModel candeeiro) {
+
+	GLfloat inc = comprimento_sif / 3;
+
+	for (int i = 0; i <= 3; i++) {
+		glPushMatrix();
+		glEnable(GL_TEXTURE_2D);
+		glTranslatef(-comprimento_sif*0.5 + inc*i, -largura, 0);
+		glScalef(0.01, 0.01, 0.01);
+		glRotatef(graus(inclinacao_B), 0, 1, 0);
+		mdlviewer_display(candeeiro);
+		glDisable(GL_TEXTURE_2D);
+		glPopMatrix();
+	}
+
+	for (int i = 1; i <= 3; i++) {
+		glPushMatrix();
+		glEnable(GL_TEXTURE_2D);
+		glTranslatef(-comprimento_sif*0.5 + inc*i, largura, 0);
+		glScalef(-0.01, -0.01, 0.01);
+		glRotatef(graus(-inclinacao_B), 0, 1, 0);
+		mdlviewer_display(candeeiro);
+		glDisable(GL_TEXTURE_2D);
+		glPopMatrix();
+	}
+}
 void desenhaArco(Ligacao arco, glTexture textura, StudioModel candeeiro) {
 
 	Ponto noi = arco.origem;
@@ -314,30 +347,7 @@ void desenhaArco(Ligacao arco, glTexture textura, StudioModel candeeiro) {
 	DrawGraph dGraph = DrawGraph();
 	dGraph.desenhaChao(-comprimento_sif*0.5, -arco.largura*0.5, 0, comprimento_sif*0.5, arco.largura*0.5, 0, textura);
 
-
-	GLfloat inc = comprimento_sif / 3;
-
-	for (int i = 0; i <= 3; i++) {
-		glPushMatrix();
-		glEnable(GL_TEXTURE_2D);
-		glTranslatef(-comprimento_sif*0.5+inc*i, -arco.largura*0.5, 0);
-		glScalef(0.01, 0.01, 0.01);
-		glRotatef(graus(inclinacao_B), 0, 1, 0);
-		mdlviewer_display(candeeiro);
-		glDisable(GL_TEXTURE_2D);
-		glPopMatrix();
-	}
-
-	for (int i = 1; i <= 3; i++) {
-		glPushMatrix();
-		glEnable(GL_TEXTURE_2D);
-		glTranslatef(-comprimento_sif*0.5 + inc*i, arco.largura*0.5, 0);
-		glScalef(-0.01, -0.01, 0.01);
-		glRotatef(graus(-inclinacao_B), 0, 1, 0);
-		mdlviewer_display(candeeiro);
-		glDisable(GL_TEXTURE_2D);
-		glPopMatrix();
-	}
+	desenhaCandeeiros(comprimento_sif, arco.largura*0.5, inclinacao_B, candeeiro);
 	
 	glPopMatrix();
 }
@@ -724,7 +734,7 @@ void desenhaElemLigaInicial(Ligacao arco, glTexture textura, StudioModel stop) {
 
 void desenhaGrafo() {
 	DrawGraph dGraph = DrawGraph();
-	material(cinza);
+	material(emerald);
 	glPushMatrix();
 	glTranslatef(0, 0, 0.05);
 
@@ -1001,7 +1011,7 @@ void displayNavigateWindow(void) {
 	glEnable(GL_LIGHTING);
 	glPopMatrix();
 
-	material(cinza);
+	material(emerald);
 	//desenhaSolo();
 	//desenhaEixos();
 	desenhaGrafo();
@@ -1022,8 +1032,6 @@ void displayNavigateWindow(void) {
 	int segs = tempoDecorrido - 60 * mins;
 	ui.desenhaTempo(mins, segs);	
 
-	material(cinza);
-
 	// Which Particles
 	if (fall == RAIN) {
 		material(azul);
@@ -1032,11 +1040,11 @@ void displayNavigateWindow(void) {
 		material(cinza);
 		drawHail();
 	}else if (fall == SNOW) {
-		material(cinza);
+		material(emerald);
 		drawSnow();
 	}
 
-	material(cinza);
+	material(emerald);
 	if (infoNo.isActive) {
 		ui.infoOverlay(grafo.obterPonto(infoNo.i).nome.c_str(), grafo.obterPonto(infoNo.i).descricao.c_str(), grafo.obterPonto(infoNo.i).abertura.c_str(), grafo.obterPonto(infoNo.i).fecho.c_str(), textures.info);
 	}

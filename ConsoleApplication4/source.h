@@ -27,6 +27,7 @@
 #define FABRICA_POI				0.005
 #define MAGAZIN_POI				0.008
 #define SCALE_HOMER			    0.005
+#define ALTURA_HOMER			SCALE_HOMER*100
 #define GAP						25
 
 #define PREDIO_ID				0
@@ -55,42 +56,40 @@ const GLfloat white_light[] = { 1.0, 1.0, 1.0, 1.0 };
 
 // luzes e materiais
 
-const GLfloat mat_ambient[][4] = { { 0.33, 0.22, 0.03, 1.0 },	// brass
-{ 0.0, 0.0, 0.0 },			// red plastic
-{ 0.0215, 0.1745, 0.0215 },	// emerald
-{ 0.02, 0.02, 0.02 },		// slate
-{ 0.0, 0.0, 0.1745 },		// azul
-{ 0.02, 0.02, 0.02 },		// preto
-{ 0.1745, 0.1745, 0.1745 } };// cinza
+const GLfloat mat_ambient[][4] = { { 0.33f, 0.22f, 0.03f, 1.0f },	// brass
+{ 0.0f, 0.0f, 0.0f },			// red plastic
+{ 1, 1, 1 },	// emerald
+{ 0.02f, 0.02f, 0.02f },		// slate
+{ 0.0f, 0.0f, 0.1745f },		// azul
+{ 0.02f, 0.02f, 0.02f },		// preto
+{ 0.1745f, 0.1745f, 0.1745f } };// cinza
 
-const GLfloat mat_diffuse[][4] = { { 0.78, 0.57, 0.11, 1.0 },		// brass
-{ 0.5, 0.0, 0.0 },				// red plastic
-{ 0.07568, 0.61424, 0.07568 },	// emerald
-{ 0.78, 0.78, 0.78 },			// slate
-{ 0.0, 0.0,  0.61424 },			// azul
-{ 0.08, 0.08, 0.08 },			// preto
-{ 0.61424, 0.61424, 0.61424 },
-{ 0.0, 0.0, 0.0 } };	// branco
 
-const GLfloat mat_specular[][4] = { { 0.99, 0.91, 0.81, 1.0 },			// brass
-{ 0.7, 0.6, 0.6 },					// red plastic
-{ 0.633, 0.727811, 0.633 },		// emerald
-{ 0.14, 0.14, 0.14 },				// slate
-{ 0.0, 0.0, 0.727811 },			// azul
-{ 0.03, 0.03, 0.03 },				// preto
-{ 0.727811, 0.727811, 0.727811 },
-{ 0.0, 0.0, 0.0 } };	// branco
+const GLfloat mat_diffuse[][4] = { { 0.78f, 0.57f, 0.11f, 1.0f },		// brass
+{ 0.5f, 0.0f, 0.0f },				// red plastic
+{ 0.07568f, 0.07568f, 0.07568f },	// emerald
+{ 0.78f, 0.78f, 0.78f },			// slate
+{ 0.0f, 0.0f,  0.61424f },			// azul
+{ 0.08f, 0.08f, 0.08f },			// preto
+{ 0.61424f, 0.61424f, 0.61424f } };	// cinza
 
-const GLfloat mat_shininess[] = { 27.8,	// brass
-32.0,	// red plastic
-76.8,	// emerald
-18.78,	// slate
-30.0,	// azul
-75.0,	// preto
-60.0,
-10.0 };	// cinza
+const GLfloat mat_specular[][4] = { { 0.99f, 0.91f, 0.81f, 1.0f },			// brass
+{ 0.7f, 0.6f, 0.6f },					// red plastic
+{ 0.633f,  0.633f, 0.633f },		// emerald
+{ 0.14f, 0.14f, 0.14f },				// slate
+{ 0.0f, 0.0f, 0.727811f },			// azul
+{ 0.03f, 0.03f, 0.03f },				// preto
+{ 0.727811f, 0.727811f, 0.727811f } };	// cinza
 
-enum tipo_material { brass, red_plastic, emerald, slate, azul, preto, cinza, white };
+const GLfloat mat_shininess[] = { 27.8f,	// brass
+32.0f,	// red plastic
+76.8f,	// emerald
+18.78f,	// slate
+30.0f,	// azul
+75.0f,	// preto
+60.0f };	// cinza
+
+enum tipo_material { brass, red_plastic, emerald, slate, azul, preto, cinza };
 
 #ifdef __cplusplus
 inline tipo_material operator++(tipo_material &rs, int) {
