@@ -35,9 +35,8 @@
 #define COMBOIO_ID				3
 #define FABRICA_ID				4
 #define MAGAZIN_ID				5
-
-
-#define NUM_MODELS_POIS			6	
+#define STOP_ID					6
+#define NUM_MODELS_POIS			7
 
 #define EIXO_X		1
 #define EIXO_Y		2
@@ -174,7 +173,7 @@ typedef struct Modelo {
 	GLuint        prev;
 	float			  km;
 	int			  tempo;
-	Model_3DS m3ds;
+	//Model_3DS m3ds;
 }Modelo;
 
 typedef struct Texture {

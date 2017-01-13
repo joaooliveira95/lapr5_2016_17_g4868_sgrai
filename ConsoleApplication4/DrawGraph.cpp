@@ -16,30 +16,6 @@ void DrawGraph:: desenhaNo(Ponto noi, glTexture textura) {
 	desenhaChaoRedondo(noi.largura, noi.longitude, noi.latitude, noi.altitude, textura);
 }
 
-void DrawGraph:: desenhaElemLigaInicial(Ligacao arco, glTexture textura) {
-
-	Ponto noi = arco.origem;
-	Ponto nof = arco.destino;
-	float si = K_LIGACAO * noi.largura;
-	float xi = noi.longitude;
-	float xf = nof.longitude;
-	float yi = noi.latitude;
-	float yf = nof.latitude;
-	float zi = noi.altitude;
-	float zf = nof.altitude;
-
-	float orientacao_a = atan2f((yf - yi), (xf - xi));
-
-	glPushMatrix();
-	glTranslatef(xi, yi, zi);
-	glRotatef(graus(orientacao_a), 0, 0, 1);
-	glTranslatef(si / 2, 0, 0);
-
-	desenhaChao(-si*0.5, -arco.largura*0.5, 0, si*0.5, arco.largura*0.5, 0, textura);
-	glPopMatrix();
-
-}
-
 void DrawGraph:: desenhaElemLigaFinal(Ligacao arco, glTexture textura) {
 
 	Ponto noi = arco.destino;

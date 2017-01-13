@@ -58,13 +58,13 @@ void initModelo() {
 	modelo.g_pos_luz2[2] = 5.0;
 	modelo.g_pos_luz2[3] = 0.0;
 
-	Model_3DS m3ds = Model_3DS();
-	m3ds.Load("Modelos/casa_musica/CasaDaMusica.3ds");
-	m3ds.pos.x = 0;
+	//Model_3DS m3ds = Model_3DS();
+//	m3ds.Load("Modelos/casa_musica/CasaDaMusica.3ds");
+	/*m3ds.pos.x = 0;
 	m3ds.pos.y = 0;
 	m3ds.pos.z = 0;
 	m3ds.scale = 20;
-	modelo.m3ds = m3ds;
+	modelo.m3ds = m3ds;*/
 }
 
 void initParticles(int i) {
@@ -624,6 +624,44 @@ void desenhaModelo(int i) {
 	}
 }
 
+
+void desenhaElemLigaInicial(Ligacao arco, glTexture textura, StudioModel stop) {
+
+	Ponto noi = arco.origem;
+	Ponto nof = arco.destino;
+	float si = K_LIGACAO * noi.largura;
+	float xi = noi.longitude;
+	float xf = nof.longitude;
+	float yi = noi.latitude;
+	float yf = nof.latitude;
+	float zi = noi.altitude;
+	float zf = nof.altitude;
+
+	float orientacao_a = atan2f((yf - yi), (xf - xi));
+
+	glPushMatrix();
+	glTranslatef(xi, yi, zi);
+	glRotatef(graus(orientacao_a), 0, 0, 1);
+	glTranslatef(si / 2, 0, 0);
+
+	glPushMatrix();
+	glColor3f(2, 2, 2);
+	glEnable(GL_TEXTURE_2D);
+	
+	glTranslatef(si*0.5, arco.largura*0.5, 0);
+	glScalef(0.02, 0.02, 0.02);
+	//mdlviewer_display(modelo.poi[id].model);
+	mdlviewer_display(stop);
+	glDisable(GL_TEXTURE_2D);
+	glPopMatrix();
+
+	DrawGraph dGraph = DrawGraph();
+	dGraph.desenhaChao(-si*0.5, -arco.largura*0.5, 0, si*0.5, arco.largura*0.5, 0, textura);
+	glPopMatrix();
+
+}
+
+
 void desenhaGrafo() {
 	DrawGraph dGraph = DrawGraph();
 	material(cinza);
@@ -639,9 +677,9 @@ void desenhaGrafo() {
 		glEnable(GL_TEXTURE_2D);
 
 		//desenhaModelo(i);
-		glPushMatrix();
-		modelo.m3ds.Draw();
-		glPopMatrix();
+		//glPushMatrix();
+		//modelo.m3ds.Draw();
+		//glPopMatrix();
 
 		glDisable(GL_TEXTURE_2D);
 		glEnable(GL_LIGHTING);
@@ -660,8 +698,9 @@ void desenhaGrafo() {
 
 	for (int i = 0; i < grafo.quantidadeLigacoes(); i++) {
 		dGraph.desenhaArco(grafo.obterLigacao(i), textures.chao);
-		dGraph.desenhaElemLigaInicial(grafo.obterLigacao(i), textures.chao);
+		desenhaElemLigaInicial(grafo.obterLigacao(i), textures.chao, modelo.poi[STOP_ID].model);
 		dGraph.desenhaElemLigaFinal(grafo.obterLigacao(i), textures.chao);
+
 	}
 	glPopMatrix();
 }
@@ -1314,7 +1353,7 @@ void initModelos() {
 	modelo.poi[COMBOIO_ID].altitude = -0.53;
 	modelo.poi[FABRICA_ID].altitude = -1.2;
 	modelo.poi[MAGAZIN_ID].altitude = -1.2;
-
+	modelo.poi[MAGAZIN_ID].altitude = -1.2;
 
 	mdlviewer_init("Modelos/magazin.mdl", modelo.poi[MAGAZIN_ID].model);
 	modelo.poi[MAGAZIN_ID].nome = "Ponto5";
@@ -1329,7 +1368,8 @@ void initModelos() {
 	mdlviewer_init("Modelos/comboio.mdl", modelo.poi[COMBOIO_ID].model);
 	modelo.poi[COMBOIO_ID].nome = "Ponto2";
 
-	
+	mdlviewer_init("Modelos/stop_sign.mdl", modelo.poi[STOP_ID].model);
+		
 }
 
 int main(int argc, char **argv){
