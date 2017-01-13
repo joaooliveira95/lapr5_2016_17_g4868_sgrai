@@ -4,6 +4,7 @@
 #include <stdlib.h> 
 #include <iostream>
 #include <string>
+#include "Grafo.h"
 
 using namespace std;
 
@@ -13,8 +14,9 @@ public:
 	ConsolaMenu();
 	~ConsolaMenu();
 
-	void consolaMain();
+	void consolaMain(Grafo grafo);
 private:
-	void printCidades();
+	void printVisitas(Grafo grafo, string cidade);
+	void printCidades(Grafo grafo);
 	void loading();
 };

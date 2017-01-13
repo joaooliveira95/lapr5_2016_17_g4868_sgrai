@@ -1436,7 +1436,7 @@ void initModelos() {
 int main(int argc, char **argv){
 	
 	ConsolaMenu consola = ConsolaMenu();
-	consola.consolaMain();
+	consola.consolaMain(grafo);
 
 	alutInit(&argc, argv);
 	estado.musica.buffer = alutCreateBufferFromFile("music.wav");

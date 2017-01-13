@@ -20,15 +20,33 @@ void ConsolaMenu::loading() {
 }
 
 //ESTATICO
-void ConsolaMenu::printCidades() {
-	char *cidades[2] = { "Porto","Brasília" };
-	for (int i = 0; i < 2; i++) {
-		cout << i << " : " << cidades[i] << endl;
+void ConsolaMenu::printCidades(Grafo grafo) {
+	//char *cidades[2] = { "Porto","Brasilia" };
+	//for (int i = 0; i < 2; i++) {
+	//	cout << i << " : " << cidades[i] << endl;
+	//}
+
+	vector<string> cidades = grafo.obterCidades();
+	int i = 0;
+	for each (string cidade in cidades) {
+		cout << i << ": " << cidade << endl;
+		i++;
 	}
 }
 
-void ConsolaMenu:: consolaMain() {
-	int op, opcidade;
+void ConsolaMenu::printVisitas(Grafo grafo, string cidade) {
+	vector<Visita> visitas = grafo.obterVisitas(cidade);
+	cout << "0: Visita Livre" << endl;
+	int i = 1;
+	for each (Visita visita in visitas){
+		cout << i << ": " << visita.nome << endl;
+		i++;
+	}
+}
+
+void ConsolaMenu:: consolaMain(Grafo grafo) {
+	
+	int op, opcidade, opvisita;
 	
 	string username;
 	string password;
@@ -44,7 +62,7 @@ void ConsolaMenu:: consolaMain() {
 		cout << endl << "Utilizador Nao Registado--------------" << endl;
 		cout << "Escolha a cidade." << endl;
 		//FOR ESTATICO POR ENQUANTO
-		printCidades();
+		printCidades(grafo);
 		scanf("%d", &opcidade);
 		//importamos a info da cidade com id opcidade
 		loading();
@@ -56,20 +74,42 @@ void ConsolaMenu:: consolaMain() {
 		cin >> password;
 
 		//// Faz ou não a autentificação com username e password
-		//bool acesso = grafo.obterAcesso("username", "password");
+		bool acesso = grafo.obterAcesso("username", "password");
 
-		cout << endl << "Utilizador " << username << endl;
+		cout << endl << "Utilizador " << username << endl << endl;
+		cout << "Cidades Disponiveis:" << endl;
 		
 		//// Obtem todas as cidades possiveis ara o usuario
-		//vector<string> cidades = grafo.obterCidades();
-
-		cout << "Escolha a cidade." << endl;
-
-		//// Define ou não a visita escolhida é uma opção apenas navegar no mapa
-		//grafo.definirVisita(visitas.front());
-
-		printCidades();
+		printCidades(grafo);
 		scanf("%d", &opcidade);
-		loading();
+
+	
+		if (opcidade >= 0 && opcidade<grafo.obterCidades().size()) {
+			string cidadeEscolhida;
+			cidadeEscolhida = grafo.obterCidades().at(opcidade);
+
+			cout << "Visitas Dispoiveis: " << endl;
+			printVisitas(grafo, cidadeEscolhida);
+			scanf("%d", &opvisita);
+
+			//// Define ou não a visita escolhida é uma opção apenas navegar no mapa
+			if (opvisita == 0) {
+				loading();
+			}
+			else if (opvisita - 1 >= 0 && opvisita <= grafo.obterVisitas(cidadeEscolhida).size()) {
+				grafo.definirVisita(grafo.obterVisitas(cidadeEscolhida).at(opvisita));
+				loading();
+			}
+			else {
+				cout << "ERROR" << endl;
+				exit(0);
+			}
+		}else {
+			cout << "ERROR" << endl;
+			exit(0);
+		}
+
+	
+
 	}
 }
