@@ -36,7 +36,9 @@
 #define FABRICA_ID				4
 #define MAGAZIN_ID				5
 #define STOP_ID					6
-#define NUM_MODELS_POIS			7
+#define CANDEEIRO_ID			7
+#define NUM_MODELS_POIS			8
+
 
 #define EIXO_X		1
 #define EIXO_Y		2

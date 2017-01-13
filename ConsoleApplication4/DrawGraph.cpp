@@ -40,36 +40,6 @@ void DrawGraph:: desenhaElemLigaFinal(Ligacao arco, glTexture textura) {
 
 }
 
-void DrawGraph:: desenhaArco(Ligacao arco, glTexture textura) {
-
-	Ponto noi = arco.origem;
-	Ponto nof = arco.destino;
-
-	float si = K_LIGACAO * noi.largura;
-	float sf = K_LIGACAO * nof.largura;
-
-	float xi = noi.longitude;
-	float xf = nof.longitude;
-	float yi = noi.latitude;
-	float yf = nof.latitude;
-	float zi = noi.altitude;
-	float zf = nof.altitude;
-
-	float comp_p = sqrt(pow(xf - xi, 2) + pow(yf - yi, 2)) - si - sf;
-	float desnivel_h = nof.altitude - noi.altitude;
-	float comprimento_sif = sqrt(pow(comp_p, 2) + pow(desnivel_h, 2));
-	float orientacao_a = atan2f((yf - yi), (xf - xi));
-	float inclinacao_B = atan2f(desnivel_h, comp_p);
-
-	glPushMatrix();
-	glTranslatef(xi, yi, zi);
-	glRotatef(graus(orientacao_a), 0, 0, 1);
-	glTranslatef(si, 0, 0);
-	glRotatef(graus(-inclinacao_B), 0, 1, 0);
-	glTranslatef(comprimento_sif / 2.0, 0, 0);
-	desenhaChao(-comprimento_sif*0.5, -arco.largura*0.5, 0, comprimento_sif*0.5, arco.largura*0.5, 0, textura);
-	glPopMatrix();
-}
 
 
 void DrawGraph:: desenhaChao(GLfloat xi, GLfloat yi, GLfloat zi, GLfloat xf, GLfloat yf, GLfloat zf, glTexture textura) {

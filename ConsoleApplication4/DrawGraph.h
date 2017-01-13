@@ -23,7 +23,7 @@ class DrawGraph
 public:
 	DrawGraph();
 	~DrawGraph();
-	void desenhaArco(Ligacao arco, glTexture textura);
+	//void desenhaArco(Ligacao arco, glTexture textura);
 	void desenhaNo(Ponto noi, glTexture textura);
 
 //	void desenhaElemLigaInicial(Ligacao arco, glTexture textura, StudioModel stop);

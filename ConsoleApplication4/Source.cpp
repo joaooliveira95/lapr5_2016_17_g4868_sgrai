@@ -283,6 +283,66 @@ void displayMainWindow(){
 	glutSwapBuffers();
 }
 
+void desenhaArco(Ligacao arco, glTexture textura, StudioModel candeeiro) {
+
+	Ponto noi = arco.origem;
+	Ponto nof = arco.destino;
+
+	float si = K_LIGACAO * noi.largura;
+	float sf = K_LIGACAO * nof.largura;
+
+	float xi = noi.longitude;
+	float xf = nof.longitude;
+	float yi = noi.latitude;
+	float yf = nof.latitude;
+	float zi = noi.altitude;
+	float zf = nof.altitude;
+
+	float comp_p = sqrt(pow(xf - xi, 2) + pow(yf - yi, 2)) - si - sf;
+	float desnivel_h = nof.altitude - noi.altitude;
+	float comprimento_sif = sqrt(pow(comp_p, 2) + pow(desnivel_h, 2));
+	float orientacao_a = atan2f((yf - yi), (xf - xi));
+	float inclinacao_B = atan2f(desnivel_h, comp_p);
+
+	glPushMatrix();
+	glTranslatef(xi, yi, zi);
+
+	glRotatef(graus(orientacao_a), 0, 0, 1);
+	glTranslatef(si, 0, 0);
+	glRotatef(graus(-inclinacao_B), 0, 1, 0);
+	glTranslatef(comprimento_sif / 2.0, 0, 0);
+	DrawGraph dGraph = DrawGraph();
+	dGraph.desenhaChao(-comprimento_sif*0.5, -arco.largura*0.5, 0, comprimento_sif*0.5, arco.largura*0.5, 0, textura);
+
+
+	GLfloat inc = comprimento_sif / 3;
+
+	for (int i = 0; i <= 3; i++) {
+		glPushMatrix();
+		glEnable(GL_TEXTURE_2D);
+		glTranslatef(-comprimento_sif*0.5+inc*i, -arco.largura*0.5, 0);
+		glScalef(0.01, 0.01, 0.01);
+		glRotatef(graus(inclinacao_B), 0, 1, 0);
+		mdlviewer_display(candeeiro);
+		glDisable(GL_TEXTURE_2D);
+		glPopMatrix();
+	}
+
+	for (int i = 1; i <= 3; i++) {
+		glPushMatrix();
+		glEnable(GL_TEXTURE_2D);
+		glTranslatef(-comprimento_sif*0.5 + inc*i, arco.largura*0.5, 0);
+		glScalef(-0.01, -0.01, 0.01);
+		glRotatef(graus(-inclinacao_B), 0, 1, 0);
+		mdlviewer_display(candeeiro);
+		glDisable(GL_TEXTURE_2D);
+		glPopMatrix();
+	}
+	
+	glPopMatrix();
+}
+
+
 GLboolean inAreaNo(Ponto no, GLfloat ny, GLfloat nx, int i) {
 	float largura =no.largura;
 	float x = no.longitude;
@@ -697,7 +757,7 @@ void desenhaGrafo() {
 
 
 	for (int i = 0; i < grafo.quantidadeLigacoes(); i++) {
-		dGraph.desenhaArco(grafo.obterLigacao(i), textures.chao);
+		desenhaArco(grafo.obterLigacao(i), textures.chao, modelo.poi[CANDEEIRO_ID].model);
 		desenhaElemLigaInicial(grafo.obterLigacao(i), textures.chao, modelo.poi[STOP_ID].model);
 		dGraph.desenhaElemLigaFinal(grafo.obterLigacao(i), textures.chao);
 
@@ -1369,6 +1429,7 @@ void initModelos() {
 	modelo.poi[COMBOIO_ID].nome = "Ponto2";
 
 	mdlviewer_init("Modelos/stop_sign.mdl", modelo.poi[STOP_ID].model);
+	mdlviewer_init("Modelos/streetLight.mdl", modelo.poi[CANDEEIRO_ID].model);
 		
 }
 
