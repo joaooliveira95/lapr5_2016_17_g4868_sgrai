@@ -58,6 +58,15 @@ void initModelo() {
 	modelo.g_pos_luz2[2] = 5.0;
 	modelo.g_pos_luz2[3] = 0.0;
 
+	//Posicao inicial do Homer
+	modelo.objecto.pos.x = grafo.obterPonto(0).longitude;
+	modelo.objecto.pos.y = grafo.obterPonto(0).latitude;
+	modelo.objecto.pos.z = grafo.obterPonto(0).altitude + ALTURA_HOMER;
+
+	modelo.objecto.dir = 0;
+	modelo.objecto.vel = 0.0;
+	modelo.andar = GL_FALSE;
+
 	//Model_3DS m3ds = Model_3DS();
 //	m3ds.Load("Modelos/casa_musica/CasaDaMusica.3ds");
 	/*m3ds.pos.x = 0;
@@ -88,14 +97,6 @@ void initTexturas() {
 }
 
 void myInit(){
-	//Posicao inicial do Homer
-	modelo.objecto.pos.x = grafo.obterPonto(0).longitude;
-	modelo.objecto.pos.y = grafo.obterPonto(0).latitude;
-	modelo.objecto.pos.z = grafo.obterPonto(0).altitude+ALTURA_HOMER;
-	
-	modelo.objecto.dir = 0;
-	modelo.objecto.vel = OBJECTO_VELOCIDADE;
-	modelo.andar = GL_FALSE;
 
 	//Guarda tempo inicial
 	time_t timer = time(0);
@@ -178,14 +179,14 @@ void setCamera() {
 	eye[1] = modelo.objecto.pos.y-2;
 	eye[2] = modelo.objecto.pos.z;*/
 
-	if (estado.isFP) {
-		eye[0] = modelo.objecto.pos.x;
-		eye[1] = modelo.objecto.pos.y;
-		eye[2] = modelo.objecto.pos.z + ALTURA_HOMER;
-
-		estado.camera.center[0] = modelo.objecto.pos.x - sin(modelo.objecto.dir)*(0.25);
-		estado.camera.center[1] = modelo.objecto.pos.y + cos(modelo.objecto.dir)*(0.25);
-		estado.camera.center[2] = modelo.objecto.pos.z + ALTURA_HOMER;
+	if (estado.isFP == GL_FALSE) {
+		estado.camera.center[0] = modelo.objecto.pos.x;
+		estado.camera.center[1] = modelo.objecto.pos.y;
+		estado.camera.center[2]= modelo.objecto.pos.z;
+		GLfloat eye[3];
+		eye[0] = estado.camera.center[0] + estado.camera.dist*cos(estado.camera.dir_long)*cos(estado.camera.dir_lat);
+		eye[1] = estado.camera.center[1] + estado.camera.dist*sin(estado.camera.dir_long)*cos(estado.camera.dir_lat);
+		eye[2] = estado.camera.center[2]+ estado.camera.dist*sin(estado.camera.dir_lat);
 
 		if (estado.light) {
 			gluLookAt(eye[0], eye[1], eye[2], estado.camera.center[0], estado.camera.center[1], estado.camera.center[2], 0, 0, 1);
@@ -198,20 +199,21 @@ void setCamera() {
 	}else {
 		estado.camera.center[0] = modelo.objecto.pos.x;
 		estado.camera.center[1] = modelo.objecto.pos.y;
-		estado.camera.center[2] = modelo.objecto.pos.z;
-
-		eye[0] = estado.camera.center[0] + estado.camera.dist*cos(estado.camera.dir_long)*cos(estado.camera.dir_lat);
-		eye[1] = estado.camera.center[1] + estado.camera.dist*sin(estado.camera.dir_long)*cos(estado.camera.dir_lat);
-		eye[2] = estado.camera.center[2] + estado.camera.dist*sin(estado.camera.dir_lat);
+		estado.camera.center[2] = modelo.objecto.pos.z+ ALTURA_HOMER;
+		GLfloat eye[3];
+		eye[0] = estado.camera.center[0] + estado.camera.dist*cos(rad(modelo.objecto.dir) + M_PI / 2)*cos(estado.camera.dir_lat);
+		eye[1] = estado.camera.center[1] + estado.camera.dist*sin(rad(modelo.objecto.dir) + M_PI / 2)*cos(estado.camera.dir_lat);
+		eye[2] = estado.camera.center[2] + estado.camera.dist*sin(estado.camera.dir_lat) + ALTURA_HOMER;
 
 		if (estado.light) {
-			gluLookAt(eye[0], eye[1], eye[2], estado.camera.center[0], estado.camera.center[1], estado.camera.center[2], 0, 0, 1);
+			gluLookAt(estado.camera.center[0], estado.camera.center[1], estado.camera.center[2], eye[0], eye[1], eye[2], 0, 0, 1);
 			putLights((GLfloat*)white_light);
 		}
 		else {
 			putLights((GLfloat*)white_light);
-			gluLookAt(eye[0], eye[1], eye[2], estado.camera.center[0], estado.camera.center[1], estado.camera.center[2], 0, 0, 1);
+			gluLookAt(estado.camera.center[0], estado.camera.center[1], estado.camera.center[2], eye[0], eye[1], eye[2], 0, 0, 1);
 		}
+
 	}
 }
 
@@ -467,18 +469,16 @@ GLboolean detectaColisao(GLfloat nx, GLfloat nz) {
 }
 
 //Faz os calculos da colisao e da posicao do homer, recebendo como parametro a velocidade e o sinal(1-Tecla Up, -1-Tecla Down)
-void teclaUpDown(float velocidade, int sinal) {
+void teclaUpDown(int sinal) {
 	GLfloat ny, nx;
 	//Calcula a possivel nova posicao do homer
-	ny = modelo.objecto.pos.y + cos(modelo.objecto.dir)*velocidade * sinal;
-	nx = modelo.objecto.pos.x + sin(-modelo.objecto.dir)*velocidade * sinal;
+	ny = modelo.objecto.pos.y + cos(rad(modelo.objecto.dir))*modelo.objecto.vel * sinal;
+	nx = modelo.objecto.pos.x + sin(rad(-modelo.objecto.dir))*modelo.objecto.vel * sinal;
 	
 	//Calcula a distancia percorrida até essa nova posicao
 	GLfloat km_temp = sqrt(pow(ny - modelo.objecto.pos.y, 2) + pow(nx - modelo.objecto.pos.x, 2));
 	//Deteta a colisao do homer
-	if (!detectaColisao(ny + cos(modelo.objecto.dir)*OBJECTO_RAIO*sinal, nx + sin(-modelo.objecto.dir)*OBJECTO_RAIO*sinal) &&
-		!detectaColisao(ny + cos(modelo.objecto.dir + M_PI / 4)*OBJECTO_RAIO*sinal, nx + sin(-modelo.objecto.dir + M_PI / 4)*OBJECTO_RAIO*sinal) &&
-		!detectaColisao(ny + cos(modelo.objecto.dir - M_PI / 4)*OBJECTO_RAIO*sinal, nx + sin(-modelo.objecto.dir - M_PI / 4)*OBJECTO_RAIO*sinal)) {
+	if (!detectaColisao(ny, nx)) {
 		
 		//Atualiza a camara
 		estado.camera.center[0] = modelo.objecto.pos.x;
@@ -494,7 +494,6 @@ void teclaUpDown(float velocidade, int sinal) {
 
 void timer(int value) {
 	GLboolean andar = GL_FALSE;
-	
 	GLuint curr = GetTickCount();
 	float velocidade = modelo.objecto.vel*(curr - modelo.prev)*0.001;
 	
@@ -514,20 +513,22 @@ void timer(int value) {
 	modelo.prev = curr;
 
 	if (estado.teclas.up) {
-		teclaUpDown(velocidade, 1);
+		if (modelo.objecto.vel<0.05) modelo.objecto.vel += 0.0005;
+		teclaUpDown(1);
 		andar = GL_TRUE;
 	}
 	if (estado.teclas.down) {
-		teclaUpDown(velocidade, -1);
+		if (modelo.objecto.vel<0.05) modelo.objecto.vel += 0.0005;
+		teclaUpDown(-1);
 		andar = GL_TRUE;
 	}
 	
 	if (estado.teclas.left) {
-		modelo.objecto.dir += rad(OBJECTO_ROTACAO);
+		modelo.objecto.dir += 5;
 		estado.camera.dir_long += rad(OBJECTO_ROTACAO);
 	}
 	if (estado.teclas.right) {
-		modelo.objecto.dir -= rad(OBJECTO_ROTACAO);
+		modelo.objecto.dir -= 5;
 		estado.camera.dir_long -= rad(OBJECTO_ROTACAO);
 	}
 
@@ -781,7 +782,7 @@ void displayNavigateWindow(void) {
 
 	glPushMatrix();
 	glTranslatef(modelo.objecto.pos.x, modelo.objecto.pos.y, modelo.objecto.pos.z);
-	glRotatef(graus(modelo.objecto.dir), 0, 0, 1);
+	glRotatef(modelo.objecto.dir, 0, 0, 1);
 	glRotatef(90, 0, 0, 1);
 	glScalef(SCALE_HOMER, SCALE_HOMER, SCALE_HOMER);
 	glDisable(GL_LIGHTING);
@@ -1041,9 +1042,13 @@ void myReshapeNavigateWindow(int width, int height) {
 
 void motionRotate(int x, int y) {
 #define DRAG_SCALE	0.01
-	if (!estado.isFP) {
+
 		double lim = M_PI / 2 - 0.1;
-		estado.camera.dir_long += (estado.xMouse - x)*DRAG_SCALE;
+		if (estado.isFP) {
+
+		}else {
+			estado.camera.dir_long += (estado.xMouse - x)*DRAG_SCALE;
+		}
 		estado.camera.dir_lat -= (estado.yMouse - y)*DRAG_SCALE*0.5;
 		if (estado.camera.dir_lat > lim)
 			estado.camera.dir_lat = lim;
@@ -1053,7 +1058,7 @@ void motionRotate(int x, int y) {
 		estado.xMouse = x;
 		estado.yMouse = y;
 		redisplayAll();
-	}
+
 }
 
 void motionZoom(int x, int y) {
