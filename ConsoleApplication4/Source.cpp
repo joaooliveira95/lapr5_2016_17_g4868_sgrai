@@ -71,21 +71,6 @@ void initModelo() {
 void initWeather() {
 	int x, z;
 
-	//// Ground Verticies
-	//// Ground Colors
-	//for (z = 0; z < 21; z++) {
-	//	for (x = 0; x < 21; x++) {
-	//		ground_points[x][z][0] = x - 10.0;
-	//		ground_points[x][z][1] = accum;
-	//		ground_points[x][z][2] = z - 10.0;
-
-	//		ground_colors[z][x][0] = r; // red value
-	//		ground_colors[z][x][1] = g; // green value
-	//		ground_colors[z][x][2] = b; // blue value
-	//		ground_colors[z][x][3] = 0.0; // acummulation factor
-	//	}
-	//}
-
 	// Initialize particles
 	for (int loop = 0; loop < MAX_PARTICLES; loop++) {
 		weather.initParticles(loop);
@@ -488,6 +473,9 @@ void teclaUp(float velocidade) {
 	GLfloat ny, nx;
 	ny = modelo.objecto.pos.y + cos(modelo.objecto.dir)*velocidade;
 	nx = modelo.objecto.pos.x + sin(-modelo.objecto.dir)*velocidade;
+
+	GLfloat km_temp = sqrt(pow(ny - modelo.objecto.pos.y, 2) + pow(nx - modelo.objecto.pos.x, 2));
+
 	if (!detectaColisao(ny + cos(modelo.objecto.dir)*OBJECTO_RAIO, nx + sin(-modelo.objecto.dir)*OBJECTO_RAIO) &&
 		!detectaColisao(ny + cos(modelo.objecto.dir + M_PI / 4)*OBJECTO_RAIO, nx + sin(-modelo.objecto.dir + M_PI / 4)*OBJECTO_RAIO) &&
 		!detectaColisao(ny + cos(modelo.objecto.dir - M_PI / 4)*OBJECTO_RAIO, nx + sin(-modelo.objecto.dir - M_PI / 4)*OBJECTO_RAIO)) {
@@ -496,7 +484,7 @@ void teclaUp(float velocidade) {
 		estado.camera.center[1] = modelo.objecto.pos.y;
 		estado.camera.center[2] = modelo.objecto.pos.z;
 
-		modelo.km += 0.5;
+		modelo.km += km_temp/100;
 	}
 }
 
@@ -504,6 +492,9 @@ void teclaDown(float velocidade) {
 	GLfloat ny, nx;
 	ny = modelo.objecto.pos.y - cos(modelo.objecto.dir)*velocidade;
 	nx = modelo.objecto.pos.x - sin(-modelo.objecto.dir)*velocidade;
+
+	GLfloat km_temp = sqrt(pow(ny - modelo.objecto.pos.y, 2) + pow(nx - modelo.objecto.pos.x, 2));
+
 	if (!detectaColisao(ny, nx) &&
 		!detectaColisao(ny - cos(modelo.objecto.dir + M_PI / 4)*OBJECTO_RAIO, nx - sin(-modelo.objecto.dir + M_PI / 4)*OBJECTO_RAIO) &&
 		!detectaColisao(ny - cos(modelo.objecto.dir - M_PI / 4)*OBJECTO_RAIO, nx - sin(-modelo.objecto.dir - M_PI / 4)*OBJECTO_RAIO)) {
@@ -512,7 +503,7 @@ void teclaDown(float velocidade) {
 		estado.camera.center[1] = modelo.objecto.pos.y;
 		estado.camera.center[2] = modelo.objecto.pos.z;
 
-		modelo.km += 0.5;
+		modelo.km += km_temp/100;
 	}	
 }
 
@@ -569,30 +560,7 @@ void timer(int value) {
 	redisplayAll();
 }
 
-void imprime_ajuda(void){
-	printf("\n\nDesenho de um labirinto a partir de um grafo\n");
-	printf("h,H - Ajuda \n");
-	printf("i,I - Reset dos Valores \n");
-	printf("******* Diversos ******* \n");
-	printf("l,L - Alterna o calculo luz entre Z e eye (GL_LIGHT_MODEL_LOCAL_VIEWER)\n");
-	printf("k,K - Alerna luz de camera com luz global \n");
-	printf("s,S - PolygonMode Fill \n");
-	printf("w,W - PolygonMode Wireframe \n");
-	printf("p,P - PolygonMode Point \n");
-	printf("c,C - Liga/Desliga Cull Face \n");
-	printf("n,N - Liga/Desliga apresentação das normais \n");
-	printf("******* grafos ******* \n");
-	printf("F1  - Grava grafo do ficheiro \n");
-	printf("F2  - Lê grafo para ficheiro \n");
-	printf("F6  - Cria novo grafo\n");
-	printf("******* Camera ******* \n");
-	printf("Botão esquerdo - Arrastar os eixos (centro da camera)\n");
-	printf("Botão direito  - Rodar camera\n");
-	printf("Botão direito com CTRL - Zoom-in/out\n");
-	printf("PAGE_UP, PAGE_DOWN - Altera distância da camara \n");
-	printf("ESC - Sair\n");
-	//listNos();
-}
+
 
 void putFoco() {
 	const GLfloat white_amb[] = { 0.2, 0.2, 0.2, 1.0 };
@@ -871,6 +839,7 @@ void displayNavigateWindow(void) {
 	if (infoArco.isActive) {
 		ui.desenhaNomeRua(infoArco.nome);
 	}
+
 	ui.desenhaKm(modelo.km);
 
 	//Tempo
@@ -947,13 +916,14 @@ void displayTopWindow() {
 }
 
 void keyboard(unsigned char key, int x, int y) {
+	ConsolaMenu cm = ConsolaMenu();
 	switch (key) {
 	case 27:
 		exit(0);
 		break;
 	case 'h':
 	case 'H':
-		imprime_ajuda();
+		cm.imprime_ajuda();
 		break;
 	case 'l':
 	case 'L':
@@ -1337,7 +1307,7 @@ int main(int argc, char **argv){
 	mdlviewer_init("homer.mdl", modelo.personagem);
 	modelo.personagem.SetSequence(3);
 	initModelos();
-	imprime_ajuda();
+	
 
 	skybox = new SKYBOX();
 	if (skybox->Initialize()){

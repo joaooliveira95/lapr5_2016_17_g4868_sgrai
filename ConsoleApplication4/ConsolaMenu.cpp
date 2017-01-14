@@ -124,3 +124,27 @@ Grafo ConsolaMenu:: consolaMain(Grafo grafo) {
 	}
 	return grafo;
 }
+
+void ConsolaMenu :: imprime_ajuda() {
+	printf("\n\nDesenho de um labirinto a partir de um grafo\n");
+	printf("h,H - Ajuda \n");
+	printf("i,I - Reset dos Valores \n");
+	printf("******* Diversos ******* \n");
+	printf("l,L - Alterna o calculo luz entre Z e eye (GL_LIGHT_MODEL_LOCAL_VIEWER)\n");
+	printf("k,K - Alerna luz de camera com luz global \n");
+	printf("s,S - PolygonMode Fill \n");
+	printf("w,W - PolygonMode Wireframe \n");
+	printf("p,P - PolygonMode Point \n");
+	printf("c,C - Liga/Desliga Cull Face \n");
+	printf("n,N - Liga/Desliga apresentação das normais \n");
+	printf("******* grafos ******* \n");
+	printf("F1  - Grava grafo do ficheiro \n");
+	printf("F2  - Lê grafo para ficheiro \n");
+	printf("F6  - Cria novo grafo\n");
+	printf("******* Camera ******* \n");
+	printf("Botão esquerdo - Arrastar os eixos (centro da camera)\n");
+	printf("Botão direito  - Rodar camera\n");
+	printf("Botão direito com CTRL - Zoom-in/out\n");
+	printf("PAGE_UP, PAGE_DOWN - Altera distância da camara \n");
+	printf("ESC - Sair\n");
+}

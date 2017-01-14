@@ -15,8 +15,10 @@ public:
 	~ConsolaMenu();
 
 	Grafo consolaMain(Grafo grafo);
+	void imprime_ajuda();
 private:
 	void printVisitas(Grafo grafo, string cidade);
 	void printCidades(Grafo grafo);
 	void loading();
+
 };

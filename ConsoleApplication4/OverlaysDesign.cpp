@@ -50,7 +50,7 @@ void OverlaysDesign::desenhaKm(float x) {
 	glDisable(GL_DEPTH_TEST);
 	glColor3f(2, 2, 2);
 
-	sprintf_s(str, 255, "%.f Km", x);
+	sprintf_s(str, 255, "%f Km", x);
 	bitmapCenterString(str, width*0.8, height*0.9);
 
 	glMatrixMode(GL_PROJECTION);
