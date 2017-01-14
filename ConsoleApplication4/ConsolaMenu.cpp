@@ -69,6 +69,7 @@ Grafo ConsolaMenu:: consolaMain(Grafo grafo) {
 			string cidadeEscolhida;
 			cidadeEscolhida = grafo.obterCidades().at(opcidade);
 			grafo.carregarGrafo(cidadeEscolhida);
+			grafo.setOrigem(grafo.obterPonto(0));
 			loading();
 		}else {
 			cout << "ERROR" << endl;
@@ -104,9 +105,12 @@ Grafo ConsolaMenu:: consolaMain(Grafo grafo) {
 
 			//// Define ou não a visita escolhida é uma opção apenas navegar no mapa
 			if (opvisita == 0) {
+				grafo.setOrigem(grafo.obterPonto(0));
 				loading();
 			}else if (opvisita - 1 >= 0 && opvisita <= grafo.obterVisitas(cidadeEscolhida).size()) {
 				grafo.definirVisita(grafo.obterVisitas(cidadeEscolhida).at(opvisita-1));
+				Ponto orig = grafo.obterPonto(grafo.obterVisitas(cidadeEscolhida).at(opvisita - 1).origem);
+				grafo.setOrigem(orig);
 				return grafo;
 				loading();
 			}

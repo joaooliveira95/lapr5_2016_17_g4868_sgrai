@@ -142,24 +142,24 @@ vector<string> Grafo::obterCidades() {
 }
 
 void Grafo::carregarGrafo(string cidade) {
-	adicionarPonto("Ponto1", "Ponto1", 0, -50, 2.5, "9h00", "18h00");
-	adicionarPonto("Ponto2", "Ponto2", 0, -25, 5, "9h00", "18h00");
-	adicionarPonto("Ponto3", "Ponto3", -25, -25, 7.5, "9h00", "18h00");
-	adicionarPonto("Ponto4", "Ponto4", 25, -25, 15, "9h00", "18h00");
+	adicionarPonto("Trindade", "Trindade", 0, -50, 2.5, "9h00", "18h00");
+	adicionarPonto("Camara do Porto", "Camara do Porto", 0, -25, 5, "9h00", "18h00");
+	adicionarPonto("Torre dos Clérigos", "Torre dos Clérigos", -25, -25, 7.5, "9h00", "18h00");
+	adicionarPonto("ISEP", "ISEP", 25, -25, 15, "9h00", "18h00");
 	adicionarPonto("Ponto5", "Ponto5", -25, 0, 0, "9h00", "18h00");
 	adicionarPonto("Ponto6", "Ponto6", 25, 0, 20, "9h00", "18h00");
 	adicionarPonto("Ponto7", "Ponto7", 25, 25, 10, "9h00", "18h00");
-	adicionarLigacao("Ponto1", "Ponto2", 1, 7);
-	adicionarLigacao("Ponto2", "Ponto3", 1, 3);
-	adicionarLigacao("Ponto2", "Ponto4", 1, 3);
-	adicionarLigacao("Ponto5", "Ponto3", 1, 6);
-	adicionarLigacao("Ponto4", "Ponto6", 1, 6);
+	adicionarLigacao("Trindade", "Camara do Porto", 1, 7);
+	adicionarLigacao("Camara do Porto", "Torre dos Clérigos", 1, 3);
+	adicionarLigacao("Camara do Porto", "ISEP", 1, 3);
+	adicionarLigacao("Ponto5", "Torre dos Clérigos", 1, 6);
+	adicionarLigacao("ISEP", "Ponto6", 1, 6);
 	adicionarLigacao("Ponto5", "Ponto6", 1, 4);
 	adicionarLigacao("Ponto6", "Ponto7", 1, 5);
-	adicionarLigacao("Ponto1", "Ponto3", 1, 4);
-	adicionarLigacao("Ponto1", "Ponto4", 1, 4);
-	adicionarLigacao("Ponto3", "Ponto6", 1, 3);
-	adicionarLigacao("Ponto4", "Ponto5", 1, 3);
+	adicionarLigacao("Trindade", "Torre dos Clérigos", 1, 4);
+	adicionarLigacao("Trindade", "ISEP", 1, 4);
+	adicionarLigacao("Torre dos Clérigos", "Ponto6", 1, 3);
+	adicionarLigacao("ISEP", "Ponto5", 1, 3);
 	adicionarLigacao("Ponto5", "Ponto7", 1, 7);
 	////for (int i = 0; i < quantidadePontos(); i++) {
 	////	for (int j = 0; j < quantidadeLigacoes(); j++) {
@@ -209,12 +209,12 @@ vector<Visita> Grafo::obterVisitas(string cidade) {
 	visita.data = "2017-01-09 21:00:18";
 	visita.origem = "Torre dos Clérigos";
 	vector<string> paragens;
-	/*paragens.push_back("ISEP");
+	paragens.push_back("ISEP");
 	paragens.push_back("Trindade");
-	paragens.push_back("Camara do Porto");*/
-	paragens.push_back("Ponto1");
+	paragens.push_back("Camara do Porto");
+	/*paragens.push_back("Ponto1");
 	paragens.push_back("Ponto2");
-	paragens.push_back("Ponto3");
+	paragens.push_back("Ponto3");*/
 	vector<string> percurso;
 	percurso.push_back("Torre dos Clérigos");
 	percurso.push_back("Camara do Porto");
@@ -280,3 +280,11 @@ vector<Visita> Grafo::obterVisitas(string cidade) {
 	grafo.definirVisita(visitas.front());
 
 */
+
+Ponto Grafo::getOrigem() {
+	return origem;
+}
+
+void Grafo::setOrigem(Ponto p) {
+	origem = p;
+}

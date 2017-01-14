@@ -59,9 +59,10 @@ void initModelo() {
 	modelo.g_pos_luz2[3] = 0.0;
 
 	//Posicao inicial do Homer
-	modelo.objecto.pos.x = grafo.obterPonto(0).longitude;
-	modelo.objecto.pos.y = grafo.obterPonto(0).latitude;
-	modelo.objecto.pos.z = grafo.obterPonto(0).altitude + ALTURA_HOMER;
+	
+	modelo.objecto.pos.x = grafo.getOrigem().longitude;
+	modelo.objecto.pos.y = grafo.getOrigem().latitude;
+	modelo.objecto.pos.z = grafo.getOrigem().altitude + ALTURA_HOMER;
 
 	modelo.objecto.dir = 0;
 	modelo.objecto.vel = 0.0;

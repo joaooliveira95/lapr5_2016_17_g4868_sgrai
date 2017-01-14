@@ -54,8 +54,11 @@ private:
 	vector<Ponto> pontos;
 	vector<Ligacao> ligacoes;
 	Visita visita;
+	Ponto origem;
 
 public:
+	Ponto getOrigem();
+	void setOrigem(Ponto p);
 	Ponto obterPonto(string nome);
 	Ligacao obterLigacao(string origem, string destino);
 	string normaliza(string str);
