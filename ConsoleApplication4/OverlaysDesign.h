@@ -21,5 +21,6 @@ public:
 	void desenhaTempo(int seg,int min);
 	void infoOverlay(const char* nome, const char* descricao, const char* abertura,const char* fecho, glTexture textura);
 	void desenhaNomeRua(string rua);
+	void banda(glTexture textura);
 };
 

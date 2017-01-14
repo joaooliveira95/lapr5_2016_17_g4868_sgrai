@@ -182,6 +182,7 @@ typedef struct Texture {
 	glTexture rotunda;
 	glTexture rotundaVisita;
 	glTexture info;
+	glTexture banda;
 }Texture;
 
 typedef struct InfoNo {

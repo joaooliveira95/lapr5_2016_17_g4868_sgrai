@@ -115,6 +115,7 @@ void initTexturas() {
 	tl.LoadTextureFromDisk("rotunda.jpg", &textures.rotunda);
 	tl.LoadTextureFromDisk("rotundaVisita.jpg", &textures.rotundaVisita);
 	tl.LoadTextureFromDisk("info2.gif", &textures.info);
+	tl.LoadTextureFromDisk("banda.jpg", &textures.banda);
 }
 
 void myInit(){
@@ -1020,9 +1021,11 @@ void displayNavigateWindow(void) {
 		cout << "Translate... " << estado.eixoTranslaccao << endl;
 		desenhaPlanoDrag(estado.eixoTranslaccao);
 	}
+	OverlaysDesign ui = OverlaysDesign();
+	ui.banda(textures.banda);
 	//kms
 	material(azul);
-	OverlaysDesign ui = OverlaysDesign();
+	
 	ui.desenhaKm(modelo.km);
 
 	//Tempo

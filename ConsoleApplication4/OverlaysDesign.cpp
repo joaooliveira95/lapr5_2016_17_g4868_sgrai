@@ -113,6 +113,50 @@ void OverlaysDesign::desenhaNomeRua(string rua) {
 	glEnable(GL_DEPTH_TEST);
 }
 
+void OverlaysDesign::banda(glTexture textura) {
+	char str[255];
+	float width = glutGet(GLUT_WINDOW_WIDTH) / 2;
+	float height = glutGet(GLUT_WINDOW_HEIGHT) / 2;
+
+	glLineWidth(3);
+	glLineStipple(2, 0xFF00);
+
+	glMatrixMode(GL_PROJECTION);
+	glPushMatrix();
+	glLoadIdentity();
+	gluOrtho2D(-width, width, -height, height);
+	glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();
+	glRasterPos2i(20, 20);
+	glDisable(GL_DEPTH_TEST);
+	//glColor3f(4, 4, 4);
+
+	glEnable(GL_TEXTURE_2D);
+	glBindTexture(GL_TEXTURE_2D, textura.TextureID);
+
+	glBegin(GL_POLYGON);
+	glTexCoord2f(1.0, 1.0);
+	glVertex2f( - width, height*0.85);//VERTICE
+	glTexCoord2f(0, 1.0);
+	glVertex2f(width, height*0.85);//VERTICE
+	glTexCoord2f(0.0, 0.0);
+	glVertex2f(width, height);//VERTICE
+	glTexCoord2f(1.0, 0.0);
+	glVertex2f(-width, height);//VERTICE
+	glEnd();
+	glDisable(GL_BLEND);
+	glColor3f(4, 4, 4);
+
+	//glPushAttrib(GL_CURRENT_BIT);
+	glMatrixMode(GL_PROJECTION);
+	glPopMatrix();
+	glMatrixMode(GL_MODELVIEW);
+	glEnable(GL_DEPTH_TEST);
+
+	glBindTexture(GL_TEXTURE_2D, NULL);
+	glDisable(GL_TEXTURE_2D);
+}
+
 void OverlaysDesign::infoOverlay(const char* nome, const char* descricao, const char* abertura, const char* fecho, glTexture textura) {
 	char str[255];
 	float width = glutGet(GLUT_WINDOW_WIDTH) / 2;
