@@ -1024,8 +1024,11 @@ void displayNavigateWindow(void) {
 	OverlaysDesign ui = OverlaysDesign();
 	ui.banda(textures.banda);
 	//kms
-	material(azul);
+	material(emerald);
 	
+	if (infoArco.isActive) {
+		ui.desenhaNomeRua(infoArco.nome);
+	}
 	ui.desenhaKm(modelo.km);
 
 	//Tempo
@@ -1050,11 +1053,6 @@ void displayNavigateWindow(void) {
 	material(emerald);
 	if (infoNo.isActive) {
 		ui.infoOverlay(grafo.obterPonto(infoNo.i).nome.c_str(), grafo.obterPonto(infoNo.i).descricao.c_str(), grafo.obterPonto(infoNo.i).abertura.c_str(), grafo.obterPonto(infoNo.i).fecho.c_str(), textures.info);
-	}
-
-	if (infoArco.isActive) {
-		material(azul);
-		ui.desenhaNomeRua(infoArco.nome);
 	}
 
 	glFlush();
