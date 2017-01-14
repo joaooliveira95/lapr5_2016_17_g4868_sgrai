@@ -27,7 +27,7 @@ void initEstado() {
 	estado.camera.dir_lat = M_PI / 6;
 	estado.camera.dir_long = -M_PI/2;
 	estado.camera.fov = 60;
-	estado.camera.dist = 5;
+	estado.camera.dist = 2;
 	estado.eixo[0] = 0;
 	estado.eixo[1] = 0;
 	estado.eixo[2] = 0;
@@ -250,8 +250,6 @@ void redisplayAll(void){
 	glutPostRedisplay();
 	glutSetWindow(estado.navigateSubwindow);
 	glutPostRedisplay();
-	glutSetWindow(estado.menuSubwindow);
-	glutPostRedisplay();
 }
 
 void displayMainWindow(){
@@ -468,44 +466,31 @@ GLboolean detectaColisao(GLfloat nx, GLfloat nz) {
 	return(GL_TRUE);
 }
 
-
-void teclaUp(float velocidade) {
+//Faz os calculos da colisao e da posicao do homer, recebendo como parametro a velocidade e o sinal(1-Tecla Up, -1-Tecla Down)
+void teclaUpDown(float velocidade, int sinal) {
 	GLfloat ny, nx;
-	ny = modelo.objecto.pos.y + cos(modelo.objecto.dir)*velocidade;
-	nx = modelo.objecto.pos.x + sin(-modelo.objecto.dir)*velocidade;
-
+	//Calcula a possivel nova posicao do homer
+	ny = modelo.objecto.pos.y + cos(modelo.objecto.dir)*velocidade * sinal;
+	nx = modelo.objecto.pos.x + sin(-modelo.objecto.dir)*velocidade * sinal;
+	
+	//Calcula a distancia percorrida até essa nova posicao
 	GLfloat km_temp = sqrt(pow(ny - modelo.objecto.pos.y, 2) + pow(nx - modelo.objecto.pos.x, 2));
-
-	if (!detectaColisao(ny + cos(modelo.objecto.dir)*OBJECTO_RAIO, nx + sin(-modelo.objecto.dir)*OBJECTO_RAIO) &&
-		!detectaColisao(ny + cos(modelo.objecto.dir + M_PI / 4)*OBJECTO_RAIO, nx + sin(-modelo.objecto.dir + M_PI / 4)*OBJECTO_RAIO) &&
-		!detectaColisao(ny + cos(modelo.objecto.dir - M_PI / 4)*OBJECTO_RAIO, nx + sin(-modelo.objecto.dir - M_PI / 4)*OBJECTO_RAIO)) {
+	//Deteta a colisao do homer
+	if (!detectaColisao(ny + cos(modelo.objecto.dir)*OBJECTO_RAIO*sinal, nx + sin(-modelo.objecto.dir)*OBJECTO_RAIO*sinal) &&
+		!detectaColisao(ny + cos(modelo.objecto.dir + M_PI / 4)*OBJECTO_RAIO*sinal, nx + sin(-modelo.objecto.dir + M_PI / 4)*OBJECTO_RAIO*sinal) &&
+		!detectaColisao(ny + cos(modelo.objecto.dir - M_PI / 4)*OBJECTO_RAIO*sinal, nx + sin(-modelo.objecto.dir - M_PI / 4)*OBJECTO_RAIO*sinal)) {
 		
+		//Atualiza a camara
 		estado.camera.center[0] = modelo.objecto.pos.x;
 		estado.camera.center[1] = modelo.objecto.pos.y;
 		estado.camera.center[2] = modelo.objecto.pos.z;
 
+		//Atualiza a distancia percorrida
 		modelo.km += km_temp/100;
 	}
 }
 
-void teclaDown(float velocidade) {
-	GLfloat ny, nx;
-	ny = modelo.objecto.pos.y - cos(modelo.objecto.dir)*velocidade;
-	nx = modelo.objecto.pos.x - sin(-modelo.objecto.dir)*velocidade;
 
-	GLfloat km_temp = sqrt(pow(ny - modelo.objecto.pos.y, 2) + pow(nx - modelo.objecto.pos.x, 2));
-
-	if (!detectaColisao(ny, nx) &&
-		!detectaColisao(ny - cos(modelo.objecto.dir + M_PI / 4)*OBJECTO_RAIO, nx - sin(-modelo.objecto.dir + M_PI / 4)*OBJECTO_RAIO) &&
-		!detectaColisao(ny - cos(modelo.objecto.dir - M_PI / 4)*OBJECTO_RAIO, nx - sin(-modelo.objecto.dir - M_PI / 4)*OBJECTO_RAIO)) {
-
-		estado.camera.center[0] = modelo.objecto.pos.x;
-		estado.camera.center[1] = modelo.objecto.pos.y;
-		estado.camera.center[2] = modelo.objecto.pos.z;
-
-		modelo.km += km_temp/100;
-	}	
-}
 
 void timer(int value) {
 	GLboolean andar = GL_FALSE;
@@ -529,11 +514,11 @@ void timer(int value) {
 	modelo.prev = curr;
 
 	if (estado.teclas.up) {
-		teclaUp(velocidade);
+		teclaUpDown(velocidade, 1);
 		andar = GL_TRUE;
 	}
 	if (estado.teclas.down) {
-		teclaDown(velocidade);
+		teclaUpDown(velocidade, -1);
 		andar = GL_TRUE;
 	}
 	
@@ -581,19 +566,6 @@ void putFoco() {
 	glLightf(GL_LIGHT1, GL_SPOT_CUTOFF, 45.0); // qualquer valor entre 0.0 e 90.0 graus
 }
 
-void desenhaSolo() {
-#define STEP 10
-	glBegin(GL_QUADS);
-	glNormal3f(0, 0, 1);
-	for (int i = -300; i<300; i += STEP)
-		for (int j = -300; j<300; j += STEP) {
-			glVertex2f(i, j);
-			glVertex2f(i + STEP, j);
-			glVertex2f(i + STEP, j + STEP);
-			glVertex2f(i, j + STEP);
-		}
-	glEnd();
-}
 
 
 void desenhaNormal(GLdouble x, GLdouble y, GLdouble z, GLdouble normal[], tipo_material mat) {
@@ -625,7 +597,7 @@ void desenhaNormal(GLdouble x, GLdouble y, GLdouble z, GLdouble normal[], tipo_m
 
 int getModel(string nome) {
 	for (int i = 0; i < NUM_MODELS_POIS; i++) {
-		if (nome == modelo.poi[i].nome) {
+		if (nome == modelo.modelos3D[i].nome) {
 			return i;
 		}
 	}
@@ -635,15 +607,15 @@ int getModel(string nome) {
 void desenhaModelo(int i) {
 	int id = getModel(grafo.obterPonto(i).nome);
 	if (id != -1) {
-		mdlviewer_display(modelo.poi[id].model);
+		mdlviewer_display(modelo.modelos3D[id].model);
 	}else if (id == ESCOLA_ID) {
 		glScalef(0.05, 0.05, 0.05);
 		glTranslatef(5.0, 5.0, 0);
-		mdlviewer_display(modelo.poi[id].model);
+		mdlviewer_display(modelo.modelos3D[id].model);
 	}else {
 		glRotatef(180, 1, 0, 0);
-		glTranslatef(0, 0, modelo.poi[PREDIO_ID].altitude);
-		mdlviewer_display(modelo.poi[PREDIO_ID].model);
+		glTranslatef(0, 0, modelo.modelos3D[PREDIO_ID].altitude);
+		mdlviewer_display(modelo.modelos3D[PREDIO_ID].model);
 	}
 }
 
@@ -711,17 +683,14 @@ void desenhaGrafo() {
 		Ponto no = grafo.obterPonto(i);
 		if (no.visitar) {
 			dGraph.desenhaNo(no, textures.rotundaVisita);
-		}
-		else {
+		}else {
 			dGraph.desenhaNo(no, textures.rotunda);
 		}
-
 	}
 
-
 	for (int i = 0; i < grafo.quantidadeLigacoes(); i++) {
-		desenhaArco(grafo.obterLigacao(i), textures.chao, modelo.poi[CANDEEIRO_ID].model);
-		desenhaElemLigaInicial(grafo.obterLigacao(i), textures.chao, modelo.poi[STOP_ID].model);
+		desenhaArco(grafo.obterLigacao(i), textures.chao, modelo.modelos3D[CANDEEIRO_ID].model);
+		desenhaElemLigaInicial(grafo.obterLigacao(i), textures.chao, modelo.modelos3D[STOP_ID].model);
 		dGraph.desenhaElemLigaFinal(grafo.obterLigacao(i), textures.chao);
 
 	}
@@ -909,7 +878,8 @@ void displayTopWindow() {
 	glPopMatrix();
 
 	material(slate);
-	desenhaSolo();
+	DrawGraph dGraph = DrawGraph();
+	dGraph.desenhaSolo();
 	desenhaGrafo();
 
 	glutSwapBuffers();
@@ -1030,15 +1000,14 @@ void Special(int key, int x, int y) {
 			estado.camera.dist++;
 		break;
 	case GLUT_KEY_PAGE_DOWN:
-		if (estado.camera.dist>5)
+		if (estado.camera.dist>1)
 			estado.camera.dist--;
 		break;
 	}
 }
 
 // Callback para interaccao via teclas especiais (largar na tecla)
-void SpecialKeyUp(int key, int x, int y)
-{
+void SpecialKeyUp(int key, int x, int y){
 	switch (key) {
 	case GLUT_KEY_UP: estado.teclas.up = GL_FALSE;
 		break;
@@ -1228,29 +1197,29 @@ void mouse(int btn, int state, int x, int y) {
 }
 
 void initModelos() {
-	modelo.poi[PREDIO_ID].altitude = 1.1;
-	modelo.poi[PONTE_ID].altitude = -0.85;
-	modelo.poi[ESCOLA_ID].altitude = -1.09;
-	modelo.poi[COMBOIO_ID].altitude = -0.53;
-	modelo.poi[FABRICA_ID].altitude = -1.2;
-	modelo.poi[MAGAZIN_ID].altitude = -1.2;
-	modelo.poi[MAGAZIN_ID].altitude = -1.2;
+	modelo.modelos3D[PREDIO_ID].altitude = 1.1;
+	modelo.modelos3D[PONTE_ID].altitude = -0.85;
+	modelo.modelos3D[ESCOLA_ID].altitude = -1.09;
+	modelo.modelos3D[COMBOIO_ID].altitude = -0.53;
+	modelo.modelos3D[FABRICA_ID].altitude = -1.2;
+	modelo.modelos3D[MAGAZIN_ID].altitude = -1.2;
+	modelo.modelos3D[MAGAZIN_ID].altitude = -1.2;
 
-	mdlviewer_init("Modelos/magazin.mdl", modelo.poi[MAGAZIN_ID].model);
-	modelo.poi[MAGAZIN_ID].nome = "Ponto5";
-	mdlviewer_init("Modelos/escola.mdl", modelo.poi[ESCOLA_ID].model);
-	modelo.poi[ESCOLA_ID].nome = "Ponto4";
-	mdlviewer_init("Modelos/fabrica.mdl", modelo.poi[FABRICA_ID].model);
-	modelo.poi[FABRICA_ID].nome = "Ponto3";
-	mdlviewer_init("Modelos/ponte.mdl", modelo.poi[PONTE_ID].model);
-	modelo.poi[PONTE_ID].nome = "Ponto1";
-	mdlviewer_init("Modelos/predio.mdl", modelo.poi[PREDIO_ID].model);
-	modelo.poi[PREDIO_ID].nome = "predio";
-	mdlviewer_init("Modelos/comboio.mdl", modelo.poi[COMBOIO_ID].model);
-	modelo.poi[COMBOIO_ID].nome = "Ponto2";
+	mdlviewer_init("Modelos/magazin.mdl", modelo.modelos3D[MAGAZIN_ID].model);
+	modelo.modelos3D[MAGAZIN_ID].nome = "Ponto5";
+	mdlviewer_init("Modelos/escola.mdl", modelo.modelos3D[ESCOLA_ID].model);
+	modelo.modelos3D[ESCOLA_ID].nome = "Ponto4";
+	mdlviewer_init("Modelos/fabrica.mdl", modelo.modelos3D[FABRICA_ID].model);
+	modelo.modelos3D[FABRICA_ID].nome = "Ponto3";
+	mdlviewer_init("Modelos/ponte.mdl", modelo.modelos3D[PONTE_ID].model);
+	modelo.modelos3D[PONTE_ID].nome = "Ponto1";
+	mdlviewer_init("Modelos/predio.mdl", modelo.modelos3D[PREDIO_ID].model);
+	modelo.modelos3D[PREDIO_ID].nome = "predio";
+	mdlviewer_init("Modelos/comboio.mdl", modelo.modelos3D[COMBOIO_ID].model);
+	modelo.modelos3D[COMBOIO_ID].nome = "Ponto2";
 
-	mdlviewer_init("Modelos/stop_sign.mdl", modelo.poi[STOP_ID].model);
-	mdlviewer_init("Modelos/streetLight.mdl", modelo.poi[CANDEEIRO_ID].model);
+	mdlviewer_init("Modelos/stop_sign.mdl", modelo.modelos3D[STOP_ID].model);
+	mdlviewer_init("Modelos/streetLight.mdl", modelo.modelos3D[CANDEEIRO_ID].model);
 		
 }
 

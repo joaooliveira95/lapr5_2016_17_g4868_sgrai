@@ -170,7 +170,7 @@ typedef struct Modelo {
 	GLuint        xMouse;
 	GLuint        yMouse;
 	StudioModel   personagem;
-	Poi   poi[NUM_MODELS_POIS];
+	Poi   modelos3D[NUM_MODELS_POIS];
 	GLboolean     andar;
 	GLuint        prev;
 	float			  km;

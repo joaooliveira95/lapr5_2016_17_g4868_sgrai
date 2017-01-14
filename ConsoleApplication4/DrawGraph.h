@@ -30,6 +30,7 @@ public:
 	void desenhaElemLigaFinal(Ligacao arco, glTexture textura);
 	void desenhaChao(GLfloat xi, GLfloat yi, GLfloat zi, GLfloat xf, GLfloat yf, GLfloat zf, glTexture textura);
 	void desenhaChaoRedondo(float largura, GLfloat x0, GLfloat y0, GLfloat z, glTexture textura);
+	void desenhaSolo();
 
 private:
 	void CrossProduct(GLdouble v1[], GLdouble v2[], GLdouble cross[]);

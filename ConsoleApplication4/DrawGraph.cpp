@@ -138,3 +138,18 @@ GLdouble  DrawGraph:: VectorNormalize(GLdouble v[]){
 
 	return length;
 }
+
+void DrawGraph:: desenhaSolo() {
+#define STEP 10
+	glBegin(GL_QUADS);
+	glNormal3f(0, 0, 1);
+	for (int i = -300; i<300; i += STEP)
+		for (int j = -300; j<300; j += STEP) {
+			glVertex2f(i, j);
+			glVertex2f(i + STEP, j);
+			glVertex2f(i + STEP, j + STEP);
+			glVertex2f(i, j + STEP);
+		}
+	glEnd();
+}
+
