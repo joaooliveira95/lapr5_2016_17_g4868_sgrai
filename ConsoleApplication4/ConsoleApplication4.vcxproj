@@ -21,9 +21,7 @@
   <ItemGroup>
     <ClInclude Include="ConsolaMenu.h" />
     <ClInclude Include="DrawGraph.h" />
-    <ClInclude Include="DrawWeather.h" />
     <ClInclude Include="Grafo.h" />
-    <ClInclude Include="grafos.h" />
     <ClInclude Include="Import3DS\GLTexture.h" />
     <ClInclude Include="Import3DS\jconfig.h" />
     <ClInclude Include="Import3DS\jmorecfg.h" />
@@ -36,12 +34,12 @@
     <ClInclude Include="source.h" />
     <ClInclude Include="studio.h" />
     <ClInclude Include="TextureLoader.h" />
+    <ClInclude Include="Weather.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ConsolaMenu.cpp" />
     <ClCompile Include="DrawGraph.cpp" />
     <ClCompile Include="Grafo.cpp" />
-    <ClCompile Include="grafos.cpp" />
     <ClCompile Include="Import3DS\GLTexture.cpp" />
     <ClCompile Include="Import3DS\Model_3DS.cpp" />
     <ClCompile Include="Import3DS\readjpeg.c" />
@@ -53,6 +51,7 @@
     <ClCompile Include="studio_render.cpp" />
     <ClCompile Include="studio_utils.cpp" />
     <ClCompile Include="TextureLoader.cpp" />
+    <ClCompile Include="Weather.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

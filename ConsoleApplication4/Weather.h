@@ -1,4 +1,5 @@
 #pragma once
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -15,24 +16,6 @@
 #define	HAIL	2
 
 
-float slowdown = 2.0;
-float velocity = -100.0;
-//default zoom -40
-float zoom = -10;
-float pan = 0.0;
-float tilt = 0.0;
-float hailsize = 0.02;
-
-int loop;
-int fall;
-
-//floor colors
-float r = 0.0;
-float g = 1.0;
-float b = 0.0;
-float ground_points[21][21][3];
-float ground_colors[21][21][4];
-float accum = -10.0;
 
 typedef struct {
 	// Life
@@ -53,16 +36,39 @@ typedef struct {
 	float gravity;
 }particles;
 
-// Paticle System
-particles par_sys[MAX_PARTICLES];
 
-class wheather
+class Weather
 {
-public:
-	wheather();
-	~wheather();
+	float slowdown = 2.0;
+	float velocity = -100.0;
+	//default zoom -40
+	float zoom = -10;
+	float pan = 0.0;
+	float tilt = 0.0;
+	float hailsize = 0.02;
 
-	void wheatherMain();
-private:
+	int fall;
+
+	//floor colors
+	float r = 0.0;
+	float g = 1.0;
+	float b = 0.0;
+	float ground_points[21][21][3];
+	float ground_colors[21][21][4];
+	float accum = -10.0;
+
+	//Particle System
+	particles par_sys[MAX_PARTICLES];
+public:
+	Weather();
+	~Weather();
+	void initParticles(int i);
+	void drawRain();
+	void drawHail();
+	void drawSnow();
+
+	int getFall();
+	void setFall(int i);
 
 };
+

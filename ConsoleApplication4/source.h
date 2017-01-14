@@ -13,6 +13,7 @@
 #include "mdlviewer.h"
 #include "mathlib.h"
 #include "Import3DS\Model_3DS.h"
+#include "Weather.h"
 #include <AL\alut.h>
 
 #define OBJECTO_RAIO		    0.12
