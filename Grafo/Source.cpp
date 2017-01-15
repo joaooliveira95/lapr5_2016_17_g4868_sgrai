@@ -325,6 +325,18 @@ void desenhaArco(Ligacao arco, glTexture textura, StudioModel candeeiro) {
 }
 
 
+GLboolean inArea(GLfloat lim, GLfloat x, GLfloat y) {
+
+	//Valida se o Homer está dentro do nó de raio = largura, centrado em (X,y)
+	//Se estiver devolve True e atualiza nextZ ( altura do Homer)
+	if (pow(x - modelo.objecto.pos.x, 2) + pow(y - modelo.objecto.pos.y, 2) <= pow(lim, 2)) {
+		return true;
+	}
+	return false;
+}
+
+
+
 GLboolean inAreaNo(Ponto no, GLfloat ny, GLfloat nx, int i) {
 	float largura = no.largura;
 	float x = no.longitude;
@@ -601,9 +613,9 @@ void desenhaNormal(GLdouble x, GLdouble y, GLdouble z, GLdouble normal[], tipo_m
 	glEnable(GL_LIGHTING);
 }
 
-int getModel(string nome) {
+int getModel(string categoria) {
 	for (int i = 0; i < NUM_MODELS_POIS; i++) {
-		if (nome == modelo.modelos3D[i].nome) {
+		if (categoria == modelo.modelos3D[i].nome) {
 			return i;
 		}
 	}
@@ -611,8 +623,11 @@ int getModel(string nome) {
 }
 
 void desenhaModelo(int i) {
-	int id = getModel(grafo.obterPonto(i).nome);
+	int id = getModel(grafo.obterPonto(i).categoria);
 	if (id != -1) {
+		if (id == 0) {
+			glRotatef(180, 1, 1, 0);
+		}
 		mdlviewer_display(modelo.modelos3D[id].model);
 	}
 	else if (id == ESCOLA_ID) {
@@ -621,7 +636,7 @@ void desenhaModelo(int i) {
 		mdlviewer_display(modelo.modelos3D[id].model);
 	}
 	else {
-		glRotatef(180, 1, 0, 0);
+		glRotatef(180, 1, 1, 0);
 		glTranslatef(0, 0, modelo.modelos3D[PREDIO_ID].altitude);
 		mdlviewer_display(modelo.modelos3D[PREDIO_ID].model);
 	}
@@ -679,7 +694,8 @@ void desenhaGrafo() {
 		glDisable(GL_LIGHTING);
 		glEnable(GL_TEXTURE_2D);
 
-		//desenhaModelo(i);
+		desenhaModelo(i);
+		
 		//glPushMatrix();
 		//modelo.m3ds.Draw();
 		//glPopMatrix();
@@ -698,10 +714,10 @@ void desenhaGrafo() {
 	}
 
 	for (int i = 0; i < grafo.quantidadeLigacoes(); i++) {
-		desenhaArco(grafo.obterLigacao(i), textures.chao, modelo.modelos3D[CANDEEIRO_ID].model);
-		desenhaElemLigaInicial(grafo.obterLigacao(i), textures.chao, modelo.modelos3D[STOP_ID].model);
-		dGraph.desenhaElemLigaFinal(grafo.obterLigacao(i), textures.chao);
-
+			desenhaArco(grafo.obterLigacao(i), textures.chao, modelo.modelos3D[CANDEEIRO_ID].model);
+			desenhaElemLigaInicial(grafo.obterLigacao(i), textures.chao, modelo.modelos3D[STOP_ID].model);
+			dGraph.desenhaElemLigaFinal(grafo.obterLigacao(i), textures.chao);
+		
 	}
 	glPopMatrix();
 }
@@ -1222,17 +1238,24 @@ void initModelos() {
 	modelo.modelos3D[MAGAZIN_ID].altitude = -1.2;
 
 	mdlviewer_init("Modelos/magazin.mdl", modelo.modelos3D[MAGAZIN_ID].model);
-	modelo.modelos3D[MAGAZIN_ID].nome = "Ponto5";
+	modelo.modelos3D[MAGAZIN_ID].nome = "Magazin";
 	mdlviewer_init("Modelos/escola.mdl", modelo.modelos3D[ESCOLA_ID].model);
-	modelo.modelos3D[ESCOLA_ID].nome = "Ponto4";
+	modelo.modelos3D[ESCOLA_ID].nome = "Escola";
 	mdlviewer_init("Modelos/fabrica.mdl", modelo.modelos3D[FABRICA_ID].model);
-	modelo.modelos3D[FABRICA_ID].nome = "Ponto3";
+	modelo.modelos3D[FABRICA_ID].nome = "Fabrica";
 	mdlviewer_init("Modelos/ponte.mdl", modelo.modelos3D[PONTE_ID].model);
-	modelo.modelos3D[PONTE_ID].nome = "Ponto1";
+	modelo.modelos3D[PONTE_ID].nome = "Ponte";
 	mdlviewer_init("Modelos/predio.mdl", modelo.modelos3D[PREDIO_ID].model);
-	modelo.modelos3D[PREDIO_ID].nome = "predio";
+	modelo.modelos3D[PREDIO_ID].nome = "Predio";
 	mdlviewer_init("Modelos/comboio.mdl", modelo.modelos3D[COMBOIO_ID].model);
-	modelo.modelos3D[COMBOIO_ID].nome = "Ponto2";
+	modelo.modelos3D[COMBOIO_ID].nome = "Comboio";
+	mdlviewer_init("Modelos/monumento.mdl", modelo.modelos3D[MONUMENTO_ID].model);
+	modelo.modelos3D[MONUMENTO_ID].nome = "Monumento";
+	mdlviewer_init("Modelos/parque.mdl", modelo.modelos3D[PARQUE_ID].model);
+	modelo.modelos3D[PARQUE_ID].nome = "Parque";
+	mdlviewer_init("Modelos/restaurante.mdl", modelo.modelos3D[RESTAURANTE_ID].model);
+	modelo.modelos3D[PARQUE_ID].nome = "Restaurante";
+
 
 	mdlviewer_init("Modelos/stop_sign.mdl", modelo.modelos3D[STOP_ID].model);
 	mdlviewer_init("Modelos/streetLight.mdl", modelo.modelos3D[CANDEEIRO_ID].model);

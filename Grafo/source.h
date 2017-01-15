@@ -39,7 +39,12 @@
 #define MAGAZIN_ID				5
 #define STOP_ID					6
 #define CANDEEIRO_ID			7
-#define NUM_MODELS_POIS			8
+#define RESTAURANTE_ID			8
+#define PARQUE_ID				9
+#define MONUMENTO_ID			10
+#define NUM_MODELS_POIS			11
+
+#define RENDER_RADIUS 10
 
 
 #define EIXO_X		1

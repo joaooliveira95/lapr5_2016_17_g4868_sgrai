@@ -94,7 +94,7 @@ void  DrawGraph::desenhaChaoRedondo(float largura, GLfloat x0, GLfloat y0, GLflo
 	double ang = 0;
 	glNormal3f(0, 0, 1);
 	float coordx = 0.0, coordy = 0.0;
-	for (int j = 0; j < 10; j++) {
+
 	for (int i = 0; i < n; i++) {
 		x = x0 + largura * cos(ang);
 		y = y0 + largura * sin(ang);
@@ -103,10 +103,10 @@ void  DrawGraph::desenhaChaoRedondo(float largura, GLfloat x0, GLfloat y0, GLflo
 		coordy = sin(ang)*0.5 + 0.5;
 
 		glTexCoord2f(coordx, coordy);
-		glVertex3f(x, y, z + 0.01*j);
+		glVertex3f(x, y, z + 0.01);
 		ang += alfa;
 	}
-}
+
 	glEnd();
 	glBindTexture(GL_TEXTURE_2D, NULL);
 	glDisable(GL_TEXTURE_2D);
