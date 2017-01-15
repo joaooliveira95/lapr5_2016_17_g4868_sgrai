@@ -25,14 +25,14 @@ using namespace std;
 
 class Ponto {
 public:
-	string nome, descricao, abertura, fecho;
+	string nome, descricao, categoria, abertura, fecho;
 	double latitude, longitude, altitude, largura;
 	bool visitar;
 };
 
 class Ligacao {
 public:
-	string nome = "Nome";
+	string nome;
 	Ponto origem, destino;
 	double distancia, largura;
 	bool visitar;
@@ -69,8 +69,8 @@ public:
 	string normaliza(string str);
 	json::value httpPost(string username, string password);
 	json::value httpGetJSON(string url);
-	void adicionarPonto(string nome, string descricao, double latitude, double longitude, double altitude, string abertura, string fecho);
-	void adicionarLigacao(string origem, string destino, double distancia, double largura);
+	void adicionarPonto(string nome, string descricao, string categoria, double latitude, double longitude, double altitude, string abertura, string fecho);
+	void adicionarLigacao(string nome, string origem, string destino, double distancia, double largura);
 
 	bool obterAcesso(string username, string password);
 	vector<string> obterCidades();

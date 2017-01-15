@@ -78,9 +78,10 @@ Ligacao Grafo::obterLigacao(int indice) {
 	return ligacoes.at(indice);
 }
 
-void Grafo::adicionarPonto(string nome, string descricao, double latitude, double longitude, double altitude, string abertura, string fecho) {
+void Grafo::adicionarPonto(string nome, string descricao, string categoria, double latitude, double longitude, double altitude, string abertura, string fecho) {
 	Ponto ponto;
 	ponto.nome = nome;
+	ponto.categoria = categoria;
 	ponto.descricao = descricao;
 	ponto.abertura = abertura;
 	ponto.fecho = fecho;
@@ -92,9 +93,16 @@ void Grafo::adicionarPonto(string nome, string descricao, double latitude, doubl
 	pontos.push_back(ponto);
 }
 
-void Grafo::adicionarLigacao(string origem, string destino, double distancia, double largura) {
+void Grafo::adicionarLigacao(string nome, string origem, string destino, double distancia, double largura) {
+	for (unsigned int i = 0; i < ligacoes.size(); i++) {
+		auto ligacao = ligacoes[i];
+		if (ligacao.origem.nome == destino && ligacao.destino.nome == origem) {
+			ligacao.bidireccional = true;
+			return;
+		}
+	}
 	Ligacao ligacao;
-	ligacao.nome = obterPonto(destino).nome;// +obterPonto(destino).nome;
+	ligacao.nome = nome;
 	ligacao.origem = obterPonto(origem);
 	ligacao.destino = obterPonto(destino);
 	ligacao.distancia = distancia;
@@ -172,20 +180,22 @@ void Grafo::carregarGrafo(string cidade) {
 	for (unsigned int i = 0; i < pontos.size(); i++) {
 		auto ponto = pontos[i];
 		string nome = utility::conversions::to_utf8string(ponto.at(U("nome")).as_string());
+		string categoria = utility::conversions::to_utf8string(ponto.at(U("categoria")).as_string());
 		string descricao = utility::conversions::to_utf8string(ponto.at(U("descricao")).as_string());
 		double latitude = ponto.at(U("latitude")).as_double()*SCALE_GRAPH;
 		double longitude = ponto.at(U("longitude")).as_double()*SCALE_GRAPH;
 		double altitude = ponto.at(U("altitude")).as_double();
-		adicionarPonto(nome, descricao, latitude, longitude, altitude, "9h00", "18h00");
+		adicionarPonto(nome, descricao, categoria, latitude, longitude, altitude, "9h00", "18h00");
 	}
 	json::value ligacoes = httpGetJSON("api/cidade/" + cidade + "/ligacao");
 	for (unsigned int i = 0; i < ligacoes.size(); i++) {
 		auto ligacao = ligacoes[i];
+		string nome = utility::conversions::to_utf8string(ligacao.at(U("nome")).as_string());
 		string origem = utility::conversions::to_utf8string(ligacao.at(U("origem")).as_string());
 		string destino = utility::conversions::to_utf8string(ligacao.at(U("destino")).as_string());
 		double distancia = ligacao.at(U("distancia")).as_double()*SCALE_GRAPH;
 		double largura = ligacao.at(U("largura")).as_double();
-		adicionarLigacao(origem, destino, distancia, largura);
+		adicionarLigacao(nome, origem, destino, distancia, largura);
 	}
 }
 
