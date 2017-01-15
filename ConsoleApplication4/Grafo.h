@@ -50,7 +50,9 @@ public:
 
 class Grafo {
 private:
-	string urlAPI = "http://127.0.0.1:8000/";
+	string urlAPI = "http://uvm152.dei.isep.ipp.pt/";
+	string token = "";
+	string tokenTipo = "Bearer";
 	vector<Ponto> pontos;
 	vector<Ligacao> ligacoes;
 	Visita visita;
@@ -62,9 +64,8 @@ public:
 	Ponto obterPonto(string nome);
 	Ligacao obterLigacao(string origem, string destino);
 	string normaliza(string str);
+	json::value httpPost(string username, string password);
 	json::value httpGetJSON(string url);
-	bool visitaPonto(string nome);
-	bool visitaLigacao(string origem, string destino);
 	void adicionarPonto(string nome, string descricao, double latitude, double longitude, double altitude, string abertura, string fecho);
 	void adicionarLigacao(string origem, string destino, double distancia, double largura);
 
